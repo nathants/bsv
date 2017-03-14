@@ -36,10 +36,9 @@ static inline int empty(const char * s) {
 int main(int argc, const char **argv) {
     char fields[64];
     char line[LINE_BYTES];
-    char out_line[LINE_BYTES];
     char *columns[COLUMN_BYTES];
     char delimiter, *line_ptr, *column;
-    int i, offset, len, add_delimeter, num_fields=0;
+    int i, add_delimeter, num_fields=0;
 
     if (argc < 3)
         showusage();
@@ -73,25 +72,22 @@ int main(int argc, const char **argv) {
 
             /* build output line */
             add_delimeter = 0;
-            for (offset = i = 0; i < num_fields; i++) {
+            for (i = 0; i < num_fields; i++) {
                 column = columns[fields[i]];
-                len = strlen(column);
                 if (!empty(column)) {
 
                     /* add delimeter */
                     if (i < num_fields && add_delimeter)
-                        strcpy(&out_line[offset++], &delimiter);
+                        fwrite(&delimiter, sizeof(char), 1, stdout);
 
                     /* add column */
-                    strcpy(&out_line[offset], column);
-                    offset += len;
+                    fwrite(column, sizeof(char), strlen(column), stdout);
                     add_delimeter = 1;
                 }
             }
 
             /* print output line */
-            strcpy(&out_line[offset], "\0");
-            printf("%s\n", out_line);
+            fwrite("\n", sizeof(char), 1, stdout);
         }
     }
     return 0;
