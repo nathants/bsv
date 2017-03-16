@@ -9,7 +9,7 @@ stdinpath = '/tmp/%s.stdin' % hashlib.md5(__file__.encode('ascii')).hexdigest()
 stdoutpath = '/tmp/%s.stdout' % hashlib.md5(__file__.encode('ascii')).hexdigest()
 
 def unindent(text):
-    return '\n'.join([x.lstrip() for x in text.splitlines()])
+    return '\n'.join([x.lstrip() for x in text.splitlines()]) + '\n'
 
 def run(stdin, *args):
     with open(stdinpath, 'w') as f:
@@ -29,7 +29,7 @@ MAX_LINE_BYTES = 8192
 @composite
 def inputs(draw):
     num_columns = draw(integers(min_value=1, max_value=12))
-    column = text(string.ascii_lowercase, min_size=4)
+    column = text(string.ascii_lowercase)
     line = lists(column, min_size=num_columns, max_size=num_columns)
     lines = draw(lists(line, min_size=3))
     csv = '\n'.join([','.join(x) for x in lines]) + '\n'
@@ -50,7 +50,9 @@ def expected(fields, csv):
             if field > 64:
                 return
             try:
-                res.append(columns[field])
+                val = columns[field]
+                if val:
+                    res.append(val)
             except IndexError:
                 pass
         result.append(','.join(res))
@@ -85,6 +87,19 @@ def test_double_digits():
     stdin = "1,2,3,4,5,6,7,8,9,10"
     stdout = "10\n"
     assert stdout == run(stdin, './rcut , 10')
+
+def test_repeats():
+    stdin = """
+    x,y
+    1,2,3
+    a,b,c,d
+    """
+    stdout = """
+    x,x,x
+    1,1,1
+    a,d,a,a
+    """
+    assert unindent(stdout) == run(stdin, './rcut , 1,4,1,1')
 
 def test_single_column():
     stdin = """
