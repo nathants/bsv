@@ -25,12 +25,12 @@ static int empty(const char * s) {
 }
 
 int main(int argc, const char **argv) {
-    char delimiter, *line_ptr, *field, *fields, *column, line[MAX_LINE_BYTES], *columns[MAX_COLUMNS];
+    char delimiter[2], *line_ptr, *field, *fields, *column, line[MAX_LINE_BYTES], *columns[MAX_COLUMNS];
     int c, i, add_delimeter, num_columns=0, column_numbers[MAX_COLUMNS];
     /* parse argv */
     if (argc < 3)
         showusage();
-    delimiter = argv[1][0];
+    delimiter[0] = argv[1][0];
     fields = argv[2];
     while ((field = strsep(&fields, ","))) {
         c = atoi(field);
@@ -42,7 +42,7 @@ int main(int argc, const char **argv) {
     /* do the work */
     while (fgets(line, sizeof(line), stdin)) {
         if (empty(line)) {
-            fwrite("\n", sizeof(char), 1, stdout);
+            fputs("\n", stdout);
             continue;
         }
         /* if (strlen(line) == sizeof(line) - 1) { fprintf(stderr, "error: encountered a line longer than the max of %d chars\n", MAX_LINE_BYTES); exit(1); } // per line error checking */
@@ -61,11 +61,11 @@ int main(int argc, const char **argv) {
             if (empty(column))
                 continue;
             if (i < num_columns && add_delimeter)
-                fwrite(&delimiter, sizeof(char), 1, stdout);
-            fwrite(column, sizeof(char), strlen(column), stdout);
+                fputs(delimiter, stdout);
+            fputs(column, stdout);
             add_delimeter = 1;
         }
-        fwrite("\n", sizeof(char), 1, stdout);
+        fputs("\n", stdout);
     }
     return 0;
 }
