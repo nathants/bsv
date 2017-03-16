@@ -27,6 +27,7 @@ static int empty(const char * s) {
 int main(int argc, const char **argv) {
     char delimiter, *line_ptr, *field, *fields, *column, line[MAX_LINE_BYTES], *columns[MAX_COLUMNS];
     int c, i, add_delimeter, num_columns=0, column_numbers[MAX_COLUMNS];
+    /* parse argv */
     if (argc < 3)
         showusage();
     delimiter = argv[1][0];
@@ -38,32 +39,33 @@ int main(int argc, const char **argv) {
         if (c < 1)                     { fprintf(stderr, "error: fields must be positive, got: %d", c); exit(1); }
         if (num_columns > MAX_COLUMNS) { fprintf(stderr, "error: cannot select more than %d fields\n", MAX_COLUMNS); exit(1); }
     }
+    /* do the work */
     while (fgets(line, sizeof(line), stdin)) {
         if (empty(line)) {
             fwrite("\n", sizeof(char), 1, stdout);
-        } else {
-            /* if (strlen(line) == sizeof(line) - 1) { fprintf(stderr, "error: encountered a line longer than the max of %d chars\n", MAX_LINE_BYTES); exit(1); } // per line error checking */
-            line_ptr = line;
-            line_ptr = strsep (&line_ptr, "\n");
-            for (i = 0; i < MAX_COLUMNS; i++)
-                columns[i] = "";
-            i = 0;
-            while ((column = strsep(&line_ptr, ","))) {
-                columns[i++] = column;
-                /* if (i > MAX_COLUMNS) { fprintf(stderr, "error: encountered a line with more than %d columns\n", MAX_COLUMNS); exit(1); } // per line error checking */
-            }
-            add_delimeter = 0;
-            for (i = 0; i < num_columns; i++) {
-                column = columns[column_numbers[i]];
-                if (!empty(column)) {
-                    if (i < num_columns && add_delimeter)
-                        fwrite(&delimiter, sizeof(char), 1, stdout);
-                    fwrite(column, sizeof(char), strlen(column), stdout);
-                    add_delimeter = 1;
-                }
-            }
-            fwrite("\n", sizeof(char), 1, stdout);
+            continue;
         }
+        /* if (strlen(line) == sizeof(line) - 1) { fprintf(stderr, "error: encountered a line longer than the max of %d chars\n", MAX_LINE_BYTES); exit(1); } // per line error checking */
+        line_ptr = line;
+        line_ptr = strsep (&line_ptr, "\n");
+        for (i = 0; i < MAX_COLUMNS; i++)
+            columns[i] = "";
+        i = 0;
+        while ((column = strsep(&line_ptr, ","))) {
+            columns[i++] = column;
+            /* if (i > MAX_COLUMNS) { fprintf(stderr, "error: encountered a line with more than %d columns\n", MAX_COLUMNS); exit(1); } // per line error checking */
+        }
+        add_delimeter = 0;
+        for (i = 0; i < num_columns; i++) {
+            column = columns[column_numbers[i]];
+            if (empty(column))
+                continue;
+            if (i < num_columns && add_delimeter)
+                fwrite(&delimiter, sizeof(char), 1, stdout);
+            fwrite(column, sizeof(char), strlen(column), stdout);
+            add_delimeter = 1;
+        }
+        fwrite("\n", sizeof(char), 1, stdout);
     }
     return 0;
 }
