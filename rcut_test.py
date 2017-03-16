@@ -204,27 +204,29 @@ def test_holes():
     """
     assert unindent(stdout) == run(stdin, './rcut , 1,3,2')
 
-def test_fails_when_lines_too_long():
-    stdin = 'a' * MAX_LINE_BYTES
-    res = shell.run('./rcut , 1,3,2 2>&1', stdin=stdin, warn=True)
-    assert res['exitcode'] == 1
-    assert 'error: encountered a line longer than the max of 8192 chars' == res['output']
-
-def test_fails_when_too_many_columns():
-    stdin = 'a,' * MAX_COLUMNS
-    res = shell.run('./rcut , 1,3,2 2>&1', stdin=stdin, warn=True)
-    assert res['exitcode'] == 1
-    assert 'error: encountered a line with more than 64 columns' == res['output']
-
 def test_fails_when_non_positive_fields():
     stdin = 'a,b,c'
     res = shell.run('./rcut , 0 2>&1', stdin=stdin, warn=True)
     assert res['exitcode'] == 1
     assert 'error: fields must be positive, got: 0' == res['output']
 
-def test_fails_when_too_many_columns():
+def test_fails_when_too_many_fields():
     stdin = 'a,b,c'
     print(list(range(1, MAX_COLUMNS + 1)))
     res = shell.run('./rcut ,', ','.join('1' for _ in range(MAX_COLUMNS + 1)), '2>&1', stdin=stdin, warn=True)
     assert res['exitcode'] == 1
     assert 'error: cannot select more than 64 fields' == res['output']
+
+## this error checking is too expensive at run time, and if the data is clean and regular, you dont need it
+
+# def test_fails_when_lines_too_long():
+#     stdin = 'a' * MAX_LINE_BYTES
+#     res = shell.run('./rcut , 1,3,2 2>&1', stdin=stdin, warn=True)
+#     assert res['exitcode'] == 1
+#     assert 'error: encountered a line longer than the max of 8192 chars' == res['output']
+
+# def test_fails_when_too_many_columns():
+#     stdin = 'a,' * MAX_COLUMNS
+#     res = shell.run('./rcut , 1,3,2 2>&1', stdin=stdin, warn=True)
+#     assert res['exitcode'] == 1
+#     assert 'error: encountered a line with more than 64 columns' == res['output']
