@@ -35,9 +35,10 @@ int main(int argc, const char **argv) {
             fputs("\n", stdout);
             continue;
         }
-        /* if (strlen(line) == sizeof(line) - 1) { fprintf(stderr, "error: encountered a line longer than the max of %d chars\n", MAX_LINE_BYTES); exit(1); } // per line error checking */
+        if (strlen(line) == sizeof(line) - 1) { fprintf(stderr, "error: encountered a line longer than the max of %d chars\n", MAX_LINE_BYTES); exit(1); }
         line_ptr = line;
         first_column = strsep(&line_ptr, ",");
+        if (line_ptr == NULL) { fprintf(stderr, "error: input line with single column: %s", first_column); exit(1); }
         MurmurHash3_x86_32(first_column, strlen(first_column), 0, hash_num);
         sprintf(hash_str, "%d", hash_num[0] % num_buckets);
         fputs(hash_str,     stdout);
