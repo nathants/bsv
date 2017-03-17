@@ -25,19 +25,19 @@ static int empty(const char * s) {
 }
 
 int main(int argc, const char **argv) {
-    char delimiter[2], *line_ptr, *field, *fields, *column, line[MAX_LINE_BYTES], *columns[MAX_COLUMNS];
-    int c, i, add_delimeter, num_columns=0, column_numbers[MAX_COLUMNS];
+    char delimiter[2], *field, *fields, *column, *line_ptr, line[MAX_LINE_BYTES], *columns[MAX_COLUMNS];
+    int field_num, i, add_delimeter, num_fields=0, field_nums[MAX_COLUMNS];
     /* parse argv */
     if (argc < 3)
         showusage();
     delimiter[0] = argv[1][0];
     fields = argv[2];
     while ((field = strsep(&fields, ","))) {
-        c = atoi(field);
-        column_numbers[num_columns++] = c - 1;
-        if (c > MAX_COLUMNS)           { fprintf(stderr, "error: cannot select fields above %d, tried to select: %d\n", MAX_COLUMNS, c); exit(1); }
-        if (c < 1)                     { fprintf(stderr, "error: fields must be positive, got: %d", c); exit(1); }
-        if (num_columns > MAX_COLUMNS) { fprintf(stderr, "error: cannot select more than %d fields\n", MAX_COLUMNS); exit(1); }
+        field_num = atoi(field);
+        field_nums[num_fields++] = field_num - 1;
+        if (field_num > MAX_COLUMNS)           { fprintf(stderr, "error: cannot select fields above %d, tried to select: %d\n", MAX_COLUMNS, field_num); exit(1); }
+        if (field_num < 1)                     { fprintf(stderr, "error: fields must be positive, got: %d", field_num); exit(1); }
+        if (num_fields > MAX_COLUMNS) { fprintf(stderr, "error: cannot select more than %d fields\n", MAX_COLUMNS); exit(1); }
     }
     /* do the work */
     while (fgets(line, sizeof(line), stdin)) {
@@ -56,11 +56,11 @@ int main(int argc, const char **argv) {
             /* if (i > MAX_COLUMNS) { fprintf(stderr, "error: encountered a line with more than %d columns\n", MAX_COLUMNS); exit(1); } // per line error checking */
         }
         add_delimeter = 0;
-        for (i = 0; i < num_columns; i++) {
-            column = columns[column_numbers[i]];
+        for (i = 0; i < num_fields; i++) {
+            column = columns[field_nums[i]];
             if (empty(column))
                 continue;
-            if (i < num_columns && add_delimeter)
+            if (i < num_fields && add_delimeter)
                 fputs(delimiter, stdout);
             fputs(column, stdout);
             add_delimeter = 1;
