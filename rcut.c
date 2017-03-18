@@ -25,8 +25,10 @@ static int empty(const char * s) {
 }
 
 int main(int argc, const char **argv) {
+    /* def and init */
     char delimiter[2], *field, *fields, *column, *line_ptr, line[MAX_LINE_BYTES], *columns[MAX_COLUMNS];
     int field_num, i, j, add_delimeter, num_fields=0, field_nums[MAX_COLUMNS];
+
     /* parse argv */
     if (argc < 3)
         showusage();
@@ -39,8 +41,10 @@ int main(int argc, const char **argv) {
         if (field_num < 1)                     { fprintf(stderr, "error: fields must be positive, got: %d", field_num); exit(1); }
         if (num_fields > MAX_COLUMNS)          { fprintf(stderr, "error: cannot select more than %d fields\n", MAX_COLUMNS); exit(1); }
     }
+
     /* do the work */
     while (fgets(line, sizeof(line), stdin)) {
+        /* empty in empty out */
         if (empty(line)) {
             fputs("\n", stdout);
             continue;
@@ -49,7 +53,7 @@ int main(int argc, const char **argv) {
         line_ptr = line;
         line_ptr = strsep (&line_ptr, "\n");
         for (i = 0; i < MAX_COLUMNS; i++)
-            columns[i] = "";
+            columns[i] = NULL;
         j = 0;
         while ((column = strsep(&line_ptr, ","))) {
             columns[j++] = column;
@@ -58,7 +62,7 @@ int main(int argc, const char **argv) {
         add_delimeter = 0;
         for (i = 0; i < num_fields; i++) {
             column = columns[field_nums[i]];
-            if (empty(column)) { fprintf(stderr, "error: line without enough columns: ", line); for (i = 0; i < j; i++) { fprintf(stderr, "%s%s", columns[i], delimiter); }; fprintf(stderr, " (without final delimiter)\n"); exit(1); }
+            if (column == NULL) { fprintf(stderr, "error: line without %d columns: ", field_nums[i] + 1); for (i = 0; i < j; i++) { if (add_delimeter) fprintf(stderr, "%s", delimiter); fprintf(stderr, "%s", columns[i]); add_delimeter = 1; }; fprintf(stderr, "\n"); exit(1); }
             if (i < num_fields && add_delimeter)
                 fputs(delimiter, stdout);
             fputs(column, stdout);
@@ -66,5 +70,7 @@ int main(int argc, const char **argv) {
         }
         fputs("\n", stdout);
     }
+
+    /* all done */
     return 0;
 }

@@ -15,7 +15,7 @@ def run(stdin, *args):
     with open(stdinpath, 'w') as f:
         f.write(unindent(stdin))
     try:
-        shell.run(*(('cat', stdinpath, '|') + args + ('>', stdoutpath)))
+        shell.run(*(('cat', stdinpath, '|') + args + ('>', stdoutpath)), stream=True)
     except:
         raise AssertionError from None
     with open(stdoutpath) as f:
@@ -31,43 +31,62 @@ def inputs(draw):
     num_columns = draw(integers(min_value=1, max_value=12))
     column = text(string.ascii_lowercase)
     line = lists(column, min_size=num_columns, max_size=num_columns)
-    lines = draw(lists(line, min_size=3))
+    lines = draw(lists(line))
     csv = '\n'.join([','.join(x) for x in lines]) + '\n'
     field = integers(min_value=1, max_value=num_columns)
     fields = draw(lists(field, min_size=1, max_size=num_columns))
     fields = ','.join(map(str, fields))
     return (fields, csv)
 
+@composite
+def inputs_ascending_unique_fields(draw):
+    fields, csv = draw(inputs())
+    fields = ','.join(sorted(set(fields.split(',')), key=int))
+    return (fields, csv)
+
 def expected(fields, csv):
     fields = [int(x) - 1 for x in fields.split(',')]
     result = []
     for line in csv.splitlines():
-        columns = line.split(',')
-        if len(columns) > 64:
-            return
-        res = []
-        for field in fields:
-            if field > 64:
+        if not line.strip():
+            result.append('')
+        else:
+            columns = line.split(',')
+            if len(columns) > 64:
                 return
-            try:
-                val = columns[field]
-                if val:
-                    res.append(val)
-            except IndexError:
-                pass
-        result.append(','.join(res))
+            res = []
+            for field in fields:
+                if field > 64:
+                    return
+                try:
+                    res.append(columns[field])
+                except IndexError:
+                    pass
+            result.append(','.join(res))
     return '\n'.join(result) + '\n'
 
-# @given(inputs())
-# @settings(max_examples=100)
-# def test_props(args):
-#     fields, csv = args
-#     result = expected(fields, csv)
-#     if result:
-#         assert result == run(csv, './rcut ,', fields)
-#     else:
-#         with pytest.raises(AssertionError):
-#             run(csv, './rcut ,', fields)
+@given(inputs())
+@settings(max_examples=100)
+def test_props(args):
+    fields, csv = args
+    result = expected(fields, csv)
+    if result:
+        assert result == run(csv, './rcut ,', fields)
+    else:
+        with pytest.raises(AssertionError):
+            run(csv, './rcut ,', fields)
+
+@given(inputs_ascending_unique_fields())
+@settings(max_examples=100)
+def test_props_compatability(args):
+    fields, csv = args
+    result = expected(fields, csv)
+    if result:
+        assert result == run(csv, './rcut ,', fields)
+        assert result == run(csv, 'cut -d, -f' + fields)
+    else:
+        with pytest.raises(AssertionError):
+            run(csv, './rcut ,', fields)
 
 def test_compatability():
     stdin = """
@@ -84,9 +103,22 @@ def test_compatability():
     assert unindent(stdout) == run(stdin, 'cut -d, -f1,2')
 
 def test_double_digits():
-    stdin = "1,2,3,4,5,6,7,8,9,10"
+    stdin = "1,2,3,4,5,6,7,8,9,10\n"
     stdout = "10\n"
     assert stdout == run(stdin, './rcut , 10')
+
+def test_holes():
+    stdin = """
+    a,b,
+    1,,3
+    x,y,z
+    """
+    stdout = """
+    b,
+    ,3
+    y,z
+    """
+    assert unindent(stdout) == run(stdin, './rcut , 2,3')
 
 def test_repeats():
     stdin = """
@@ -151,21 +183,21 @@ def test_forward():
     stdin = """
     a,b,c,d
     1,2,3
-    x,y
+    x,y,z
     """
     stdout = """
     a,c
     1,3
-    x
+    x,z
     """
     assert unindent(stdout) == run(stdin, './rcut , 1,3')
     stdin = """
-    x,y
+    x,y,z
     1,2,3
     a,b,c,d
     """
     stdout = """
-    x
+    x,z
     1,3
     a,c
     """
@@ -186,38 +218,31 @@ def test_reverse():
     stdin = """
     a,b,c,d
     1,2,3
-    x,y
+    x,y,z
     """
     stdout = """
     c,a
     3,1
-    x
+    z,x
     """
     assert unindent(stdout) == run(stdin, './rcut , 3,1')
     stdin = """
-    x,y
+    x,y,z
     1,2,3
     a,b,c,d
     """
     stdout = """
-    x
+    z,x
     3,1
     c,a
     """
     assert unindent(stdout) == run(stdin, './rcut , 3,1')
 
-def test_holes():
-    stdin = """
-    a,b,c,d
-    1,2,3
-    x,y
-    """
-    stdout = """
-    a,c,b
-    1,3,2
-    x,y
-    """
-    assert unindent(stdout) == run(stdin, './rcut , 1,3,2')
+def test_fails_when_not_enough_columns():
+    stdin = 'a,b,c'
+    res = shell.run('./rcut , 4 2>&1', stdin=stdin, warn=True)
+    assert res['exitcode'] == 1
+    assert 'error: line without 4 columns: a,b,c' == res['output']
 
 def test_fails_when_non_positive_fields():
     stdin = 'a,b,c'
@@ -232,16 +257,14 @@ def test_fails_when_too_many_fields():
     assert res['exitcode'] == 1
     assert 'error: cannot select more than 64 fields' == res['output']
 
-## this error checking is too expensive at run time, and if the data is clean and regular, you dont need it
+def test_fails_when_lines_too_long():
+    stdin = 'a' * MAX_LINE_BYTES
+    res = shell.run('./rcut , 1,3,2 2>&1', stdin=stdin, warn=True)
+    assert res['exitcode'] == 1
+    assert 'error: encountered a line longer than the max of 8192 chars' == res['output']
 
-# def test_fails_when_lines_too_long():
-#     stdin = 'a' * MAX_LINE_BYTES
-#     res = shell.run('./rcut , 1,3,2 2>&1', stdin=stdin, warn=True)
-#     assert res['exitcode'] == 1
-#     assert 'error: encountered a line longer than the max of 8192 chars' == res['output']
-
-# def test_fails_when_too_many_columns():
-#     stdin = 'a,' * MAX_COLUMNS
-#     res = shell.run('./rcut , 1,3,2 2>&1', stdin=stdin, warn=True)
-#     assert res['exitcode'] == 1
-#     assert 'error: encountered a line with more than 64 columns' == res['output']
+def test_fails_when_too_many_columns():
+    stdin = 'a,' * MAX_COLUMNS
+    res = shell.run('./rcut , 1,3,2 2>&1', stdin=stdin, warn=True)
+    assert res['exitcode'] == 1
+    assert 'error: encountered a line with more than 64 columns' == res['output']
