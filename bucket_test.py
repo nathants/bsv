@@ -22,7 +22,7 @@ def run(stdin, *args):
     with open(stdoutpath) as f:
         return f.read()
 
-shell.run('make bucket', stream=True)
+shell.run('make clean && make bucket', stream=True)
 
 MAX_LINE_BYTES = 8192
 

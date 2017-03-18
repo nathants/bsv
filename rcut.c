@@ -34,7 +34,7 @@ int main(int argc, const char **argv) {
         showusage();
     delimiter[0] = argv[1][0];
     fields = argv[2];
-    while ((field = strsep(&fields, ","))) {
+    while ((field = strsep(&fields, &delimiter))) {
         field_num = atoi(field);
         field_nums[num_fields++] = field_num - 1;
         if (field_num > MAX_COLUMNS)           { fprintf(stderr, "error: cannot select fields above %d, tried to select: %d\n", MAX_COLUMNS, field_num); exit(1); }
@@ -55,7 +55,7 @@ int main(int argc, const char **argv) {
         for (i = 0; i < MAX_COLUMNS; i++)
             columns[i] = NULL;
         j = 0;
-        while ((column = strsep(&line_ptr, ","))) {
+        while ((column = strsep(&line_ptr, &delimiter))) {
             columns[j++] = column;
             if (j > MAX_COLUMNS) { fprintf(stderr, "error: encountered a line with more than %d columns\n", MAX_COLUMNS); exit(1); } // per line error checking
         }

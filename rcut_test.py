@@ -21,7 +21,7 @@ def run(stdin, *args):
     with open(stdoutpath) as f:
         return f.read()
 
-shell.run('make rcut', stream=True)
+shell.run('make clean && make rcut', stream=True)
 
 MAX_COLUMNS = 64
 MAX_LINE_BYTES = 8192

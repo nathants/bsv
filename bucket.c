@@ -53,7 +53,7 @@ int main(int argc, const char **argv) {
         if (strlen(line) == sizeof(line) - 1) { fprintf(stderr, "error: encountered a line longer than the max of %d chars\n", MAX_LINE_BYTES); exit(1); }
         line_ptr = line;
         line_ptr = strsep (&line_ptr, "\n");
-        first_column = strsep(&line_ptr, ",");
+        first_column = strsep(&line_ptr, &delimiter);
         MurmurHash3_x86_32(first_column, strlen(first_column), 0, hash_num);
         sprintf(hash_str, "%d", mod(hash_num[0], num_buckets));
         fputs(hash_str, stdout);
@@ -63,7 +63,7 @@ int main(int argc, const char **argv) {
             fputs(delimiter, stdout);
             fputs(line_ptr, stdout);
         }
-        fputs("\n",     stdout);
+        fputs("\n", stdout);
     }
 
     /* all done */
