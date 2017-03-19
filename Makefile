@@ -1,15 +1,20 @@
 .PHONY: all clean
 
-all: rcut bucket partition
+CFLAGS=-Wall -O3 -march=native -mtune=native
+
+all: rcut bucket partition gen-csv
 
 partition:
-	gcc -O3 -Wall -finline-functions partition.c -o partition
+	gcc $(CFLAGS) partition.c -o partition
 
 rcut:
-	gcc -O3 -Wall -finline-functions rcut.c -o rcut
+	gcc $(CFLAGS) rcut.c -o rcut
 
 bucket:
-	gcc -O3 -Wall -finline-functions bucket.c -o bucket
+	gcc $(CFLAGS) bucket.c -o bucket
+
+gen-csv:
+	gcc $(CFLAGS) gen_csv.c -o gen-csv
 
 clean:
-	rm -f rcut bucket partition
+	rm -f rcut bucket partition gen-csv

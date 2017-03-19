@@ -9,7 +9,7 @@
 #define MAX_LINE_BYTES 8192
 
 void showusage() {
-    fprintf(stderr, "\nMurmurHash3_x86_32 the first column, modulo the number of buckets,");
+    fprintf(stderr, "\nMurmurHash3_x86_32 the first column, modulo the number of buckets, ");
     fprintf(stderr, "and insert the selected bucket as the new first column, offsetting the rest.\n");
     fprintf(stderr, "\nusage: $ bucket DELIMETER NUM_BUCKETS\n");
     exit(1);
