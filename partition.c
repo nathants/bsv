@@ -48,7 +48,7 @@ int main(int argc, const char **argv) {
     FILE *files[num_buckets];
     sprintf(num_buckets_str, "%d", num_buckets) ;
     for (i = 0; i < num_buckets; ++i) {
-        sprintf(&path, "%s.%0*d", prefix, strlen(num_buckets_str), i);
+        sprintf(path, "%s.%0*d", prefix, (int)strlen(num_buckets_str), i);
         file = fopen(path, "wb");
         if (!file) { fprintf(stderr, "error: failed to open: %s\n", path); exit(1); }
         files[i] = file;
@@ -61,7 +61,7 @@ int main(int argc, const char **argv) {
         if (strlen(line) == sizeof(line) - 1) { fprintf(stderr, "error: encountered a line longer than the max of %d chars\n", MAX_LINE_BYTES); exit(1); }
         line_ptr = line;
         line_ptr = strsep (&line_ptr, "\n");
-        first_column = strsep(&line_ptr, &delimiter);
+        first_column = strsep(&line_ptr, delimiter);
         if (line_ptr == NULL) { fprintf(stderr, "error: line with only one column: %s\n", first_column); exit(1); }
         if (!isdigits(first_column)) { fprintf(stderr, "error: first column not a digit: %s\n", first_column); exit(1); }
         i = atoi(first_column);
