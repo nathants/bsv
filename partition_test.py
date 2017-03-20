@@ -1,7 +1,9 @@
 import pytest
+import collections
+import random
 import string
 from hypothesis import given, settings
-from hypothesis.strategies import text, lists, composite, integers
+from hypothesis.strategies import text, lists, composite, integers, tuples
 import shell
 import hashlib
 
@@ -23,59 +25,42 @@ def run(stdin, *args):
 
 shell.run('make clean && make partition', stream=True)
 
-# MAX_COLUMNS = 64
-# MAX_LINE_BYTES = 8192
+MAX_LINE_BYTES = 8192
 
-# @composite
-# def inputs(draw):
-#     num_columns = draw(integers(min_value=1, max_value=12))
-#     column = text(string.ascii_lowercase)
-#     line = lists(column, min_size=num_columns, max_size=num_columns)
-#     lines = draw(lists(line))
-#     csv = '\n'.join([','.join(x) for x in lines]) + '\n'
-#     field = integers(min_value=1, max_value=num_columns)
-#     fields = draw(lists(field, min_size=1, max_size=num_columns))
-#     fields = ','.join(map(str, fields))
-#     return (fields, csv)
+@composite
+def inputs(draw):
+    num_buckets = draw(integers(min_value=1, max_value=1000))
+    num_columns = draw(integers(min_value=1, max_value=12))
+    column = text(string.ascii_lowercase, min_size=1)
+    columns = lists(column, min_size=1, max_size=num_columns)
+    line = tuples(integers(min_value=0, max_value=num_buckets - 1), columns)
+    lines = draw(lists(line, min_size=1))
+    csv = '\n'.join([str(bucket) + ',' + ','.join(line) for bucket, line in lines]) + '\n'
+    return (num_buckets, csv)
 
-# @composite
-# def inputs_ascending_unique_fields(draw):
-#     fields, csv = draw(inputs())
-#     fields = ','.join(sorted(set(fields.split(',')), key=int))
-#     return (fields, csv)
+def expected(num_buckets, csv):
+    res = collections.defaultdict(list)
+    size = len(str(num_buckets))
+    for line in csv.splitlines():
+        bucket, line = line.split(',', 1)
+        res[str(bucket).zfill(size)].append(line)
+    val = ''
+    for k in sorted(res):
+        for line in res[k]:
+            val += 'tmp.%s:%s\n' % (k, line)
+    return val.strip()
 
-# def expected(fields, csv):
-#     fields = [int(x) - 1 for x in fields.split(',')]
-#     result = []
-#     for line in csv.splitlines():
-#         if not line.strip():
-#             result.append('')
-#         else:
-#             columns = line.split(',')
-#             if len(columns) > 64:
-#                 return
-#             res = []
-#             for field in fields:
-#                 if field > 64:
-#                     return
-#                 try:
-#                     res.append(columns[field])
-#                 except IndexError:
-#                     pass
-#             result.append(','.join(res))
-#     return '\n'.join(result) + '\n'
-
-# @given(inputs())
-# @settings(max_examples=100)
-# def test_props(args):
-#     fields, csv = args
-#     result = expected(fields, csv)
-#     if result:
-#         assert result == run(csv, './rcut ,', fields)
-#     else:
-#         with pytest.raises(AssertionError):
-#             run(csv, './rcut ,', fields)
-
+@given(inputs())
+@settings(max_examples=100)
+def test_props(args):
+    num_buckets, csv = args
+    result = expected(num_buckets, csv)
+    print(result)
+    try:
+        run(csv, './partition ,', num_buckets, 'tmp')
+        assert result == shell.run('grep --with-filename ".*" tmp.*')
+    finally:
+        shell.run('rm -f tmp.*')
 
 def test_basic():
     shell.run('rm -f tmp.*')

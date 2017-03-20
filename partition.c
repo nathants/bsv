@@ -3,7 +3,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define MAX_COLUMNS 64
 #define MAX_LINE_BYTES 8192
 
 void showusage() {

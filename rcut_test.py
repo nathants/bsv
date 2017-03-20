@@ -29,7 +29,7 @@ MAX_LINE_BYTES = 8192
 @composite
 def inputs(draw):
     num_columns = draw(integers(min_value=1, max_value=12))
-    column = text(string.ascii_lowercase)
+    column = text(string.ascii_lowercase, min_size=1)
     line = lists(column, min_size=num_columns, max_size=num_columns)
     lines = draw(lists(line))
     csv = '\n'.join([','.join(x) for x in lines]) + '\n'
