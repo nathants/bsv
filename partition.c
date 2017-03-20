@@ -6,7 +6,7 @@
 #define MAX_LINE_BYTES 8192
 
 void showusage() {
-    fprintf(stderr, "\nusage: $ partition DELIMITER NUM_BUCKETS\n");
+    fprintf(stderr, "\nusage: $ partition DELIMITER NUM_BUCKETS PREFIX\n");
     exit(1);
 }
 
@@ -45,12 +45,14 @@ int main(int argc, const char **argv) {
 
     /* open files */
     FILE *files[num_buckets];
+    int written[num_buckets];
     sprintf(num_buckets_str, "%d", num_buckets) ;
-    for (i = 0; i < num_buckets; ++i) {
-        sprintf(path, "%s.%0*d", prefix, (int)strlen(num_buckets_str), i);
+    for (i = 0; i < num_buckets; i++) {
+        sprintf(path, "%s%0*d", prefix, (int)strlen(num_buckets_str), i);
         file = fopen(path, "wb");
         if (!file) { fprintf(stderr, "error: failed to open: %s\n", path); exit(1); }
         files[i] = file;
+        written[i] = 0;
     }
 
     /* do the work */
@@ -66,12 +68,16 @@ int main(int argc, const char **argv) {
         i = atoi(first_column);
         if (i >= num_buckets) { fprintf(stderr, "error: column had higher value than num_buckets: %d\n", i); exit(1); }
         file = files[i];
+        written[i] = 1;
         fputs(line_ptr, file);
         fputs("\n", file);
     }
 
     /* close files */
     for (i = 0; i < num_buckets; i++) { if (fclose(files[i]) == EOF) { fputs("error: failed to close files\n", stderr); exit(1); } }
+
+    /* remove empty files */
+    for (i = 0; i < num_buckets; i++) {sprintf(path, "%s%0*d", prefix, (int)strlen(num_buckets_str), i); if (!written[i]) { if (remove(path) != 0) { fprintf(stderr, "error: failed to delete file: %s\n", path); exit(1); } } }
 
     /* all done */
     return 0;

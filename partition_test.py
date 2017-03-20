@@ -57,7 +57,7 @@ def test_props(args):
     result = expected(num_buckets, csv)
     print(result)
     try:
-        run(csv, './partition ,', num_buckets, 'tmp')
+        run(csv, './partition ,', num_buckets, 'tmp.')
         assert result == shell.run('grep --with-filename ".*" tmp.*')
     finally:
         shell.run('rm -f tmp.*')
@@ -70,12 +70,18 @@ def test_basic():
         1,e,f,g
         2,h,i,j
         """
-        assert '' == run(stdin, './partition , 10 tmp')
-        data = """
+        assert '' == run(stdin, './partition , 10 tmp.')
+        stdout = """
         tmp.00:b,c,d
         tmp.01:e,f,g
         tmp.02:h,i,j
         """
-        assert unindent(data).strip() == shell.run('grep ".*" tmp.*')
+        assert unindent(stdout).strip() == shell.run('grep ".*" tmp.*')
+        stdout = """
+        tmp.00
+        tmp.01
+        tmp.02
+        """
+        assert unindent(stdout).strip() == shell.run('ls tmp.*')
     finally:
         shell.run('rm -f tmp.*')
