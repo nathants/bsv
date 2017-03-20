@@ -8,8 +8,6 @@
 
 void showusage() {
     fprintf(stderr, "Like cut, but can rearrange columns.\n");
-    fprintf(stderr, "\nCannot select more than 64 fields, process more than 64 columns, or process lines of more than 8192 chars.\n");
-    fprintf(stderr, "\nPer line error checking is disabled, uncomment it and recompile if you want to check every line for length and num columns, there is a performance penalty.\n");
     fprintf(stderr, "\nusage: $ rcut DELIMITER FIELD1,FIELD2\n");
     fprintf(stderr, "\nexample: $ cat in.csv | rcut , 1,5,3 > out.csv\n");
     exit(1);
