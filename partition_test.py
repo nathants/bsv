@@ -85,3 +85,31 @@ def test_basic():
         assert unindent(stdout).strip() == shell.run('ls tmp.*')
     finally:
         shell.run('rm -f tmp.*')
+
+def test_appends():
+    shell.run('rm -f tmp.*')
+    try:
+        stdin = """
+        0,b,c,d
+        1,e,f,g
+        2,h,i,j
+        """
+        assert '' == run(stdin, './partition , 10 tmp.')
+        assert '' == run(stdin, './partition , 10 tmp.')
+        stdout = """
+        tmp.00:b,c,d
+        tmp.00:b,c,d
+        tmp.01:e,f,g
+        tmp.01:e,f,g
+        tmp.02:h,i,j
+        tmp.02:h,i,j
+        """
+        assert unindent(stdout).strip() == shell.run('grep ".*" tmp.*')
+        stdout = """
+        tmp.00
+        tmp.01
+        tmp.02
+        """
+        assert unindent(stdout).strip() == shell.run('ls tmp.*')
+    finally:
+        shell.run('rm -f tmp.*')

@@ -49,7 +49,7 @@ int main(int argc, const char **argv) {
     sprintf(num_buckets_str, "%d", num_buckets) ;
     for (i = 0; i < num_buckets; i++) {
         sprintf(path, "%s%0*d", prefix, (int)strlen(num_buckets_str), i);
-        file = fopen(path, "wb");
+        file = fopen(path, "ab");
         if (!file) { fprintf(stderr, "error: failed to open: %s\n", path); exit(1); }
         files[i] = file;
         written[i] = 0;
@@ -74,10 +74,24 @@ int main(int argc, const char **argv) {
     }
 
     /* close files */
-    for (i = 0; i < num_buckets; i++) { if (fclose(files[i]) == EOF) { fputs("error: failed to close files\n", stderr); exit(1); } }
+    for (i = 0; i < num_buckets; i++) {
+        if (fclose(files[i]) == EOF) {
+            fputs("error: failed to close files\n", stderr);
+            exit(1);
+        }
+    }
 
     /* remove empty files */
-    for (i = 0; i < num_buckets; i++) {sprintf(path, "%s%0*d", prefix, (int)strlen(num_buckets_str), i); if (!written[i]) { if (remove(path) != 0) { fprintf(stderr, "error: failed to delete file: %s\n", path); exit(1); } } }
+    for (i = 0; i < num_buckets; i++) {
+        sprintf(path, "%s%0*d", prefix, (int)strlen(num_buckets_str), i);
+        if (written[i] == 0) {
+            fprintf(stderr, "remove empty file: %s\n", path);
+            if (remove(path) != 0) {
+                printf(stderr, "error: failed to delete file: %s\n", path);
+                exit(1);
+            }
+        }
+    }
 
     /* all done */
     return 0;
