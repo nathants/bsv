@@ -1,3 +1,4 @@
+#include <sys/stat.h>
 #include <ctype.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -10,7 +11,14 @@ void showusage() {
     exit(1);
 }
 
-static int empty(const char * s) {
+int empty_file(char *path) {
+    struct stat st;
+    if (stat(path, &st) == 0)
+        return st.st_size == 0;
+    return -1;
+}
+
+static int empty_str(const char * s) {
     while (*s != '\0') {
         if (!isspace(*s))
             return 0;
@@ -45,19 +53,17 @@ int main(int argc, const char **argv) {
 
     /* open files */
     FILE *files[num_buckets];
-    int written[num_buckets];
     sprintf(num_buckets_str, "%d", num_buckets) ;
     for (i = 0; i < num_buckets; i++) {
         sprintf(path, "%s%0*d", prefix, (int)strlen(num_buckets_str), i);
         file = fopen(path, "ab");
         if (!file) { fprintf(stderr, "error: failed to open: %s\n", path); exit(1); }
         files[i] = file;
-        written[i] = 0;
     }
 
     /* do the work */
     while (fgets(line, sizeof(line), stdin)) {
-        if (empty(line))
+        if (empty_str(line))
             continue;
         if (strlen(line) == sizeof(line) - 1) { fprintf(stderr, "error: encountered a line longer than the max of %d chars\n", MAX_LINE_BYTES); exit(1); }
         line_ptr = line;
@@ -68,7 +74,6 @@ int main(int argc, const char **argv) {
         i = atoi(first_column);
         if (i >= num_buckets) { fprintf(stderr, "error: column had higher value than num_buckets: %d\n", i); exit(1); }
         file = files[i];
-        written[i] = 1;
         fputs(line_ptr, file);
         fputs("\n", file);
     }
@@ -84,11 +89,17 @@ int main(int argc, const char **argv) {
     /* remove empty files */
     for (i = 0; i < num_buckets; i++) {
         sprintf(path, "%s%0*d", prefix, (int)strlen(num_buckets_str), i);
-        if (written[i] == 0) {
+        switch (empty_file(path)) {
+        case 1:
             if (remove(path) != 0) {
                 printf(stderr, "error: failed to delete file: %s\n", path);
                 exit(1);
             }
+            break;
+        case -1:
+            printf(stderr, "error: failed to stat file: %s\n", path);
+            exit(1);
+            break;
         }
     }
 
