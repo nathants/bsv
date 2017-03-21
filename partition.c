@@ -85,7 +85,6 @@ int main(int argc, const char **argv) {
     for (i = 0; i < num_buckets; i++) {
         sprintf(path, "%s%0*d", prefix, (int)strlen(num_buckets_str), i);
         if (written[i] == 0) {
-            fprintf(stderr, "remove empty file: %s\n", path);
             if (remove(path) != 0) {
                 printf(stderr, "error: failed to delete file: %s\n", path);
                 exit(1);
