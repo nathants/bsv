@@ -49,7 +49,7 @@ int main(int argc, const char **argv) {
         }
         if (strlen(line) == sizeof(line) - 1) { fprintf(stderr, "error: encountered a line longer than the max of %d chars\n", MAX_LINE_BYTES); exit(1); } // per line error checking
         line_ptr = line;
-        line_ptr = strsep (&line_ptr, "\n");
+        line_ptr = strsep(&line_ptr, "\n");
         for (i = 0; i < MAX_COLUMNS; i++)
             columns[i] = NULL;
         j = 0;

@@ -9,7 +9,6 @@ void showusage() {
     exit(1);
 }
 
-
 int main(int argc, const char **argv) {
     if (argc < 3)
         showusage();

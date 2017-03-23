@@ -92,12 +92,12 @@ int main(int argc, const char **argv) {
         switch (empty_file(path)) {
         case 1:
             if (remove(path) != 0) {
-                printf(stderr, "error: failed to delete file: %s\n", path);
+                fprintf(stderr, "error: failed to delete file: %s\n", path);
                 exit(1);
             }
             break;
         case -1:
-            printf(stderr, "error: failed to stat file: %s\n", path);
+            fprintf(stderr, "error: failed to stat file: %s\n", path);
             exit(1);
             break;
         }
