@@ -77,12 +77,10 @@ int main(int argc, const char **argv) {
         for (i = 0; i < num_files; i++)
             if (lines[i] && strcmp(lines[i], min_line) == 0)
                 hits++;
-        if (
-            hits == 1 &&
+        if (hits == 1 &&
             strcmp(min_line, str_max_value) != 0 &&
             strcmp(min_line, last_line) != 0 &&
-            !empty(min_line)
-            )
+            !empty(min_line))
         {
             fputs(min_line, out_files[index]);
             fputs("\n", out_files[index]);
@@ -93,13 +91,11 @@ int main(int argc, const char **argv) {
                 READ_LINE(i);
     }
 
-    /* close files */
+    /* flush and close files */
     for (i = 0; i < num_files; i++) {
         while (lines[i]) {
-            if (
-                strcmp(lines[i], last_line) != 0 &&
-                !empty(lines[i])
-                )
+            if (strcmp(lines[i], last_line) != 0 &&
+                !empty(lines[i]))
             {
                 fputs(lines[i], out_files[i]);
                 fputs("\n", out_files[i]);
