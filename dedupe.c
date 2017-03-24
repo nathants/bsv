@@ -6,6 +6,8 @@
 #define MAX_LINE_BYTES 8192
 
 void showusage() {
+    fprintf(stderr, "for every input file, writes a new file with SUFFIX ");
+    fprintf(stderr, "which contains lines unique among all files.\n");
     fprintf(stderr, "\nusage: $ dedupe SUFFIX FILE1 FILE2 [FILEN ...]\n");
     exit(1);
 }
