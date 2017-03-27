@@ -5,6 +5,9 @@
 
 #define MAX_COLUMNS 64
 #define MAX_LINE_BYTES 8192
+#define BUFFER_BYTES 1024 * 1024 * 5
+
+// seems to work fast when increasing buffer size at call site, ie: $ stdbuf -i5M -o5M rcut ...
 
 void showusage() {
     fprintf(stderr, "Like cut, but can rearrange columns.\n");
@@ -22,10 +25,26 @@ static int empty(const char * s) {
     return 1;
 }
 
+#define WRITE(str)                                                  \
+    do {                                                            \
+        len = strlen(str);                                          \
+        if (len > BUFFER_BYTES - offset) {                          \
+            fwrite_unlocked(buffer, sizeof(char), offset, stdout);  \
+            strcpy(buffer, str);                                    \
+            offset = len;                                           \
+        } else {                                                    \
+            strcpy(buffer + offset, str);                           \
+            offset += len;                                          \
+        }                                                           \
+    } while (0)
+
+
 int main(int argc, const char **argv) {
     /* def and init */
     char delimiter[2], *field, *fields, *column, *line_ptr, line[MAX_LINE_BYTES], *columns[MAX_COLUMNS];
     int field_num, i, j, add_delimeter, num_fields=0, field_nums[MAX_COLUMNS];
+    char *buffer = malloc(BUFFER_BYTES);
+    int offset = 0, len;
 
     /* parse argv */
     if (argc < 3)
@@ -41,10 +60,9 @@ int main(int argc, const char **argv) {
     }
 
     /* do the work */
-    while (fgets(line, sizeof(line), stdin)) {
-        /* empty in empty out */
+    while (fgets_unlocked(line, sizeof(line), stdin)) {
         if (empty(line)) {
-            fputs("\n", stdout);
+            WRITE("\n");
             continue;
         }
         if (strlen(line) == sizeof(line) - 1) { fprintf(stderr, "error: encountered a line longer than the max of %d chars\n", MAX_LINE_BYTES); exit(1); } // per line error checking
@@ -62,13 +80,14 @@ int main(int argc, const char **argv) {
             column = columns[field_nums[i]];
             if (column == NULL) { fprintf(stderr, "error: line without %d columns: ", field_nums[i] + 1); for (i = 0; i < j; i++) { if (add_delimeter) fprintf(stderr, "%s", delimiter); fprintf(stderr, "%s", columns[i]); add_delimeter = 1; }; fprintf(stderr, "\n"); exit(1); }
             if (i < num_fields && add_delimeter)
-                fputs(delimiter, stdout);
-            fputs(column, stdout);
+                WRITE(delimiter);
+            WRITE(column);
             add_delimeter = 1;
         }
-        fputs("\n", stdout);
+        WRITE("\n");
     }
 
     /* all done */
+    fwrite_unlocked(buffer, sizeof(char), offset, stdout);
     return 0;
 }
