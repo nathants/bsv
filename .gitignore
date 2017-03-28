@@ -6,3 +6,11 @@ bucket
 partition
 gen-csv
 dedupe
+*.1024
+*.11
+*.17
+*.256
+*.64
+*.8
+csv
+todo.yml

@@ -7,8 +7,9 @@ from hypothesis.strategies import text, lists, composite, integers
 import shell
 import hashlib
 
-stdinpath = '/tmp/%s.stdin' % hashlib.md5(__file__.encode('ascii')).hexdigest()
-stdoutpath = '/tmp/%s.stdout' % hashlib.md5(__file__.encode('ascii')).hexdigest()
+tmp = os.environ.get('TMP_DIR', '/tmp').rstrip('/')
+stdinpath = '%s/%s.stdin' % (tmp, hashlib.md5(__file__.encode('ascii')).hexdigest())
+stdoutpath = '%s/%s.stdout' % (tmp, hashlib.md5(__file__.encode('ascii')).hexdigest())
 
 def rm_whitespace(x):
     return '\n'.join([y.strip().replace(' ', '')
@@ -56,7 +57,7 @@ def expected(inputs):
                       if line])
 
 @given(inputs())
-@settings(max_examples=100)
+@settings(max_examples=100 * int(os.environ.get('TEST_FACTOR', 1)))
 def test_props(inputs):
     cmd = os.path.abspath('dedupe')
     with shell.tempdir():
@@ -98,7 +99,6 @@ def test_basic():
         """
         assert rm_whitespace(stdout) == shell.run('grep ".*" a.out b.out c.out')
 
-@pytest.mark.only
 def test_fails_when_oversized_line():
     cmd = os.path.abspath('dedupe')
     with shell.tempdir():

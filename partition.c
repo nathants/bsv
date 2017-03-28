@@ -1,13 +1,15 @@
 #include <sys/stat.h>
 #include <ctype.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+#include "csv.h"
+#include "writes.h"
 
-#define MAX_LINE_BYTES 8192
+#define WRITES_BUFFER_SIZE 1024 * 128
+#define CSV_BUFFER_SIZE 1024 * 1024 * 5
+#define CSV_DELIMITER ','
+#define DELIMITER ","
 
 void showusage() {
-    fprintf(stderr, "\nusage: $ partition DELIMITER NUM_BUCKETS PREFIX\n");
+    fprintf(stderr, "\nusage: $ partition NUM_BUCKETS PREFIX\n");
     exit(1);
 }
 
@@ -16,15 +18,6 @@ int empty_file(char *path) {
     if (stat(path, &st) == 0)
         return st.st_size == 0;
     return -1;
-}
-
-static int empty_str(const char * s) {
-    while (*s != '\0') {
-        if (!isspace(*s))
-            return 0;
-        s++;
-    }
-    return 1;
 }
 
 static int isdigits(const char *s) {
@@ -36,20 +29,36 @@ static int isdigits(const char *s) {
     return 1;
 }
 
+#define CSV_HANDLE_LINE(max_index, column_size, column)                                                                 \
+    do {                                                                                                                \
+        if (max_index || column_size[0]) {                                                                              \
+            column[0][column_size[0]] = '\0';                                                                          \
+            if (!max_index) { fprintf(stderr, "error: line with only one column: %s\n", column[0]); exit(1); }          \
+            if (!isdigits(column[0])) { fprintf(stderr, "error: first column not a digit: %s\n", column[0]); exit(1); } \
+            file_num = atoi(column[0]);                                                                                 \
+            if (file_num >= num_buckets) { fprintf(stderr, "error: column higher than num_buckets: %d\n", file_num); exit(1); } \
+            for (i = 1; i <= max_index; i++) {                                                                          \
+                if (i > 1 && i <= max_index )                                                                           \
+                    WRITES(DELIMITER, 1, file_num);                                                                     \
+                WRITES(column[i], column_size[i], file_num);                                                            \
+            }                                                                                                           \
+            WRITES("\n", 1, file_num);                                                                                  \
+        }                                                                                                               \
+    } while (0)
+
 int main(int argc, const char **argv) {
     /* def and init */
-    char *line_ptr, line[MAX_LINE_BYTES], *first_column, delimiter[2], *prefix, num_buckets_str[16], path[1024];
-    int i, num_buckets;
+    char *prefix, num_buckets_str[16], path[1024];
+    int i, file_num, num_buckets;
     FILE *file;
 
-   /* parse argv */
-    if (argc < 4)
+    /* parse argv */
+    if (argc < 3)
         showusage();
-    delimiter[0] = argv[1][0];
-    if (strlen(argv[2]) > 8) { fprintf(stderr, "NUM_BUCKETS must be less than 1e8, got: %s\n", argv[2]); exit(1); }
-    num_buckets = atoi(argv[2]);
+    if (strlen(argv[1]) > 8) { fprintf(stderr, "NUM_BUCKETS must be less than 1e8, got: %s\n", argv[1]); exit(1); }
+    num_buckets = atoi(argv[1]);
     if (num_buckets < 1) { fprintf(stderr, "NUM_BUCKETS must be positive, got: %d\n", num_buckets); exit(1); }
-    prefix = argv[3];
+    prefix = argv[2];
 
     /* open files */
     FILE *files[num_buckets];
@@ -62,21 +71,9 @@ int main(int argc, const char **argv) {
     }
 
     /* do the work */
-    while (fgets(line, sizeof(line), stdin)) {
-        if (empty_str(line))
-            continue;
-        if (strlen(line) == sizeof(line) - 1) { fprintf(stderr, "error: encountered a line longer than the max of %d chars\n", MAX_LINE_BYTES); exit(1); }
-        line_ptr = line;
-        line_ptr = strsep (&line_ptr, "\n");
-        first_column = strsep(&line_ptr, delimiter);
-        if (line_ptr == NULL) { fprintf(stderr, "error: line with only one column: %s\n", first_column); exit(1); }
-        if (!isdigits(first_column)) { fprintf(stderr, "error: first column not a digit: %s\n", first_column); exit(1); }
-        i = atoi(first_column);
-        if (i >= num_buckets) { fprintf(stderr, "error: column had higher value than num_buckets: %d\n", i); exit(1); }
-        file = files[i];
-        fputs(line_ptr, file);
-        fputs("\n", file);
-    }
+    WRITES_INIT_VARS(files, num_buckets);
+    CSV_READ_LINES(stdin);
+    WRITES_FLUSH(num_buckets);
 
     /* close files */
     for (i = 0; i < num_buckets; i++) {
@@ -89,17 +86,15 @@ int main(int argc, const char **argv) {
     /* remove empty files */
     for (i = 0; i < num_buckets; i++) {
         sprintf(path, "%s%0*d", prefix, (int)strlen(num_buckets_str), i);
-        switch (empty_file(path)) {
-        case 1:
+        file_num = empty_file(path);
+        if (file_num == 1) {
             if (remove(path) != 0) {
                 fprintf(stderr, "error: failed to delete file: %s\n", path);
                 exit(1);
             }
-            break;
-        case -1:
+        } else if (file_num == -1) {
             fprintf(stderr, "error: failed to stat file: %s\n", path);
             exit(1);
-            break;
         }
     }
 

@@ -1,70 +1,56 @@
-#include <ctype.h>
-#include <limits.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
 #include "murmur3.h"
+#include "csv.h"
+#include "write.h"
 
-#define MAX_COLUMNS 64
-#define MAX_LINE_BYTES 8192
+#define WRITE_BUFFER_SIZE 1024 * 1024 * 5
+#define CSV_BUFFER_SIZE WRITE_BUFFER_SIZE
+#define CSV_DELIMITER ','
+#define DELIMITER ","
+#define SEED 0
 
 void showusage() {
     fprintf(stderr, "\nMurmurHash3_x86_32 the first column, modulo the number of buckets, ");
     fprintf(stderr, "and insert the selected bucket as the new first column, offsetting the rest.\n");
-    fprintf(stderr, "\nusage: $ bucket DELIMETER NUM_BUCKETS\n");
+    fprintf(stderr, "\nusage: $ bucket NUM_BUCKETS\n");
     exit(1);
 }
 
-static int empty(const char * s) {
-    while (*s != '\0') {
-        if (!isspace(*s))
-            return 0;
-        s++;
-    }
-    return 1;
-}
-
-static int mod (int a, int b) {
-   int ret = a % b;
-   if(ret < 0)
-     ret+=b;
-   return ret;
-}
+#define CSV_HANDLE_LINE(max_index, column_size, column)                     \
+    do {                                                                    \
+        if (max_index || column_size[0]) {                                  \
+            MurmurHash3_x86_32(column[0], column_size[0], SEED, hash_num);  \
+            mod = hash_num[0] % num_buckets;                                \
+            if(mod < 0)                                                     \
+                mod += num_buckets;                                         \
+            sprintf(hash_str, "%d", mod);                                   \
+            WRITE(hash_str, strlen(hash_str));                              \
+            WRITE(DELIMITER, 1);                                            \
+            for (i = 0; i <= max_index; i++) {                              \
+                if (i && i <= max_index )                                   \
+                    WRITE(DELIMITER, 1);                                    \
+                WRITE(column[i], column_size[i]);                           \
+            }                                                               \
+        }                                                                   \
+        WRITE("\n", 1);                                                     \
+    } while (0)
 
 int main(int argc, const char **argv) {
+
     /* def and init */
-    char delimiter[2], *line_ptr, *first_column, line[MAX_LINE_BYTES], hash_str[156];
-    int num_buckets, hash_num[1];
+    char hash_str[128];
+    int i, mod, num_buckets, hash_num[1];
+    WRITE_INIT_VARS();
 
     /* parse argv */
-    if (argc < 3)
+    if (argc < 2)
         showusage();
-    delimiter[0] = argv[1][0];
-    if (strlen(argv[2]) > 8) { fprintf(stderr, "NUM_BUCKETS must be less than 1e8, got: %s\n", argv[2]); exit(1); }
-    num_buckets = atoi(argv[2]);
+    if (strlen(argv[1]) > 8) { fprintf(stderr, "NUM_BUCKETS must be less than 1e8, got: %s\n", argv[1]); exit(1); }
+    num_buckets = atoi(argv[1]);
     if (num_buckets < 1) { fprintf(stderr, "NUM_BUCKETS must be positive, got: %d\n", num_buckets); exit(1); }
 
     /* do the work */
-    while (fgets(line, sizeof(line), stdin)) {
-        if (empty(line)) {
-            fputs("\n", stdout);
-            continue;
-        }
-        if (strlen(line) == sizeof(line) - 1) { fprintf(stderr, "error: encountered a line longer than the max of %d chars\n", MAX_LINE_BYTES); exit(1); }
-        line_ptr = line;
-        line_ptr = strsep (&line_ptr, "\n");
-        first_column = strsep(&line_ptr, delimiter);
-        MurmurHash3_x86_32(first_column, strlen(first_column), 0, hash_num);
-        sprintf(hash_str, "%d", mod(hash_num[0], num_buckets));
-        fputs(hash_str, stdout);
-        fputs(delimiter, stdout);
-        fputs(first_column, stdout);
-        if (line_ptr != NULL) {
-            fputs(delimiter, stdout);
-            fputs(line_ptr, stdout);
-        }
-        fputs("\n", stdout);
-    }
+    CSV_READ_LINES(stdin);
+    WRITE_FLUSH();
 
     /* all done */
     return 0;
