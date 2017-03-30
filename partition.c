@@ -70,9 +70,17 @@ int main(int argc, const char **argv) {
         files[i] = file;
     }
 
-    /* do the work */
+    /* def and init more */
+    CSV_INIT_VARS();
     WRITES_INIT_VARS(files, num_buckets);
-    CSV_READ_LINES(stdin);
+
+    /* do the work */
+    while (1) {
+        CSV_READ_LINE(stdin);
+        if (csv_stop)
+            break;
+        CSV_HANDLE_LINE(csv_max_index, csv_column_size, csv_column);
+    }
     WRITES_FLUSH(num_buckets);
 
     /* close files */

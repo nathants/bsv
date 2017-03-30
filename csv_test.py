@@ -144,6 +144,7 @@ def test_whitespace1():
               'c\n')
     assert stdout == run(stdin, './csv.8')
 
+
 def test_whitespace2():
     stdin = ('\n'
              'a\n'

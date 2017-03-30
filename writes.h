@@ -4,13 +4,13 @@
 #include <stdio.h>
 #include <string.h>
 
-#define WRITES_INIT_VARS(files, num_files)                      \
-    FILE **writes_files = files;                                \
-    char **writes_buffers = malloc(sizeof(char*) * num_files);  \
-    int *writes_offset = malloc(sizeof(int) * num_files);       \
-    for (int i = 0; i < num_files; i++) {                       \
-        writes_buffers[i] = malloc(WRITES_BUFFER_SIZE);         \
-        writes_offset[i] = 0;                                   \
+#define WRITES_INIT_VARS(files, num_files)                  \
+    FILE **writes_files = files;                            \
+    int *writes_offset = malloc(sizeof(int) * num_files);   \
+    char *writes_buffers[num_files];                        \
+    for (int i = 0; i < num_files; i++) {                   \
+        writes_buffers[i] = malloc(WRITES_BUFFER_SIZE);     \
+        writes_offset[i] = 0;                               \
     }
 
 #define WRITES(str, size, file_num)                                                                                     \

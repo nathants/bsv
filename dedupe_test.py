@@ -21,7 +21,7 @@ def unindent(text):
 
 def run(*args):
     try:
-        shell.run(*(args + ('>', stdoutpath)), stream=True)
+        shell.run(*args, echo=True)
     except:
         raise AssertionError from None
     with open(stdoutpath) as f:
@@ -82,29 +82,46 @@ def test_basic():
                 3
                 4
                 5
+                6
             """))
         with open('c', 'w') as f:
             f.write(rm_whitespace("""
                 5
                 6
                 7
+                8
+                9
             """))
         run(cmd, 'out a b c')
         stdout = """
         a.out:1
         a.out:2
         b.out:4
-        c.out:6
         c.out:7
+        c.out:8
+        c.out:9
         """
         assert rm_whitespace(stdout) == shell.run('grep ".*" a.out b.out c.out')
 
-def test_fails_when_oversized_line():
+def test_basic2():
     cmd = os.path.abspath('dedupe')
     with shell.tempdir():
         with open('a', 'w') as f:
-            f.write('a' * 8191)
-        open('b', 'w').close()
-        res = shell.run(cmd, 'asdf a b 2>&1', warn=True)
-        assert res['exitcode'] == 1
-        assert 'error: encountered a line longer than the max of 8192 chars' == res['output']
+            f.write(rm_whitespace("""
+                1
+            """))
+        with open('b', 'w') as f:
+            f.write(rm_whitespace("""
+                2
+            """))
+        with open('c', 'w') as f:
+            f.write(rm_whitespace("""
+                1
+                2
+                3
+            """))
+        run(cmd, 'out a b c')
+        stdout = """
+        c.out:3
+        """
+        assert rm_whitespace(stdout) == shell.run('grep ".*" a.out b.out c.out')

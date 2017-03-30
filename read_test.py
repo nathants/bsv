@@ -41,10 +41,10 @@ shell.run('mv -f read.c.bak read.c')
 @composite
 def inputs(draw):
     buffer = draw(sampled_from(buffers))
-    line = text(string.ascii_lowercase + ' ', min_size=1, max_size=128)
+    line = text(string.ascii_lowercase + ' ', min_size=1, max_size=min(buffer - 1, 64))
     lines = lists(line)
     cmd = './read.%s' % buffer
-    return cmd, '\n'.join([x[:buffer - 1] for x in draw(lines)]) + '\n'
+    return cmd, '\n'.join(draw(lines)) + '\n'
 
 @given(inputs())
 @settings(max_examples=100 * int(os.environ.get('TEST_FACTOR', 1)))

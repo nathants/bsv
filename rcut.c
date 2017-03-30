@@ -51,6 +51,7 @@ int main(int argc, const char **argv) {
     int field, num_fields=0, field_nums[MAX_COLUMNS];
     int add_delimeter, i;
     WRITE_INIT_VARS();
+    CSV_INIT_VARS();
 
     /* parse argv */
     if (argc < 2)
@@ -64,10 +65,14 @@ int main(int argc, const char **argv) {
         if (num_fields > MAX_COLUMNS) { fprintf(stderr, "error: cannot select more than %d fields\n", MAX_COLUMNS);                         exit(1); }
     }
 
-    /* do the work */
-    CSV_READ_LINES(stdin);
-    WRITE_FLUSH();
+    while (1) {
+        CSV_READ_LINE(stdin);
+        if (csv_stop)
+            break;
+        CSV_HANDLE_LINE(csv_max_index, csv_column_size, csv_column);
+    }
 
     /* all done */
+    WRITE_FLUSH();
     return 0;
 }

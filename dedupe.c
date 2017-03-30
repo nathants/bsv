@@ -1,7 +1,9 @@
-#include <ctype.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+#include "reads.h"
+#include "writes.h"
+
+
+#define WRITES_BUFFER_SIZE 1024 * 128
+#define READS_BUFFER_SIZE 1024 * 128
 
 #define MAX_LINE_BYTES 8192
 
@@ -12,40 +14,22 @@ void showusage() {
     exit(1);
 }
 
-static int empty(const char * s) {
-    while (*s != '\0') {
-        if (!isspace(*s))
-            return 0;
-        s++;
-    }
-    return 1;
-}
 
-#define READ_LINE(i)                                                    \
-    do {                                                                \
-        if (!fgets(lines[i], MAX_LINE_BYTES, in_files[i])) {            \
-            lines[i] = NULL;                                            \
-            stop = 1;                                                   \
-            for (j = 0; j < num_files; j++)                             \
-                if (lines[j]) {                                         \
-                    stop = 0;                                           \
-                    break;                                              \
-                }                                                       \
-        } else if (strlen(lines[i]) == MAX_LINE_BYTES - 1) {            \
-            fprintf(stderr, "error: encountered a line longer than the max of %d chars\n", MAX_LINE_BYTES); \
-            exit(1);                                                    \
-        } else                                                          \
-            lines[i] = strsep(&lines[i], "\n");                         \
-    } while (0)
+#define EQUAL(x, y) ( \
+        reads_line_size[x] == reads_line_size[y] \
+        && memcmp(reads_line[x], reads_line[y], reads_line_size[x]) == 0)
 
 int main(int argc, const char **argv) {
     if (argc < 4)
         showusage();
     /* def and init */
     int i, j, hits, index, num_files = argc - 2, stop = 0;
+    int hits_index[num_files];
     FILE *in_files[num_files], *out_files[num_files];
-    char *lines[num_files], *suffix = argv[1], *in_path;
-    char out_path[1024], last_line[MAX_LINE_BYTES], min_line[MAX_LINE_BYTES], str_max_value[MAX_LINE_BYTES] = {255};
+    char *suffix = argv[1], *in_path;
+    char out_path[1024], last_line[MAX_LINE_BYTES], *min_line, str_max_value[MAX_LINE_BYTES] = {255};
+    int str_max_index = num_files;
+    int last_line_index = num_files + 1;
 
     /* open files */
     for (i = 0; i < num_files; i++) {
@@ -54,8 +38,6 @@ int main(int argc, const char **argv) {
         in_path = argv[i + 2];
         in_files[i] = fopen(in_path, "rb");
         if (!in_files[i]) { fprintf(stderr, "error: failed to open: %s\n", in_path); exit(1); }
-        lines[i] = malloc(MAX_LINE_BYTES);
-        READ_LINE(i);
 
         /* open out_file */
         sprintf(out_path, "%s.%s", in_path, suffix);
@@ -63,47 +45,53 @@ int main(int argc, const char **argv) {
         if (!out_files[i]) { fprintf(stderr, "error: failed to open: %s\n", out_path); exit(1); }
     }
 
-    /* do the work */
+    WRITES_INIT_VARS(out_files, num_files);
+    READS_INIT_VARS(in_files, num_files);
+
+    reads_line_size = realloc(reads_line_size, (num_files + 2) * sizeof(char*));
+    reads_line_size[str_max_index] = MAX_LINE_BYTES;
+    reads_line_size[last_line_index] = 0;
+
+    reads_line = realloc(reads_line, (num_files + 2) * sizeof(char*));
+    reads_line[str_max_index] = str_max_value;
+    reads_line[last_line_index] = last_line;
+
+    for (i = 0; i < num_files; i++)
+        READS_LINE(i);
+
     while (!stop) {
-        strcpy(min_line, str_max_value);
-        index = 0;
+        index = str_max_index;
+        stop = 1;
         for (i = 0; i < num_files; i++)
-            if (lines[i])
-                if (strcmp(lines[i], min_line) < 0) {
-                    strcpy(min_line, lines[i]);
-                    index = i;
-                }
+            if (!reads_stop[i]) {
+                reads_line[index][reads_line_size[index]] = '\0';
+                reads_line[i][reads_line_size[i]] = '\0';
+                index = strcmp(reads_line[index], reads_line[i]) < 0 ? index : i;
+                stop = 0;
+            }
+
         hits = 0;
         for (i = 0; i < num_files; i++)
-            if (lines[i] && strcmp(lines[i], min_line) == 0)
-                hits++;
-        if (hits == 1 &&
-            strcmp(min_line, str_max_value) != 0 &&
-            strcmp(min_line, last_line) != 0 &&
-            !empty(min_line))
-        {
-            fputs(min_line, out_files[index]);
-            fputs("\n", out_files[index]);
+            if (EQUAL(index, i))
+                hits_index[hits++] = i;
+
+        if (hits == 1 && reads_line_size[index] && !EQUAL(index, last_line_index)) {
+            WRITES(reads_line[index], reads_line_size[index], index);
+            WRITES("\n", 1, index);
         }
-        strcpy(last_line, min_line);
-        for (i = 0; i < num_files; i++)
-            if (lines[i] && strcmp(min_line, lines[i]) == 0)
-                READ_LINE(i);
+
+        reads_line_size[last_line_index] = reads_line_size[index];
+        memcpy(last_line, reads_line[index], reads_line_size[index]);
+
+        for (i = 0; i < hits; i++)
+            READS_LINE(hits_index[i]);
+
     }
 
-    /* flush and close files */
+    WRITES_FLUSH(num_files);
     for (i = 0; i < num_files; i++) {
-        while (lines[i]) {
-            if (strcmp(lines[i], last_line) != 0 &&
-                !empty(lines[i]))
-            {
-                fputs(lines[i], out_files[i]);
-                fputs("\n", out_files[i]);
-                strcpy(last_line, lines[i]);
-            }
-            READ_LINE(i);
-        }
         if (fclose(in_files[i])  == EOF) { fputs("error: failed to close files\n", stderr); exit(1); }
         if (fclose(out_files[i]) == EOF) { fputs("error: failed to close files\n", stderr); exit(1); }
     }
+
 }
