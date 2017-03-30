@@ -24,8 +24,6 @@ def run(*args):
         shell.run(*args, echo=True)
     except:
         raise AssertionError from None
-    with open(stdoutpath) as f:
-        return f.read()
 
 shell.run('make clean && make dedupe', stream=True)
 
