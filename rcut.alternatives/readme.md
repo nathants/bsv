@@ -1,27 +1,38 @@
 performace varies wildy based on the width of the lines and the number of columns, but for a rough idea here are some timings with 1GB of data, 50 character width lines, 3 columns, on an i3.xlarge.
 
-c: 15s
+make sample data:
 
 ```
-cd ..
 make
-time cat /tmp/input | ./rcut , 3,2,1 > /tmp/out.c
+./gen-csv 10000000 3 > sample
 ```
 
-java: 28s
+c: 18s
+
+```
+time cat sample | ./rcut 3,2,1 > out.c
+```
+
+coreutils cut: 20s
+
+```
+time cat sample | cut -d, -f1,2,3 > out.coreutils
+```
+
+java: 65s
 
 ```
 javac RCut.java
-time cat /tmp/input | java RCut , 3,2,1 > /tmp/out.java
+time cat ../sample | java RCut 3,2,1 > out.java
 ```
 
-awk: 52s
+awk: 127s
 ```
-cat /tmp/input | awk -F, '{print $3 "," $2 "," $1}' > /tmp/out.awk
+time cat sample | awk -F, '{print $3 "," $2 "," $1}' > out.awk
 ```
 
-python: 112s
+python: 238s
 
 ```
-time cat /tmp/input | python3 rcut.py , 3,2,1 > /tmp/out.python
+time cat ../sample | python3 rcut.py 3,2,1 > out.python
 ```

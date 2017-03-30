@@ -1,7 +1,6 @@
 import sys
 
-delimiter = sys.argv[1]
-fields = [int(x) - 1 for x in sys.argv[2].split(',')]
+fields = [int(x) - 1 for x in sys.argv[1].split(',')]
 
 for line in sys.stdin:
     parts = line.strip('\n').split(',')

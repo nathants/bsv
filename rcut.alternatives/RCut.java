@@ -1,16 +1,18 @@
 import java.io.*;
 
 public final class RCut {
+    private static String delimeter = ",";
+
     public static void main(String[] args) throws Exception {
-            String[] field_strs = args[1].split(",");
+            String[] field_strs = args[0].split(",");
             int[] fields = new int[field_strs.length];
             int i = 0;
             for (String field: field_strs)
                 fields[i++] = Integer.parseInt(field) - 1;
-            rcut(args[0], fields);
+            rcut(fields);
     }
 
-    public static void rcut(String delimeter, int[] fields) throws Exception {
+    public static void rcut(int[] fields) throws Exception {
         BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
         BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(System.out));
         String line, part;
