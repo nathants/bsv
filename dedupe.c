@@ -3,9 +3,8 @@
 
 
 #define WRITES_BUFFER_SIZE 1024 * 128
-#define READS_BUFFER_SIZE 1024 * 128
-
-#define MAX_LINE_BYTES 8192
+#define READS_BUFFER_SIZE  1024 * 128
+#define MAX_LINE_BYTES     1024 * 128
 
 void showusage() {
     fprintf(stderr, "for every input file, writes a new file with SUFFIX ");
