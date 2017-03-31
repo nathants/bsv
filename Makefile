@@ -2,7 +2,7 @@
 
 CFLAGS=-Wall -O3 -march=native -mtune=native
 
-all: rcut bucket partition gen-csv dedupe csv read reads
+all: rcut bucket partition gen-csv dedupe csv csvs read reads
 
 partition:
 	gcc $(CFLAGS) partition.c -o partition
@@ -19,6 +19,9 @@ bucket:
 csv:
 	gcc $(CFLAGS) csv.c -o csv
 
+csvs:
+	gcc $(CFLAGS) csvs.c -o csvs
+
 read:
 	gcc $(CFLAGS) read.c -o read
 
@@ -29,4 +32,4 @@ gen-csv:
 	gcc $(CFLAGS) gen_csv.c -o gen-csv
 
 clean:
-	rm -f rcut bucket partition gen-csv dedupe csv *.8 *.11 *.17 *.64 *.256 *.1024 read reads
+	rm -f rcut bucket partition gen-csv dedupe csv csvs *.8 *.11 *.17 *.64 *.256 *.1024 read reads

@@ -13,4 +13,7 @@ dedupe
 *.64
 *.8
 csv
+csvs
+read
+reads
 todo.yml

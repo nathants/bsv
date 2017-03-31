@@ -42,7 +42,7 @@ def inputs(draw):
     buffer = draw(sampled_from(buffers))
     line = text(string.ascii_lowercase, min_size=1, max_size=min(64, buffer - 1))
     lines = lists(line, min_size=1)
-    files = lists(lines, min_size=1)
+    files = lists(lines, min_size=1, max_size=12)
     cmd = './reads.%s' % buffer
     return cmd, draw(files)
 
@@ -107,8 +107,11 @@ def test_basic():
         """)
         assert stdout == run(cmd, *args).strip()
 
-# def test_oversized_line():
-#     stdin = 'a' * 8
-#     res = shell.run('./reads.8 2>&1', stdin=stdin, warn=True)
-#     assert res['exitcode'] == 1
-#     assert 'error: line longer than READS_BUFFER_SIZE' == res['output']
+def test_oversized_line():
+    cmd = os.path.abspath('reads.8')
+    with shell.tempdir():
+        with open('a.txt', 'w') as f:
+            f.write('a' * 8)
+        res = shell.run(cmd, 'a.txt 2>&1', warn=True)
+        assert res['exitcode'] == 1
+        assert 'error: line longer than READS_BUFFER_SIZE' == res['output']

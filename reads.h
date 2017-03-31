@@ -5,36 +5,34 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define READS_INIT_VARS(files, num_files)               \
-    /* private vars */                                  \
-    FILE **_reads_files = files;                        \
-    int _reads_break;                                   \
-    int _reads_handled[num_files];                      \
-    int _reads_update_line[num_files];                  \
-    int _reads_bytes_read[num_files];                   \
-    int _reads_char_index[num_files];                   \
-    int _reads_offset[num_files];                       \
-    char _reads_char[num_files];                        \
-    char *_reads_next_line[num_files];                  \
-    char *_reads_buffer[num_files];                     \
-    /* public vars */                                   \
-    int reads_stop[num_files];                          \
-    int *reads_line_size;                     \
-    char **reads_line;                                  \
-    /* init arrays */                                   \
-    reads_line_size = malloc(sizeof(int*) * num_files);     \
-    reads_line = malloc(sizeof(char*) * num_files);     \
-    for (int i = 0; i < num_files; i++) {               \
-        _reads_buffer[i] = malloc(READS_BUFFER_SIZE);   \
-        _reads_offset[i] = 0;                           \
-        _reads_handled[i] = 0;                          \
-        _reads_update_line[i] = 0;                      \
-        _reads_bytes_read[i] = 0;                       \
-        _reads_char_index[i] =  READS_BUFFER_SIZE;      \
-        _reads_offset[i] =  READS_BUFFER_SIZE;          \
-        reads_stop[i] = 0;                              \
-        reads_line_size[i] = 0;                         \
-        reads_line[i] = _reads_buffer[i];               \
+#define READS_INIT_VARS(files, num_files)                       \
+    /* private vars */                                          \
+    FILE **_reads_files = files;                                \
+    int _reads_break;                                           \
+    int _reads_handled[num_files];                              \
+    int _reads_update_line[num_files];                          \
+    int _reads_bytes_read[num_files];                           \
+    int _reads_char_index[num_files];                           \
+    int _reads_offset[num_files];                               \
+    char _reads_char[num_files];                                \
+    char *_reads_next_line[num_files];                          \
+    char *_reads_buffer[num_files];                             \
+    /* public vars */                                           \
+    int reads_stop[num_files];                                  \
+    int *reads_line_size = malloc(sizeof(int*) * num_files);    \
+    char **reads_line = malloc(sizeof(char*) * num_files);      \
+    /* init arrays */                                           \
+    for (int i = 0; i < num_files; i++) {                       \
+        _reads_buffer[i] = malloc(READS_BUFFER_SIZE);           \
+        _reads_offset[i] = 0;                                   \
+        _reads_handled[i] = 0;                                  \
+        _reads_update_line[i] = 0;                              \
+        _reads_bytes_read[i] = 0;                               \
+        _reads_char_index[i] =  READS_BUFFER_SIZE;              \
+        _reads_offset[i] =  READS_BUFFER_SIZE;                  \
+        reads_stop[i] = 0;                                      \
+        reads_line_size[i] = 0;                                 \
+        reads_line[i] = _reads_buffer[i];                       \
     }
 
 
