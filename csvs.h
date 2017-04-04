@@ -19,7 +19,7 @@
     int _csvs_offset[num_files];                        \
     char _csvs_char[num_files];                         \
     char *_csvs_buffer[num_files];                      \
-    char *_csvs_next_column[num_files][MAX_COLUMNS];    \
+    char *_csvs_next_column[num_files];                 \
     /* public vars */                                   \
     int csvs_stop[num_files];                           \
     int csvs_max_index[num_files];                      \
@@ -46,7 +46,7 @@
             if (_csvs_update_columns[file_num]) {                                                                       \
                 csvs_max_index[file_num] = 0;                                                                           \
                 csvs_column_size[file_num][0] = 0;                                                                      \
-                csvs_column[file_num][0] = _csvs_next_column[file_num][0];                                              \
+                csvs_column[file_num][0] = _csvs_next_column[file_num];                                              \
                 _csvs_update_columns[file_num] = 0;                                                                     \
             }                                                                                                           \
             /* read, if necessary, rolling over unused bytes to the start of the buffer */                              \
@@ -95,7 +95,7 @@
                     /* line is ready. prepare updates for the next iteration, and return control to caller */           \
                     else if (_csvs_char[file_num] == '\n') {                                                            \
                         _csvs_update_columns[file_num] = 1;                                                             \
-                        _csvs_next_column[file_num][0] = _csvs_buffer[file_num] + _csvs_char_index[file_num] + 1;       \
+                        _csvs_next_column[file_num] = _csvs_buffer[file_num] + _csvs_char_index[file_num] + 1;       \
                         _csvs_char_index[file_num]++;                                                                   \
                         _csvs_handled[file_num] = 1;                                                                    \
                         _csvs_break = 1;                                                                                \
