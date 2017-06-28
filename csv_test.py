@@ -63,6 +63,21 @@ def test_props(arg):
     result = expected(csv)
     assert result == run(csv, cmd)
 
+@pytest.mark.only
+def test_escapes():
+    stdin = """
+    a,b,c\,d\,e\n
+    f,g\,h\\n\,i\n
+    """
+    stdout = """
+    a
+    b
+    c\,d\,e
+    f
+    g\,h\\n\,i
+    """
+    assert rm_whitespace(stdout) == run(rm_whitespace(stdin), './csv.1024').strip()
+
 def test_cycling1():
     stdin = """
     a
@@ -175,7 +190,7 @@ def test_whitespace3():
 
 def test_fails_when_too_many_columns():
     stdin = 'a,' * MAX_COLUMNS
-    res = shell.run('./csv.1024 , 1,3,2 2>&1', stdin=stdin, warn=True, stream=True)
+    res = shell.run('./csv.1024 2>&1', stdin=stdin, warn=True, stream=True)
     assert res['exitcode'] == 1
     assert 'error: line with more than 64 columns' == res['output']
 
