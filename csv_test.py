@@ -146,6 +146,11 @@ def test1():
     """
     assert rm_whitespace(stdout) == run(rm_whitespace(stdin), './csv.8').strip()
 
+def test_empties():
+    stdin = 'a,,,b,c'
+    stdout = 'a\n\n\nb\nc\n'
+    assert stdout == run(stdin, './csv.8')
+
 def test_whitespace1():
     stdin = ('a\n'
              '\n'
