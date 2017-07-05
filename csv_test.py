@@ -63,7 +63,6 @@ def test_props(arg):
     result = expected(csv)
     assert result == run(csv, cmd)
 
-@pytest.mark.only
 def test_escapes():
     stdin = """
     a,b,c\,d\,e\n

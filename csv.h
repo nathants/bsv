@@ -70,9 +70,10 @@
                 _csv_handled = 0;                                                                                       \
                 while (_csv_char_index - _csv_offset != _csv_bytes_read) {                                              \
                     _csv_char = _csv_buffer[_csv_char_index];                                                           \
-                    _last_csv_char = _csv_buffer[MAX(0, _csv_char_index - 1)];                                          \
                     /* start next column */                                                                             \
-                    if (_csv_char == CSV_DELIMITER && _last_csv_char != '\\') {                                         \
+                    if (_csv_char == CSV_DELIMITER &&                                                                   \
+                        (_csv_char_index == 0 || _csv_buffer[_csv_char_index - 1] != '\\'))                             \
+                    {                                                                                                   \
                         if (++csv_max_index >= MAX_COLUMNS) {                                                           \
                             fprintf(stderr, "error: line with more than %d columns\n", MAX_COLUMNS);                    \
                             exit(1);                                                                                    \
@@ -86,7 +87,9 @@
                         csv_column_size[csv_max_index]++;                                                               \
                     }                                                                                                   \
                     /* line is ready. prepare updates for the next iteration, and return control to caller */           \
-                    else if (_csv_char == '\n' && _last_csv_char != '\\') {                                             \
+                    else if (_csv_char == '\n' &&                                                                       \
+                             (_csv_char_index == 0 || _csv_buffer[_csv_char_index - 1] != '\\'))                        \
+                    {                                                                                                   \
                         _csv_update_columns = 1;                                                                        \
                         _csv_next_column[0] = _csv_buffer + _csv_char_index + 1;                                        \
                         _csv_char_index++;                                                                              \
