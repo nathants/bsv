@@ -2,7 +2,7 @@
 
 CFLAGS=-Wall -O3 -march=native -mtune=native
 
-all: rcut bucket partition gen-csv dedupe csv csvs read reads take sum
+all: rcut bucket partition gen-csv dedupe csv csvs read reads take sum sums
 
 partition:
 	gcc $(CFLAGS) partition.c -o partition
