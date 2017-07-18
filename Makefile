@@ -10,6 +10,9 @@ partition:
 take:
 	gcc $(CFLAGS) take.c -o take
 
+takes:
+	gcc $(CFLAGS) takes.c -o takes
+
 dedupe:
 	gcc $(CFLAGS) dedupe.c -o dedupe
 
@@ -37,6 +40,8 @@ gen-csv:
 sum:
 	gcc $(CFLAGS) sum.c -o sum
 
+sums:
+	gcc $(CFLAGS) sums.c -o sums
 
 clean:
-	rm -f rcut bucket partition gen-csv dedupe csv csvs *.8 *.11 *.17 *.64 *.256 *.1024 read reads take sum
+	rm -f rcut bucket partition gen-csv dedupe csv csvs *.8 *.11 *.17 *.64 *.256 *.1024 read reads take sum takes sums
