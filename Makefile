@@ -2,7 +2,7 @@
 
 CFLAGS=-Wall -O3 -march=native -mtune=native
 
-all: rcut bucket partition gen-csv dedupe csv csvs read reads take sum sums sums-each
+all: rcut bucket partition gen-csv dedupe csv csvs read reads take sum sums sums-each filter
 
 partition:
 	gcc $(CFLAGS) partition.c -o partition
@@ -43,9 +43,11 @@ sum:
 sums:
 	gcc $(CFLAGS) sums.c -o sums
 
+filter:
+	gcc $(CFLAGS) filter.c -o filter
 
 sums-each:
 	gcc $(CFLAGS) sums_each.c -o sums-each
 
 clean:
-	rm -f rcut bucket partition gen-csv dedupe csv csvs *.8 *.11 *.17 *.64 *.256 *.1024 read reads take sum takes sums sums-each
+	rm -f rcut bucket partition gen-csv dedupe csv csvs *.8 *.11 *.17 *.64 *.256 *.1024 read reads take sum takes sums sums-each filter

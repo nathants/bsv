@@ -20,7 +20,6 @@
     int _csv_char_index = CSV_BUFFER_SIZE;          \
     int _csv_offset = CSV_BUFFER_SIZE;              \
     char _csv_char;                                 \
-    char _last_csv_char;                            \
     char *_csv_buffer = malloc(CSV_BUFFER_SIZE);    \
     char *_csv_next_column[MAX_COLUMNS];            \
     /* public vars */                               \

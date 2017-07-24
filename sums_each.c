@@ -18,7 +18,7 @@ int main(int argc, const char **argv) {
     /* using double not ideal, but how to gaurd against int overlow and exit 1 in that case? */
     CSV_INIT_VARS();
     double vals[MAX_COLUMNS] = {0.0};
-    int max_index = 0;
+    int max_index = -1;
     char last[1024] = "";
 
     while (1) {
@@ -26,7 +26,7 @@ int main(int argc, const char **argv) {
         if (csv_stop)
             break;
 
-        if (!max_index) {
+        if (max_index == -1) {
             max_index = csv_max_index;
             memcpy(last, csv_column[0], csv_column_size[0]);
         }
