@@ -37,9 +37,10 @@ int main(int argc, const char **argv) {
             memcpy(last, csv_column[0], csv_column_size[0]);
         }
 
-        csv_column[0][csv_column_size[0]] = '\0';
-        for (int i = 1; i <= csv_max_index; i++)
+        for (int i = 1; i <= csv_max_index; i++) {
+            csv_column[i][csv_column_size[i]] = '\0';
             vals[i] += (double) atoi(csv_column[i]);
+        }
 
     }
 

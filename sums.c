@@ -15,6 +15,7 @@ int main(int argc, const char **argv) {
         if (max_index == -1)
             max_index = csv_max_index;
         for (int i = 0; i <= csv_max_index; i++) {
+            csv_column[i][csv_column_size[i]] = '\0';
             vals[i] += (double) atoi(csv_column[i]);
         }
     }
