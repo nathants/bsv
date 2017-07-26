@@ -86,8 +86,7 @@
                         csv_column_size[csv_max_index]++;                                                               \
                     }                                                                                                   \
                     /* line is ready. prepare updates for the next iteration, and return control to caller */           \
-                    else if (_csv_char == '\n' &&                                                                       \
-                             (_csv_char_index == 0 || _csv_buffer[_csv_char_index - 1] != '\\'))                        \
+                    else if (_csv_char == '\n')                                                                         \
                     {                                                                                                   \
                         _csv_update_columns = 1;                                                                        \
                         _csv_next_column[0] = _csv_buffer + _csv_char_index + 1;                                        \
