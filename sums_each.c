@@ -44,6 +44,10 @@ int main(int argc, const char **argv) {
 
     }
 
-    PRINT();
+    // if the first row had data, otherwise input was empty
+    if (max_index != 0)
+        PRINT();
+    else
+        exit(1);
 
 }

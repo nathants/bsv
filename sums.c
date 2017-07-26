@@ -20,10 +20,14 @@ int main(int argc, const char **argv) {
         }
     }
 
-    for (int i = 0; i <= max_index; i++) {
-        printf("%.0f", vals[i]);
-        if (i < max_index)
-            printf(",");
-    }
-    printf("\n");
+    // if the first row had data, otherwise input was empty
+    if (max_index != 0) {
+        for (int i = 0; i <= max_index; i++) {
+            printf("%.0f", vals[i]);
+            if (i < max_index)
+                printf(",");
+        }
+        printf("\n");
+    } else
+        exit(1);
 }
