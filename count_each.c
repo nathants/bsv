@@ -15,8 +15,8 @@ int main(int argc, const char **argv) {
     /* def and init */
     long long val = 0;
     int last_size = 0;
-    char last[4096] = "";
-    char output[4096] = "";
+    char last[1024 * 1024] = "";
+    char output[1024 * 1024] = "";
     READ_INIT_VARS();
     WRITE_INIT_VARS();
 
