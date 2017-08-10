@@ -7,35 +7,39 @@
 
 #define MAX_COLUMNS 64
 
-#define CSVS_INIT_VARS(files, num_files)                \
-    /* private vars */                                  \
-    FILE **_csvs_files = files;                         \
-    int _csvs_break;                                    \
-    int _csvs_i;                                        \
-    int _csvs_handled[num_files];                       \
-    int _csvs_update_columns[num_files];                \
-    int _csvs_bytes_read[num_files];                    \
-    int _csvs_char_index[num_files];                    \
-    int _csvs_offset[num_files];                        \
-    char _csvs_char[num_files];                         \
-    char *_csvs_buffer[num_files];                      \
-    char *_csvs_next_column[num_files];                 \
-    /* public vars */                                   \
-    int csvs_stop[num_files];                           \
-    int csvs_max_index[num_files];                      \
-    int csvs_column_size[num_files][MAX_COLUMNS];       \
-    char *csvs_column[num_files][MAX_COLUMNS];          \
-    for (int i = 0; i < num_files; i++) {               \
-        _csvs_handled[i] = 0;                           \
-        _csvs_update_columns[i] = 0;                    \
-        _csvs_bytes_read[i] = 0;                        \
-        _csvs_char_index[i] = CSVS_BUFFER_SIZE;         \
-        _csvs_offset[i] = CSVS_BUFFER_SIZE;             \
-        csvs_stop[i] = 0;                               \
-        csvs_max_index[i] = 0;                          \
-        _csvs_buffer[i] = malloc(CSVS_BUFFER_SIZE);     \
-        csvs_column_size[i][0] = 0;                     \
-        csvs_column[i][0] = _csvs_buffer[i];            \
+#define CSVS_INIT_VARS(files, num_files)                            \
+    /* private vars */                                              \
+    FILE **_csvs_files = files;                                     \
+    int _csvs_break;                                                \
+    int _csvs_i;                                                    \
+    int _csvs_handled[num_files];                                   \
+    int _csvs_update_columns[num_files];                            \
+    int _csvs_bytes_read[num_files];                                \
+    int _csvs_char_index[num_files];                                \
+    int _csvs_offset[num_files];                                    \
+    char _csvs_char[num_files];                                     \
+    char *_csvs_buffer[num_files];                                  \
+    char *_csvs_next_column[num_files];                             \
+    /* public vars */                                               \
+    int csvs_stop[num_files];                                       \
+    int csvs_max_index[num_files];                                  \
+    int csvs_column_size[num_files][MAX_COLUMNS];                   \
+    char *csvs_column[num_files][MAX_COLUMNS];                      \
+    for (int i = 0; i < num_files; i++) {                           \
+        _csvs_handled[i] = 0;                                       \
+        _csvs_update_columns[i] = 0;                                \
+        _csvs_bytes_read[i] = 0;                                    \
+        _csvs_char_index[i] = CSVS_BUFFER_SIZE;                     \
+        _csvs_offset[i] = CSVS_BUFFER_SIZE;                         \
+        csvs_stop[i] = 0;                                           \
+        csvs_max_index[i] = 0;                                      \
+        _csvs_buffer[i] = malloc(CSVS_BUFFER_SIZE);                 \
+        if (_csvs_buffer[i] == NULL) {                              \
+            fprintf(stderr, "error: failed to allocate memory");    \
+            exit(1);                                                \
+        }                                                           \
+        csvs_column_size[i][0] = 0;                                 \
+        csvs_column[i][0] = _csvs_buffer[i];                        \
     }
 
 #define CSVS_READ_LINE(file_num)                                                                                        \

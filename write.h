@@ -4,8 +4,12 @@
 #include <stdio.h>
 #include <string.h>
 
-#define WRITE_INIT_VARS() \
-    char *write_buffer = malloc(WRITE_BUFFER_SIZE); \
+#define WRITE_INIT_VARS()                                       \
+    char *write_buffer = malloc(WRITE_BUFFER_SIZE);             \
+    if (write_buffer == NULL) {                                 \
+        fprintf(stderr, "error: failed to allocate memory");    \
+        exit(1);                                                \
+    }                                                           \
     int write_offset = 0;
 
 #define WRITE(str, size)                                                                                \

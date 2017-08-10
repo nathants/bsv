@@ -4,13 +4,17 @@
 #include <stdio.h>
 #include <string.h>
 
-#define WRITES_INIT_VARS(files, num_files)              \
-    FILE **writes_files = files;                        \
-    int writes_offset[num_files];                       \
-    char *writes_buffers[num_files];                    \
-    for (int i = 0; i < num_files; i++) {               \
-        writes_buffers[i] = malloc(WRITES_BUFFER_SIZE); \
-        writes_offset[i] = 0;                           \
+#define WRITES_INIT_VARS(files, num_files)                          \
+    FILE **writes_files = files;                                    \
+    int writes_offset[num_files];                                   \
+    char *writes_buffers[num_files];                                \
+    for (int i = 0; i < num_files; i++) {                           \
+        writes_buffers[i] = malloc(WRITES_BUFFER_SIZE);             \
+        if (writes_buffers[i] == NULL) {                            \
+            fprintf(stderr, "error: failed to allocate memory");    \
+            exit(1);                                                \
+        }                                                           \
+        writes_offset[i] = 0;                                       \
     }
 
 #define WRITES(str, size, file_num)                                                     \

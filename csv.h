@@ -10,23 +10,27 @@
 #define MIN(x, y) ((x < y) ? x : y)
 #define MAX(x, y) ((x > y) ? x : y)
 
-#define CSV_INIT_VARS()                             \
-    /* private vars */                              \
-    int _csv_break;                                 \
-    int _csv_i;                                     \
-    int _csv_handled = 0;                           \
-    int _csv_update_columns = 0;                    \
-    int _csv_bytes_read = 0;                        \
-    int _csv_char_index = CSV_BUFFER_SIZE;          \
-    int _csv_offset = CSV_BUFFER_SIZE;              \
-    char _csv_char;                                 \
-    char *_csv_buffer = malloc(CSV_BUFFER_SIZE);    \
-    char *_csv_next_column[MAX_COLUMNS];            \
-    /* public vars */                               \
-    int csv_stop = 0;                               \
-    int csv_max_index = 0;                          \
-    int csv_column_size[MAX_COLUMNS] = {0};         \
-    char *csv_column[MAX_COLUMNS];                  \
+#define CSV_INIT_VARS()                                         \
+    /* private vars */                                          \
+    int _csv_break;                                             \
+    int _csv_i;                                                 \
+    int _csv_handled = 0;                                       \
+    int _csv_update_columns = 0;                                \
+    int _csv_bytes_read = 0;                                    \
+    int _csv_char_index = CSV_BUFFER_SIZE;                      \
+    int _csv_offset = CSV_BUFFER_SIZE;                          \
+    char _csv_char;                                             \
+    char *_csv_buffer = malloc(CSV_BUFFER_SIZE);                \
+    if (_csv_buffer == NULL) {                                  \
+        fprintf(stderr, "error: failed to allocate memory");    \
+        exit(1);                                                \
+    }                                                           \
+    char *_csv_next_column[MAX_COLUMNS];                        \
+    /* public vars */                                           \
+    int csv_stop = 0;                                           \
+    int csv_max_index = 0;                                      \
+    int csv_column_size[MAX_COLUMNS] = {0};                     \
+    char *csv_column[MAX_COLUMNS];                              \
     csv_column[0] = _csv_buffer;
 
 #define CSV_READ_LINE(file)                                                                                             \

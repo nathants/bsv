@@ -5,21 +5,25 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define READ_INIT_VARS()                            \
-    /* private vars */                              \
-    int _read_break;                                \
-    int _read_handled = 0;                          \
-    int _read_update_line = 0;                      \
-    int _read_bytes_read = 0;                       \
-    int _read_char_index = READ_BUFFER_SIZE;        \
-    int _read_offset = READ_BUFFER_SIZE;            \
-    char _read_char;                                \
-    char *_read_buffer = malloc(READ_BUFFER_SIZE);  \
-    char *_read_next_line;                          \
-    /* public vars */                               \
-    int read_stop = 0;                              \
-    int read_line_size = 0;                         \
-    char *read_line;                                \
+#define READ_INIT_VARS()                                        \
+    /* private vars */                                          \
+    int _read_break;                                            \
+    int _read_handled = 0;                                      \
+    int _read_update_line = 0;                                  \
+    int _read_bytes_read = 0;                                   \
+    int _read_char_index = READ_BUFFER_SIZE;                    \
+    int _read_offset = READ_BUFFER_SIZE;                        \
+    char _read_char;                                            \
+    char *_read_buffer = malloc(READ_BUFFER_SIZE);              \
+    if (_read_buffer == NULL) {                                 \
+        fprintf(stderr, "error: failed to allocate memory");    \
+        exit(1);                                                \
+    }                                                           \
+    char *_read_next_line;                                      \
+    /* public vars */                                           \
+    int read_stop = 0;                                          \
+    int read_line_size = 0;                                     \
+    char *read_line;                                            \
     read_line = _read_buffer;
 
 #define READ_LINE(file)                                                                                                 \
