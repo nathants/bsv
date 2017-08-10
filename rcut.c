@@ -35,7 +35,7 @@ void showusage() {
         if (max_index || column_size[0]) {                                      \
             for (i = 0; i < num_fields; i++) {                                  \
                 ERROR_CHECK_NOT_ENOUGH_COLUMNS(max_index, column_size, column); \
-                if (i < num_fields && add_delimeter)                            \
+                if (add_delimeter)                            \
                     WRITE(DELIMITER, 1);                                        \
                 WRITE(column[field_nums[i]], column_size[field_nums[i]]);       \
                 add_delimeter = 1;                                              \
