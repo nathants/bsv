@@ -2,7 +2,7 @@
 
 CFLAGS=-Wall -O3 -march=native -mtune=native
 
-all: rcut bucket partition gen-csv dedupe csv csvs read reads take sum sums sums-each filter count-each compress decompress copy drop-until
+all: rcut bucket partition gen-csv dedupe csv csvs read reads take sum sums sums-each filter count-each compress decompress copy drop-until take-until
 
 copy:
 	gcc $(CFLAGS) copy.c -o copy
@@ -64,5 +64,8 @@ count-each:
 drop-until:
 	gcc $(CFLAGS) drop_until.c -o drop-until
 
+take-until:
+	gcc $(CFLAGS) take_until.c -o take-until
+
 clean:
-	rm -f rcut bucket partition gen-csv dedupe csv csvs *.8 *.11 *.17 *.64 *.256 *.1024 read reads take sum takes sums sums-each filter count-each compress decompress copy drop-until
+	rm -f rcut bucket partition gen-csv dedupe csv csvs *.8 *.11 *.17 *.64 *.256 *.1024 read reads take sum takes sums sums-each filter count-each compress decompress copy drop-until take-until

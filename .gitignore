@@ -27,3 +27,4 @@ copy
 drop-until
 compress
 decompress
+take-until
