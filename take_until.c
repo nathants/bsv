@@ -6,7 +6,7 @@
 #define CSV_DELIMITER ','
 
 void showusage() {
-    fprintf(stderr, "for csv sorted by the first column, print all rows while first column is lt VALUE, then drop rest.");
+    fprintf(stderr, "for csv sorted by the first column, print all rows while first column is lte VALUE, then drop rest.");
     fprintf(stderr, "\nusage: $ take-until VALUE\n");
     exit(1);
 }
@@ -24,8 +24,10 @@ void showusage() {
     do {                                                                                    \
         tmp = csv_column[0][csv_column_size[0]];                                            \
         csv_column[0][csv_column_size[0]] = '\0';                                           \
-        if ((csv_max_index || csv_column_size[0]) && strcmp(csv_column[0], match) >= 0) {    \
+        if ((csv_max_index || csv_column_size[0]) && strcmp(csv_column[0], match) >= 0) {   \
             done = 1;                                                                       \
+            csv_column[0][csv_column_size[0]] = tmp;                                        \
+            PRINT();                                                                        \
         } else {                                                                            \
             csv_column[0][csv_column_size[0]] = tmp;                                        \
             PRINT();                                                                        \
