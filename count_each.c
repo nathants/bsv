@@ -37,7 +37,15 @@ int main(int argc, const char **argv) {
             memcpy(last, read_line, read_line_size);
             last_size = read_line_size;
         }
+    }
 
+    val += 1;
+    if (!EQUAL(last, read_line, last_size, read_line_size)) {
+        if (last_size != 0) {
+            WRITE(last, last_size);
+            sprintf(output, ",%d\n", val);
+            WRITE(output, strlen(output));
+        }
     }
 
     /* all done */
