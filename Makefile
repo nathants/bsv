@@ -61,5 +61,8 @@ sums-each:
 count-each:
 	gcc $(CFLAGS) count_each.c -o count-each
 
+drop-until:
+	gcc $(CFLAGS) drop_until.c -o drop-until
+
 clean:
-	rm -f rcut bucket partition gen-csv dedupe csv csvs *.8 *.11 *.17 *.64 *.256 *.1024 read reads take sum takes sums sums-each filter count-each compress decompress copy
+	rm -f rcut bucket partition gen-csv dedupe csv csvs *.8 *.11 *.17 *.64 *.256 *.1024 read reads take sum takes sums sums-each filter count-each compress decompress copy drop-until
