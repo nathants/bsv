@@ -244,24 +244,24 @@ def test_fails_when_not_enough_columns():
     stdin = 'a,b,c'
     res = shell.run('./rcut 4 2>&1', stdin=stdin, warn=True)
     assert res['exitcode'] == 1
-    assert 'error: line without 4 columns: a,b,c' == res['output']
+    assert 'error: line without 4 columns: a,b,c' == res['stdout']
 
 def test_fails_when_non_positive_fields():
     stdin = 'a,b,c'
     res = shell.run('./rcut 0 2>&1', stdin=stdin, warn=True)
     assert res['exitcode'] == 1
-    assert 'error: fields must be positive, got: 0' == res['output']
+    assert 'error: fields must be positive, got: 0' == res['stdout']
 
 def test_fails_when_too_many_fields():
     stdin = 'a,b,c'
     print(list(range(1, MAX_COLUMNS + 1)))
     res = shell.run('./rcut', ','.join('1' for _ in range(MAX_COLUMNS + 1)), '2>&1', stdin=stdin, warn=True)
     assert res['exitcode'] == 1
-    assert 'error: cannot select more than 64 fields' == res['output']
+    assert 'error: cannot select more than 64 fields' == res['stdout']
 
 def test_fails_when_too_many_fields():
     stdin = 'a,b,c'
     print(list(range(1, MAX_COLUMNS + 1)))
     res = shell.run('./rcut', ','.join('1' for _ in range(MAX_COLUMNS + 1)), '2>&1', stdin=stdin, warn=True)
     assert res['exitcode'] == 1
-    assert 'error: cannot select more than 64 fields' == res['output']
+    assert 'error: cannot select more than 64 fields' == res['stdout']

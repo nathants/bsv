@@ -114,4 +114,4 @@ def test_oversized_line():
             f.write('a' * 8)
         res = shell.run(cmd, 'a.txt 2>&1', warn=True)
         assert res['exitcode'] == 1
-        assert 'error: line longer than READS_BUFFER_SIZE' == res['output']
+        assert 'error: line longer than READS_BUFFER_SIZE' == res['stdout']

@@ -83,10 +83,10 @@ def test_fails_when_non_positive_buckets():
     stdin = 'a'
     res = shell.run('./bucket 0 2>&1', stdin=stdin, warn=True)
     assert res['exitcode'] == 1
-    assert 'NUM_BUCKETS must be positive, got: 0' == res['output']
+    assert 'NUM_BUCKETS must be positive, got: 0' == res['stdout']
 
 def test_fails_when_too_many_buckets():
     stdin = 'a'
     res = shell.run('./bucket', int(1e8), '2>&1', stdin=stdin, warn=True)
     assert res['exitcode'] == 1
-    assert 'NUM_BUCKETS must be less than 1e8, got: 100000000' == res['output']
+    assert 'NUM_BUCKETS must be less than 1e8, got: 100000000' == res['stdout']

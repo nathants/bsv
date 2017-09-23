@@ -196,10 +196,10 @@ def test_fails_when_too_many_columns():
     stdin = 'a,' * MAX_COLUMNS
     res = shell.run('./csv.1024 2>&1', stdin=stdin, warn=True, stream=True)
     assert res['exitcode'] == 1
-    assert 'error: line with more than 64 columns' == res['output']
+    assert 'error: line with more than 64 columns' == res['stdout']
 
 def test_oversized_line():
     stdin = 'a' * 8
     res = shell.run('./csv.8 2>&1', stdin=stdin, warn=True)
     assert res['exitcode'] == 1
-    assert 'error: line longer than CSV_BUFFER_SIZE' == res['output']
+    assert 'error: line longer than CSV_BUFFER_SIZE' == res['stdout']

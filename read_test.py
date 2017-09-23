@@ -147,4 +147,4 @@ def test_oversized_line():
     stdin = 'a' * 8
     res = shell.run('./read.8 2>&1', stdin=stdin, warn=True)
     assert res['exitcode'] == 1
-    assert 'error: line longer than READ_BUFFER_SIZE' == res['output']
+    assert 'error: line longer than READ_BUFFER_SIZE' == res['stdout']
