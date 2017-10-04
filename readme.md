@@ -1,6 +1,6 @@
 ## why
 
-it should be possible to process csv at speeds approaching that of network io.
+it should be possible to process csv at speeds approaching that of network io. this would be ideal for [mapreduce the hard way](https://github.com/nathants/py-aws/blob/master/readme.md#more-what-aka-mapreduce-the-hard-way).
 
 ## what
 
