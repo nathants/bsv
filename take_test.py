@@ -1,9 +1,7 @@
-import pytest
 import os
-import murmur3 # https://github.com/nathants/murmur3/tree/master/python
 import string
 from hypothesis import given, settings
-from hypothesis.strategies import text, lists, composite, integers
+from hypothesis.strategies import text, lists, composite, integers, randoms
 import shell # https://github.com/nathants/py-shell
 import hashlib
 
@@ -31,32 +29,28 @@ def run(stdin, *args):
 
 shell.run('make clean && make take', stream=True)
 
-MAX_LINE_BYTES = 8192
+@composite
+def inputs(draw):
+    r = draw(randoms())
+    num_columns = draw(integers(min_value=1, max_value=12))
+    column = text(string.ascii_lowercase, min_size=1)
+    line = lists(column, min_size=num_columns, max_size=num_columns)
+    lines = draw(lists(line, min_size=3))
+    token = r.choice(lines)[0]
+    csv = '\n'.join(sorted([','.join(x) for x in lines])) + '\n'
+    return token, csv
 
-# @composite
-# def inputs(draw):
-#     num_columns = draw(integers(min_value=1, max_value=12))
-#     column = text(string.ascii_lowercase, min_size=1)
-#     line = lists(column, min_size=num_columns, max_size=num_columns)
-#     lines = draw(lists(line, min_size=3))
-#     csv = '\n'.join([','.join(x) for x in lines]) + '\n'
-#     buckets = draw(integers(min_value=1, max_value=1e5))
-#     return (buckets, csv)
+def expected(token, csv):
+    return '\n'.join([x
+                      for x in csv.splitlines()
+                      if x.split(',')[0] == token]).rstrip() + '\n'
 
-# def expected(buckets, csv):
-#     xs = ["%d,%s" % (murmur3.hash(x.split(',')[0]) % buckets, x)
-#           if x.strip()
-#           else x
-#           for x in csv.splitlines()]
-
-#     return '\n'.join(xs) + '\n'
-
-# @given(inputs())
-# @settings(max_examples=100 * int(os.environ.get('TEST_FACTOR', 1)))
-# def test_props(args):
-#     buckets, csv = args
-#     result = expected(buckets, csv)
-#     assert result == run(csv, './bucket', buckets)
+@given(inputs())
+@settings(max_examples=100 * int(os.environ.get('TEST_FACTOR', 1)))
+def test_props(args):
+    token, csv = args
+    result = expected(token, csv)
+    assert result == run(csv, './take', token)
 
 def test_basic():
     stdin = """
@@ -72,3 +66,4 @@ def test_basic():
     b,2
     """
     assert rm_whitespace(stdout) == run(stdin, './take b')
+    assert '' == run(stdin, './take asdf')
