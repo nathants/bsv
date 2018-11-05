@@ -132,7 +132,7 @@ def test_holes():
     stdout = 'a\n\nc\n'
     assert stdout == run(stdin, './csv.8')
 
-def test1():
+def test_basic():
     stdin = """
     a,b
     cd,e
