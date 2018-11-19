@@ -1,0 +1,11 @@
+.hypothesis
+__pycache__/
+.cache/
+/todo*/
+bsv
+csv
+gen_csv
+rcut
+_csv
+_read
+_write
