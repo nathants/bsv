@@ -9,6 +9,7 @@
 #define CSV_DELIMITER ','
 
 #define CSV_INIT_VARS()                                                                         \
+    int _csv_escaped;                                                                           \
     int _csv_break;                                                                             \
     int _csv_i;                                                                                 \
     int _csv_handled = 0;                                                                       \
@@ -51,6 +52,7 @@
                 }                                                                                                       \
                 /* move the bytes to head of buffer, and update vars for new buffer positions */                        \
                 memmove(_csv_buffer, csv_columns[0], _csv_offset);                                                      \
+                _csv_escaped = _csv_buffer[_csv_offset - 1] == '\\' ;                                                   \
                 csv_columns[0] = _csv_buffer;                                                                           \
                 for (_csv_i = 1; _csv_i <= csv_max; _csv_i++)                                                           \
                     csv_columns[_csv_i] = csv_columns[_csv_i - 1] + csv_sizes[_csv_i - 1] + 1;                          \
