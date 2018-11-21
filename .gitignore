@@ -1,4 +1,5 @@
-.hypothesis
+.tox/
+.hypothesis/
 __pycache__/
 .cache/
 /todo*/

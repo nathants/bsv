@@ -7,11 +7,11 @@ all: $(ALL)
 setup:
 	mkdir -p bin
 
-clean:
+clean: setup
 	cd bin && rm -f -- $(ALL)
 
-test:
-	py.test -vx --tb native test/*.py
+test: setup
+	tox
 
 bsv: setup
 	gcc $(CFLAGS) src/bsv.c -o bin/bsv

@@ -14,12 +14,12 @@ echo setup: >> Makefile
 echo -e '\tmkdir -p bin' >> Makefile
 echo >> Makefile
 
-echo clean: >> Makefile
+echo clean: setup >> Makefile
 echo -e '\tcd bin && rm -f -- $(ALL)' >> Makefile
 echo >> Makefile
 
-echo test: >> Makefile
-echo -e '\tpy.test -vx --tb native test/*.py' >> Makefile
+echo test: setup >> Makefile
+echo -e '\ttox' >> Makefile
 echo >> Makefile
 
 f() {
