@@ -5,7 +5,7 @@
 #define MIN(x, y) ((x < y) ? x : y)
 #define MAX(x, y) ((x > y) ? x : y)
 #define BUFFER_SIZE 1024 * 1024 * 5
-#define CSV_MAX_COLUMNS 64
+#define CSV_MAX_COLUMNS 65535
 #define CSV_DELIMITER ','
 
 #define CSV_INIT_VARS()                                                                         \
@@ -122,16 +122,20 @@
 #define DUMP_INIT_VARS()                        \
     WRITE_INIT_VARS();                          \
     int _dump_i;                                \
-    char _max_char;
+    unsigned short _dump_ushort;
 
-#define DUMP(file, max, columns, sizes)                     \
-    do {                                                    \
-        _max_char = (char) max;                             \
-        WRITE(&_max_char, 1, file);                         \
-        for (_dump_i = 0; _dump_i <= max; _dump_i++)        \
-            WRITE((&sizes[_dump_i]), 1, file);              \
-        for (_dump_i = 0; _dump_i <= max; _dump_i++)        \
-            WRITE(columns[_dump_i], sizes[_dump_i], file);  \
+#define DUMP(file, max, columns, sizes)                                                                                 \
+    do {                                                                                                                \
+        if (max > CSV_MAX_COLUMNS) { fprintf(stderr, "error: cannot have more then 2**16 columns"); exit(1); }                   \
+        _dump_ushort = (unsigned short)max;                                                                            \
+        WRITE(&_dump_ushort, 2, file);                                                                                  \
+        for (_dump_i = 0; _dump_i <= max; _dump_i++) {                                                                  \
+            if (sizes[_dump_i] > CSV_MAX_COLUMNS) { fprintf(stderr, "error: cannot have columns with more than 2**16 bytes, column: %d,size: %d, content: %.*s...", _dump_i, sizes[_dump_i], 10, columns[_dump_i]); exit(1); } \
+            _dump_ushort = (unsigned short)sizes[_dump_i];                                                              \
+            WRITE((&_dump_ushort), 2, file);                                                                            \
+        }                                                                                                               \
+        for (_dump_i = 0; _dump_i <= max; _dump_i++)                                                                    \
+            WRITE(columns[_dump_i], sizes[_dump_i], file);                                                              \
     } while(0)
 
 #define DUMP_FLUSH(file)                        \
@@ -139,7 +143,8 @@
 
 #define LOAD_INIT_VARS()                                                                        \
     READ_INIT_VARS();                                                                           \
-    int load_stop, _load_sum, _load_i, load_max;                                                \
+    int _load_bytes, load_stop, _load_sum, _load_i, load_max;                                   \
+    unsigned short _load_ushort;                                                                \
     int load_sizes[CSV_MAX_COLUMNS];                                                            \
     char *_load_buffer = malloc(BUFFER_SIZE);                                                   \
     if (_load_buffer == NULL) { fprintf(stderr, "error: failed to allocate memory"); exit(1); } \
@@ -148,16 +153,19 @@
 /* TODO is if more performant to merge LOAD and READ? */
 #define LOAD(file)                                                                                                      \
     do {                                                                                                                \
-        READ(1, file);                                                                                                  \
+        READ(2, file);                                                                                                  \
         load_stop = 1;                                                                                                  \
         if (read_bytes) {                                                                                               \
             load_stop = 0;                                                                                              \
-            load_max = (int)read_buffer[0];                                                                             \
-            READ(load_max + 1, file);                                                                                   \
-            if (read_bytes != load_max + 1) { fprintf(stderr, "sizes didnt read enough bytes, only got: %d, expected: %d\n", read_bytes, load_max + 1); exit(1); } \
+            memcpy(&_load_ushort, read_buffer, 2);                                                                      \
+            load_max = (int)_load_ushort;                                                                               \
+            _load_bytes = (load_max + 1) * 2;                                                                           \
+            READ(_load_bytes, file);                                                                                    \
+            if (read_bytes != _load_bytes) { fprintf(stderr, "sizes didnt read enough bytes, only got: %d, expected: %d\n", read_bytes, _load_bytes); exit(1); } \
             _load_sum = 0;                                                                                              \
             for (_load_i = 0; _load_i <= load_max; _load_i++) {                                                         \
-                load_sizes[_load_i] = (int)read_buffer[_load_i];                                                        \
+                memcpy(&_load_ushort, read_buffer + _load_i * 2, 2);                                                    \
+                load_sizes[_load_i] = (int)_load_ushort;                                                                \
                 load_columns[_load_i] = _load_buffer + _load_sum;                                                       \
                 _load_sum += load_sizes[_load_i];                                                                       \
             }                                                                                                           \

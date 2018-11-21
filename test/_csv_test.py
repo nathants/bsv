@@ -3,13 +3,17 @@ import string
 import shell
 from hypothesis import given, settings
 from hypothesis.strategies import text, lists, composite, integers, sampled_from
-from test_util import compile_buffer_sizes, run, rm_whitespace, max_columns
+from test_util import compile_buffer_sizes, run, rm_whitespace
 
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
 buffers = [2, 3, 5, 8, 11, 17, 64, 256, 1024]
 
-compile_buffer_sizes('_csv', buffers)
+def setup_module():
+    with shell.climb_git_root():
+        shell.run('make clean', stream=True)
+        compile_buffer_sizes('_csv', buffers)
+        shell.run('make _csv')
 
 def teardown_module():
     with shell.climb_git_root():
@@ -171,14 +175,21 @@ def test_whitespace3():
 
 def test_fails_when_too_many_columns():
     with shell.climb_git_root():
-        stdin = 'a,' * max_columns
-        res = shell.run('bin/_csv.1024 2>&1', stdin=stdin, warn=True, stream=True)
+        stdin = 'a,' * (2**16 - 1)
+        with shell.tempdir(cleanup=False):
+            with open('input', 'w') as f:
+                f.write(stdin)
+            path = os.path.abspath('input')
+        try:
+            res = shell.run('set -o pipefail; cat', path, '| bin/_csv >/dev/null', warn=True, stream=True)
+        finally:
+            shell.run('rm', path)
         assert res['exitcode'] == 1
-        assert 'error: line with more than 64 columns' == res['stdout']
+        assert 'error: line with more than 65535 columns' == res['stderr']
 
 def test_oversized_line():
     with shell.climb_git_root():
         stdin = 'a' * 8
-        res = shell.run('bin/_csv.8 2>&1', stdin=stdin, warn=True)
+        res = shell.run('bin/_csv.8', stdin=stdin, warn=True)
         assert res['exitcode'] == 1
-        assert 'error: line longer than BUFFER_SIZE' == res['stdout']
+        assert 'error: line longer than BUFFER_SIZE' == res['stderr']

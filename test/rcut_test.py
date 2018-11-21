@@ -6,8 +6,9 @@ from hypothesis import given, settings
 from hypothesis.strategies import text, lists, composite, integers
 from test_util import run, rm_whitespace, rm_whitespace, max_columns
 
-with shell.climb_git_root():
-    shell.run('make clean && make bsv csv rcut', stream=True)
+def setup_module():
+    with shell.climb_git_root():
+        shell.run('make clean && make bsv csv rcut', stream=True)
 
 @composite
 def inputs(draw):
@@ -35,11 +36,11 @@ def expected(fields, csv):
             result.append('')
         else:
             columns = line.split(',')
-            if len(columns) > 64:
+            if len(columns) > max_columns:
                 return
             res = []
             for field in fields:
-                if field > 64:
+                if field > max_columns:
                     return
                 try:
                     res.append(columns[field])
@@ -233,18 +234,4 @@ def test_fails_when_non_positive_fields():
         stdin = 'a,b,c'
         res = shell.run('set -o pipefail; bin/bsv | bin/rcut 0 | bin/csv', stdin=stdin, warn=True)
         assert 'error: fields must be positive, got: 0' == res['stderr']
-        assert res['exitcode'] == 1
-
-def test_fails_when_too_many_fields():
-    with shell.climb_git_root():
-        stdin = 'a,b,c'
-        res = shell.run('set -o pipefail; bin/bsv | bin/rcut', ','.join('1' for _ in range(max_columns + 1)), '| bin/csv', stdin=stdin, warn=True)
-        assert 'error: cannot select more than 64 fields' == res['stderr']
-        assert res['exitcode'] == 1
-
-def test_fails_when_too_many_fields():
-    with shell.climb_git_root():
-        stdin = 'a,b,c'
-        res = shell.run('set -o pipefail; bin/bsv | bin/rcut', ','.join('1' for _ in range(max_columns + 1)), '| bin/csv', stdin=stdin, warn=True)
-        assert 'error: cannot select more than 64 fields' == res['stderr']
         assert res['exitcode'] == 1
