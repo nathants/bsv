@@ -10,6 +10,10 @@ echo >> Makefile
 echo "all: \$(ALL)" >> Makefile
 echo >> Makefile
 
+echo setup: >> Makefile
+echo -e '\tmkdir -p bin' >> Makefile
+echo >> Makefile
+
 echo clean: >> Makefile
 echo -e '\tcd bin && rm -f -- $(ALL)' >> Makefile
 echo >> Makefile
@@ -21,7 +25,7 @@ echo >> Makefile
 f() {
     for path in $1/*.c; do
         name=$(basename $path | cut -d. -f1)
-        echo "$name:" >> Makefile
+        echo "$name: setup" >> Makefile
         echo -e "\tgcc \$(CFLAGS) $path -o bin/$name" >> Makefile
         echo >> Makefile
         if ! cat .gitignore | grep ^$name &>/dev/null; then
