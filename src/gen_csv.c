@@ -5,15 +5,14 @@
 #include <string.h>
 
 void showusage() {
-    fprintf(stderr, "\nusage: $ gen-csv NUM_LINES NUM_COLUMNS\n");
+    fprintf(stderr, "\nusage: $ gen-csv NUM_COLUMNS\n");
     exit(1);
 }
 
 int main(int argc, const char **argv) {
-    if (argc < 3)
+    if (argc < 2)
         showusage();
-    int num_lines = atoi(argv[1]);
-    int num_columns = atoi(argv[2]);
+    int num_columns = atoi(argv[1]);
     time_t t;
     int i, j, num_words, add_delimiter;
     char *words[1024 * 128];
@@ -29,7 +28,7 @@ int main(int argc, const char **argv) {
         words[i++] = word;
     num_words = i;
     srand((unsigned) time(&t));
-    for (i = 0; i < num_lines; i++) {
+    while (1) {
         add_delimiter = 0;
         for (j = 0; j< num_columns; j++) {
             if (add_delimiter)
