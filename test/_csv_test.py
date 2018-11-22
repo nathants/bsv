@@ -1,6 +1,7 @@
 import os
 import string
 import shell
+import hypothesis
 from hypothesis import given, settings
 from hypothesis.strategies import text, lists, composite, integers, sampled_from
 from test_util import compile_buffer_sizes, run, rm_whitespace
@@ -38,7 +39,7 @@ def expected(csv):
     return '\n'.join(res) + '\n'
 
 @given(inputs())
-@settings(max_examples=100 * int(os.environ.get('TEST_FACTOR', 1)))
+@settings(max_examples=100 * int(os.environ.get('TEST_FACTOR', 1)), timeout=hypothesis.unlimited, suppress_health_check=[hypothesis.HealthCheck.hung_test])
 def test_props(arg):
     cmd, csv = arg
     result = expected(csv)
@@ -181,7 +182,7 @@ def test_fails_when_too_many_columns():
                 f.write(stdin)
             path = os.path.abspath('input')
         try:
-            res = shell.run('set -o pipefail; cat', path, '| bin/_csv >/dev/null', warn=True, stream=True)
+            res = shell.run('set -o pipefail; cat', path, '| bin/_csv >/dev/null', warn=True)
         finally:
             shell.run('rm', path)
         assert res['exitcode'] == 1

@@ -12,7 +12,7 @@ def run(stdin, *args):
         stdoutpath = '%s/%s.stdout' % (tmp, hashlib.md5(__file__.encode('ascii')).hexdigest())
         with open(stdinpath, 'w') as f:
             f.write(stdin)
-        shell.run(*(('cat', stdinpath, '|') + args + ('>', stdoutpath)), echo=True, stream=True)
+        shell.run(*(('cat', stdinpath, '|') + args + ('>', stdoutpath)))
         with open(stdoutpath) as f:
             return f.read()
 
