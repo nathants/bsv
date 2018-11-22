@@ -3,7 +3,6 @@
 #include <string.h>
 
 #define MIN(x, y) ((x < y) ? x : y)
-#define MAX(x, y) ((x > y) ? x : y)
 #define BUFFER_SIZE 1024 * 1024 * 5
 #define CSV_MAX_COLUMNS 65535
 #define CSV_DELIMITER ','
@@ -168,7 +167,7 @@
     FILE **_write_files = files;                                                                                \
     char *_write_buffer[num_files];                                                                             \
     int _write_bytes;                                                                                           \
-    int _write_offset[num_files];                                                                              \
+    int _write_offset[num_files];                                                                               \
     for (int _write_i = 0; _write_i < num_files; _write_i++) {                                                  \
         _write_offset[_write_i] = 0;                                                                            \
         _write_buffer[_write_i] = malloc(BUFFER_SIZE);                                                          \
@@ -191,7 +190,7 @@
 
 #define WRITE_FLUSH(i)                                                                                          \
     do {                                                                                                        \
-        _write_bytes = fwrite(_write_buffer[i], 1, _write_offset[i], _write_files[i]);                                     \
+        _write_bytes = fwrite(_write_buffer[i], 1, _write_offset[i], _write_files[i]);                          \
         if (_write_offset[i] != _write_bytes) { fprintf(stderr, "error: failed to write output"); exit(1); }    \
     } while (0)
 
