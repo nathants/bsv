@@ -1,23 +1,25 @@
 #include "util.h"
 
 int main(int argc, const char **argv) {
-    LOAD_INIT_VARS();
-    WRITE_INIT_VARS();
+    FILE *load_files[1] = {stdin};
+    FILE *write_files[1] = {stdout};
+    LOAD_INIT_VARS(load_files, 1);
+    WRITE_INIT_VARS(write_files, 1);
     int i;
     int ran = 0;
     while (1) {
-        LOAD(stdin);
+        LOAD(0);
         if (load_stop)
             break;
         for (i = 0; i <= load_max; i++) {
-            WRITE(load_columns[i], load_sizes[i], stdout);
+            WRITE(load_columns[i], load_sizes[i], 0);
             if (i != load_max)
-                WRITE(",", 1, stdout);
+                WRITE(",", 1, 0);
         }
-        WRITE("\n", 1, stdout);
+        WRITE("\n", 1, 0);
         ran = 1;
     }
     if (ran == 0)
-        WRITE("\n", 1, stdout);
-    WRITE_FLUSH(stdout);
+        WRITE("\n", 1, 0);
+    WRITE_FLUSH(0);
 }

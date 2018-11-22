@@ -104,30 +104,30 @@
         }                                                                                                               \
     } while(0)
 
-#define DUMP_INIT_VARS()                        \
-    WRITE_INIT_VARS();                          \
+#define DUMP_INIT_VARS(files, num_files)        \
+    WRITE_INIT_VARS(files, num_files);          \
     int _dump_i;                                \
     unsigned short _dump_ushort;
 
-#define DUMP(file, max, columns, sizes)                                                                                 \
+#define DUMP(i, max, columns, sizes)                                                                                    \
     do {                                                                                                                \
         if (max > CSV_MAX_COLUMNS) { fprintf(stderr, "error: cannot have more then 2**16 columns"); exit(1); }          \
         _dump_ushort = (unsigned short)max;                                                                             \
-        WRITE(&_dump_ushort, 2, file);                                                                                  \
+        WRITE(&_dump_ushort, 2, i);                                                                                     \
         for (_dump_i = 0; _dump_i <= max; _dump_i++) {                                                                  \
             if (sizes[_dump_i] > CSV_MAX_COLUMNS) { fprintf(stderr, "error: cannot have columns with more than 2**16 bytes, column: %d,size: %d, content: %.*s...", _dump_i, sizes[_dump_i], 10, columns[_dump_i]); exit(1); } \
             _dump_ushort = (unsigned short)sizes[_dump_i];                                                              \
-            WRITE((&_dump_ushort), 2, file);                                                                            \
+            WRITE((&_dump_ushort), 2, i);                                                                               \
         }                                                                                                               \
         for (_dump_i = 0; _dump_i <= max; _dump_i++)                                                                    \
-            WRITE(columns[_dump_i], sizes[_dump_i], file);                                                              \
+            WRITE(columns[_dump_i], sizes[_dump_i], i);                                                                 \
     } while(0)
 
-#define DUMP_FLUSH(file)                        \
-    WRITE_FLUSH(file);
+#define DUMP_FLUSH(i)                           \
+    WRITE_FLUSH(i);
 
-#define LOAD_INIT_VARS()                                                                        \
-    READ_INIT_VARS();                                                                           \
+#define LOAD_INIT_VARS(files, num_files)                                                        \
+    READ_INIT_VARS(files, num_files);                                                           \
     int _load_bytes;                                                                            \
     int _load_sum;                                                                              \
     int _load_i;                                                                                \
@@ -140,16 +140,16 @@
     char *load_columns[CSV_MAX_COLUMNS];
 
 /* TODO is if more performant to merge LOAD and READ? */
-#define LOAD(file)                                                                                                      \
+#define LOAD(i)                                                                                                         \
     do {                                                                                                                \
-        READ(2, file);                                                                                                  \
+        READ(2, i);                                                                                                     \
         load_stop = 1;                                                                                                  \
         if (read_bytes) {                                                                                               \
             load_stop = 0;                                                                                              \
             memcpy(&_load_ushort, read_buffer, 2);                                                                      \
             load_max = (int)_load_ushort;                                                                               \
             _load_bytes = (load_max + 1) * 2;                                                                           \
-            READ(_load_bytes, file);                                                                                    \
+            READ(_load_bytes, i);                                                                                       \
             if (read_bytes != _load_bytes) { fprintf(stderr, "sizes didnt read enough bytes, only got: %d, expected: %d\n", read_bytes, _load_bytes); exit(1); } \
             _load_sum = 0;                                                                                              \
             for (_load_i = 0; _load_i <= load_max; _load_i++) {                                                         \
@@ -158,68 +158,83 @@
                 load_columns[_load_i] = _load_buffer + _load_sum;                                                       \
                 _load_sum += load_sizes[_load_i];                                                                       \
             }                                                                                                           \
-            READ(_load_sum, file);                                                                                      \
+            READ(_load_sum, i);                                                                                         \
             memcpy(_load_buffer, read_buffer, _load_sum);                                                               \
             if (read_bytes != _load_sum) { fprintf(stderr, "columns didnt read enough bytes, only got: %d, expected: %d\n", read_bytes, _load_sum); exit(1); } \
         }                                                                                                               \
     } while(0)
 
-#define WRITE_INIT_VARS()                                                                           \
-    char *_write_buffer = malloc(BUFFER_SIZE);                                                      \
-    if (_write_buffer == NULL) { fprintf(stderr, "error: failed to allocate memory"); exit(1); }    \
-    int _write_bytes;                                                                               \
-    int _write_offset = 0;
+#define WRITE_INIT_VARS(files, num_files)                                                                       \
+    FILE **_write_files = files;                                                                                \
+    char *_write_buffer[num_files];                                                                             \
+    int _write_bytes;                                                                                           \
+    int _write_offset[num_files];                                                                              \
+    for (int _write_i = 0; _write_i < num_files; _write_i++) {                                                  \
+        _write_offset[_write_i] = 0;                                                                            \
+        _write_buffer[_write_i] = malloc(BUFFER_SIZE);                                                          \
+        if (_write_buffer[_write_i] == NULL) { fprintf(stderr, "error: failed to allocate memory"); exit(1); }  \
+    }
 
-#define WRITE(str, size, file)                                                                                      \
+#define WRITE(str, size, i)                                                                                         \
     do {                                                                                                            \
         if (size > BUFFER_SIZE) { fprintf(stderr, "error: cant write more bytes than BUFFER_SIZE\n"); exit(1); }    \
-        if (size > BUFFER_SIZE - _write_offset) {                                                                   \
-            _write_bytes = fwrite_unlocked(_write_buffer, 1, _write_offset, file);                                  \
-            if (_write_offset != _write_bytes) { fprintf(stderr, "error: failed to write output"); exit(1); }       \
-            memcpy(_write_buffer, str, size);                                                                       \
-            _write_offset = size;                                                                                   \
+        if (size > BUFFER_SIZE - _write_offset[i]) {                                                                \
+            _write_bytes = fwrite_unlocked(_write_buffer[i], 1, _write_offset[i], _write_files[i]);                 \
+            if (_write_offset[i] != _write_bytes) { fprintf(stderr, "error: failed to write output"); exit(1); }    \
+            memcpy(_write_buffer[i], str, size);                                                                    \
+            _write_offset[i] = size;                                                                                \
         } else {                                                                                                    \
-            memcpy(_write_buffer + _write_offset, str, size);                                                       \
-            _write_offset += size;                                                                                  \
+            memcpy(_write_buffer[i] + _write_offset[i], str, size);                                                 \
+            _write_offset[i] += size;                                                                               \
         }                                                                                                           \
     } while (0)
 
-#define WRITE_FLUSH(file)                                                                                   \
-    do {                                                                                                    \
-        _write_bytes = fwrite(_write_buffer, 1, _write_offset, file);                                       \
-        if (_write_offset != _write_bytes) { fprintf(stderr, "error: failed to write output"); exit(1); }   \
+#define WRITE_FLUSH(i)                                                                                          \
+    do {                                                                                                        \
+        _write_bytes = fwrite(_write_buffer[i], 1, _write_offset[i], _write_files[i]);                                     \
+        if (_write_offset[i] != _write_bytes) { fprintf(stderr, "error: failed to write output"); exit(1); }    \
     } while (0)
 
-#define READ_INIT_VARS()                                                                        \
-    int read_bytes;                                                                             \
-    char *read_buffer;                                                                          \
-    char *_read_buffer = malloc(BUFFER_SIZE);                                                   \
-    if (_read_buffer == NULL) { fprintf(stderr, "error: failed to allocate memory"); exit(1); } \
-    int _read_bytes_left;                                                                       \
-    int _read_bytes_todo;                                                                       \
-    int _read_bytes = 0;                                                                        \
-    int _read_stop = 0;                                                                         \
-    int _read_offset = BUFFER_SIZE;
+#define READ_INIT_VARS(files, num_files)                                                                        \
+    FILE **_read_files = files;                                                                                 \
+    int read_bytes;                                                                                             \
+    char *read_buffer;                                                                                          \
+    char *_read_buffer[num_files];                                                                              \
+    int _read_bytes_left;                                                                                       \
+    int _read_bytes_todo;                                                                                       \
+    int _read_bytes = 0;                                                                                        \
+    int _read_stop = 0;                                                                                         \
+    int _read_offset[num_files];                                                                                \
+    for (int _read_i = 0; _read_i < num_files; _read_i++) {                                                     \
+        _read_offset[_read_i] = BUFFER_SIZE;                                                                    \
+        _read_buffer[_read_i] = malloc(BUFFER_SIZE);                                                            \
+        if (_read_buffer[_read_i] == NULL) { fprintf(stderr, "error: failed to allocate memory"); exit(1); }    \
+    }
 
-#define READ(size, file)                                                                                        \
-    do {                                                                                                        \
-        if (size > BUFFER_SIZE) { fprintf(stderr, "error: cant read more bytes than BUFFER_SIZE\n"); exit(1); } \
-        _read_bytes_left = BUFFER_SIZE - _read_offset;                                                          \
-        if (_read_stop == 0) {                                                                                  \
-            read_bytes = size;                                                                                  \
-            if (size > _read_bytes_left) {                                                                      \
-                memmove(_read_buffer, _read_buffer + _read_offset, _read_bytes_left);                           \
-                _read_bytes_todo = BUFFER_SIZE - _read_bytes_left;                                              \
-                _read_bytes = fread_unlocked(_read_buffer + _read_bytes_left, 1, _read_bytes_todo, file);       \
-                _read_offset = 0;                                                                               \
-                if (_read_bytes_todo != _read_bytes) {                                                          \
-                    if (ferror(file)) { fprintf(stderr, "error: couldnt read input\n"); exit(1); }              \
-                    _read_stop = _read_bytes_left + _read_bytes;                                                \
-                    read_bytes = MIN(size, _read_bytes + _read_bytes_left);                                     \
-                }                                                                                               \
-            }                                                                                                   \
-        } else                                                                                                  \
-            read_bytes = MIN(size, _read_stop - _read_offset);                                                  \
-        read_buffer = _read_buffer + _read_offset;                                                              \
-        _read_offset += read_bytes;                                                                             \
+#define READ(size, i)                                                                                                   \
+    do {                                                                                                                \
+        if (size > BUFFER_SIZE) { fprintf(stderr, "error: cant read more bytes than BUFFER_SIZE\n"); exit(1); }         \
+        /* if we havent stopped freading */                                                                             \
+        if (_read_stop == 0) {                                                                                          \
+            /* prepare to fread */                                                                                      \
+            _read_bytes_left = BUFFER_SIZE - _read_offset[i];                                                           \
+            read_bytes = size;                                                                                          \
+            /* if we dont have enough bytes left in ram, fread more bytes */                                            \
+            if (size > _read_bytes_left) {                                                                              \
+                memmove(_read_buffer[i], _read_buffer[i] + _read_offset[i], _read_bytes_left);                          \
+                _read_bytes_todo = BUFFER_SIZE - _read_bytes_left;                                                      \
+                _read_bytes = fread_unlocked(_read_buffer[i] + _read_bytes_left, 1, _read_bytes_todo, _read_files[i]);  \
+                _read_offset[i] = 0;                                                                                    \
+                if (_read_bytes_todo != _read_bytes) {                                                                  \
+                    if (ferror(_read_files[i])) { fprintf(stderr, "error: couldnt read input\n"); exit(1); }            \
+                    _read_stop = _read_bytes_left + _read_bytes;                                                        \
+                    read_bytes = MIN(size, _read_bytes + _read_bytes_left);                                             \
+                }                                                                                                       \
+            }                                                                                                           \
+            /* else we are done freading, ready as many bytes as are still available  */                                \
+        } else                                                                                                          \
+            read_bytes = MIN(size, _read_stop - _read_offset[i]);                                                       \
+        /* update pointers and offsets */                                                                               \
+        read_buffer = _read_buffer[i] + _read_offset[i];                                                                \
+        _read_offset[i] += read_bytes;                                                                                  \
     } while (0)

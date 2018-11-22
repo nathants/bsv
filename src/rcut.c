@@ -24,8 +24,10 @@ void showusage() {
     } while (0)
 
 int main(int argc, const char **argv) {
-    DUMP_INIT_VARS();
-    LOAD_INIT_VARS();
+    FILE *load_files[1] = {stdin};
+    FILE *dump_files[1] = {stdout};
+    LOAD_INIT_VARS(load_files, 1);
+    DUMP_INIT_VARS(dump_files, 1);
     char *f, *fs;
     int i, add_delimeter, field, num_fields=0, field_nums[CSV_MAX_COLUMNS];
 
@@ -45,7 +47,7 @@ int main(int argc, const char **argv) {
     int new_sizes[num_fields];
 
     while (1) {
-        LOAD(stdin);
+        LOAD(0);
         if (load_stop)
             break;
         if (load_max || load_sizes[0]) {
@@ -55,8 +57,8 @@ int main(int argc, const char **argv) {
                 new_columns[i] = load_columns[field];
                 new_sizes[i] = load_sizes[field];
             }
-            DUMP(stdout, num_fields - 1, new_columns, new_sizes);
+            DUMP(0, num_fields - 1, new_columns, new_sizes);
         }
     }
-    DUMP_FLUSH(stdout);
+    DUMP_FLUSH(0);
 }
