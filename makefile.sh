@@ -4,7 +4,7 @@ cd $(dirname $(realpath $0))
 
 echo ".PHONY: all clean test" > Makefile
 echo "CFLAGS=-Iutil -Wall -O3 -march=native -mtune=native" >> Makefile
-echo ALL=$(for src in {src,util}/*.c; do basename $src | cut -d. -f1; done) >> Makefile
+echo ALL=$(for src in src/*.c; do basename $src | cut -d. -f1; done) >> Makefile
 echo >> Makefile
 
 echo "all: \$(ALL)" >> Makefile
@@ -22,17 +22,12 @@ echo test: setup >> Makefile
 echo -e '\ttox' >> Makefile
 echo >> Makefile
 
-f() {
-    for path in $1/*.c; do
-        name=$(basename $path | cut -d. -f1)
-        echo "$name: setup" >> Makefile
-        echo -e "\tgcc \$(CFLAGS) $path -o bin/$name" >> Makefile
-        echo >> Makefile
-        if ! cat .gitignore | grep ^$name &>/dev/null; then
-            echo $name >> .gitignore
-        fi
-    done
-}
-
-f src
-f util
+for path in src/*.c; do
+    name=$(basename $path | cut -d. -f1)
+    echo "$name: setup" >> Makefile
+    echo -e "\tgcc \$(CFLAGS) $path -o bin/$name" >> Makefile
+    echo >> Makefile
+    if ! cat .gitignore | grep ^$name &>/dev/null; then
+        echo $name >> .gitignore
+    fi
+done
