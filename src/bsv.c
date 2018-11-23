@@ -1,4 +1,5 @@
-#include "util.h"
+#include "csv.h"
+#include "dump.h"
 
 int main(int argc, const char **argv) {
     CSV_INIT_VARS();

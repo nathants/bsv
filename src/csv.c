@@ -1,4 +1,5 @@
-#include "util.h"
+#include "load.h"
+#include "write.h"
 
 int main(int argc, const char **argv) {
     FILE *load_files[1] = {stdin};

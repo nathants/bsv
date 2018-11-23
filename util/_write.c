@@ -1,4 +1,4 @@
-#include "util.h"
+#include "write.h"
 
 int main(int argc, const char **argv) {
     FILE *files[1] = {stdin};

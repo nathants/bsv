@@ -1,4 +1,5 @@
-#include "util.h"
+#include "load.h"
+#include "dump.h"
 
 void showusage() {
     fprintf(stderr, "Like cut, but can rearrange columns.\n");
