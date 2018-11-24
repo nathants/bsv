@@ -10,7 +10,7 @@
 
 #define DUMP(i, max, columns, sizes)                                                                                    \
     do {                                                                                                                \
-        if (max > MAX_COLUMNS) { fprintf(stderr, "error: cannot have more then 2**16 columns"); exit(1); }          \
+        if (max > MAX_COLUMNS) { fprintf(stderr, "error: cannot have more then 2**16 columns"); exit(1); }              \
         _dump_ushort = (unsigned short)max;                                                                             \
         WRITE(&_dump_ushort, 2, i);                                                                                     \
         for (_dump_i = 0; _dump_i <= max; _dump_i++) {                                                                  \

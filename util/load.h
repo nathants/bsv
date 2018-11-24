@@ -13,7 +13,7 @@
     unsigned short _load_ushort;                                                                \
     int load_max;                                                                               \
     int load_stop;                                                                              \
-    int load_sizes[MAX_COLUMNS];                                                            \
+    int load_sizes[MAX_COLUMNS];                                                                \
     char *load_columns[MAX_COLUMNS];
 
 /* TODO is if more performant to merge LOAD and READ? */

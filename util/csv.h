@@ -15,11 +15,11 @@
     char _csv_char;                                                                             \
     char *_csv_buffer = malloc(BUFFER_SIZE);                                                    \
     if (_csv_buffer == NULL) { fprintf(stderr, "error: failed to allocate memory"); exit(1); }  \
-    char *_csv_next_column[MAX_COLUMNS];                                                    \
+    char *_csv_next_column[MAX_COLUMNS];                                                        \
     int csv_stop = 0;                                                                           \
     int csv_max = 0;                                                                            \
-    int csv_sizes[MAX_COLUMNS] = {0};                                                       \
-    char *csv_columns[MAX_COLUMNS];                                                         \
+    int csv_sizes[MAX_COLUMNS] = {0};                                                           \
+    char *csv_columns[MAX_COLUMNS];                                                             \
     csv_columns[0] = _csv_buffer;
 
 #define CSV_READ_LINE(file)                                                                                             \
@@ -57,7 +57,7 @@
                 while (_csv_char_index - _csv_offset != _csv_bytes_read) {                                              \
                     _csv_char = _csv_buffer[_csv_char_index];                                                           \
                     /* start next column */                                                                             \
-                    if (_csv_char == DELIMITER && !(_csv_escaped || _csv_buffer[_csv_char_index - 1] == '\\')) {    \
+                    if (_csv_char == DELIMITER && !(_csv_escaped || _csv_buffer[_csv_char_index - 1] == '\\')) {        \
                         if (++csv_max >= MAX_COLUMNS) { fprintf(stderr, "error: line with more than %d columns\n", MAX_COLUMNS); exit(1); } \
                         csv_sizes[csv_max] = 0;                                                                         \
                         csv_columns[csv_max] = _csv_buffer + _csv_char_index + 1;                                       \
