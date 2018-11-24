@@ -1,6 +1,6 @@
 .PHONY: all clean test
 CFLAGS=-Iutil -Wall -O3 -march=native -mtune=native
-ALL=bsv _csv csv gen_csv rcut _read _write
+ALL=bsv bucket _csv csv gen_csv rcut _read _write
 
 all: $(ALL)
 
@@ -15,6 +15,9 @@ test: setup
 
 bsv: setup
 	gcc $(CFLAGS) src/bsv.c -o bin/bsv
+
+bucket: setup
+	gcc $(CFLAGS) src/bucket.c -o bin/bucket
 
 _csv: setup
 	gcc $(CFLAGS) src/_csv.c -o bin/_csv
