@@ -11,7 +11,7 @@ def test_max_bytes():
 
     stdin = 'a' * (2**16)
     with shell.climb_git_root():
-        res = shell.run('set -o pipefail; bin/bsv | bin/csv', stdin=stdin, warn=True)
+        res = shell.run('bin/bsv', stdin=stdin, warn=True)
     assert 'error: cannot have columns with more than 2**16 bytes, column: 0,size: 65536, content: aaaaaaaaaa...' == res['stderr']
     assert res['exitcode'] == 1
 

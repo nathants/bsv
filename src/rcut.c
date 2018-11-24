@@ -29,19 +29,23 @@ int main(int argc, const char **argv) {
     FILE *dump_files[1] = {stdout};
     LOAD_INIT_VARS(load_files, 1);
     DUMP_INIT_VARS(dump_files, 1);
-    char *f, *fs;
-    int i, add_delimeter, field, num_fields=0, field_nums[CSV_MAX_COLUMNS];
+    char *f;
+    char *fs;
+    int i;
+    int add_delimeter;
+    int field;
+    int num_fields=0;
+    int field_nums[MAX_COLUMNS];
 
-    /* parse argv */
     if (argc < 2)
         showusage();
     fs = argv[1];
     while ((f = strsep(&fs, ","))) {
         field = atoi(f);
         field_nums[num_fields++] = field - 1;
-        if (field > CSV_MAX_COLUMNS) { fprintf(stderr, "error: cannot select fields above %d, tried to select: %d\n", CSV_MAX_COLUMNS, field); exit(1); }
+        if (field > MAX_COLUMNS) { fprintf(stderr, "error: cannot select fields above %d, tried to select: %d\n", MAX_COLUMNS, field); exit(1); }
         if (field < 1) { fprintf(stderr, "error: fields must be positive, got: %d", field); exit(1); }
-        if (num_fields > CSV_MAX_COLUMNS) { fprintf(stderr, "error: cannot select more than %d fields\n", CSV_MAX_COLUMNS); exit(1); }
+        if (num_fields > MAX_COLUMNS) { fprintf(stderr, "error: cannot select more than %d fields\n", MAX_COLUMNS); exit(1); }
     }
 
     char *new_columns[num_fields];

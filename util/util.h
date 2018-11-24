@@ -7,7 +7,7 @@
 
 #define MIN(x, y) ((x < y) ? x : y)
 #define BUFFER_SIZE 1024 * 1024 * 5
-#define CSV_MAX_COLUMNS 65535
-#define CSV_DELIMITER ','
+#define MAX_COLUMNS 65535
+#define DELIMITER ','
 
 #endif

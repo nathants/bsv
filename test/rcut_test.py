@@ -226,13 +226,13 @@ def test_reverse():
 def test_fails_when_not_enough_columns():
     with shell.climb_git_root():
         stdin = 'a,b,c'
-        res = shell.run('set -o pipefail; bin/bsv | bin/rcut 4 | bin/csv', stdin=stdin, warn=True)
+        res = shell.run('bin/bsv | bin/rcut 4', stdin=stdin, warn=True)
         assert 'error: line without 4 columns: a,b,c' == res['stderr']
         assert res['exitcode'] == 1
 
 def test_fails_when_non_positive_fields():
     with shell.climb_git_root():
         stdin = 'a,b,c'
-        res = shell.run('set -o pipefail; bin/bsv | bin/rcut 0 | bin/csv', stdin=stdin, warn=True)
+        res = shell.run('bin/bsv | bin/rcut 0', stdin=stdin, warn=True)
         assert 'error: fields must be positive, got: 0' == res['stderr']
         assert res['exitcode'] == 1

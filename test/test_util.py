@@ -3,7 +3,7 @@ import shell
 import os
 
 with shell.climb_git_root():
-    max_columns = int(shell.run('cat util/util.h | grep "define CSV_MAX_COLUMNS"').split()[-1])
+    max_columns = int(shell.run('cat util/util.h | grep "define MAX_COLUMNS"').split()[-1])
 
 def run(stdin, *args):
     with shell.climb_git_root():

@@ -6,8 +6,6 @@ from hypothesis import given, settings
 from hypothesis.strategies import text, lists, composite, integers, sampled_from
 from test_util import compile_buffer_sizes, run, rm_whitespace
 
-os.chdir(os.path.dirname(os.path.abspath(__file__)))
-
 buffers = [2, 3, 5, 8, 11, 17, 64, 256, 1024]
 
 def setup_module():
@@ -182,7 +180,7 @@ def test_fails_when_too_many_columns():
                 f.write(stdin)
             path = os.path.abspath('input')
         try:
-            res = shell.run('set -o pipefail; cat', path, '| bin/_csv >/dev/null', warn=True)
+            res = shell.run('cat', path, '| bin/_csv >/dev/null', warn=True)
         finally:
             shell.run('rm', path)
         assert res['exitcode'] == 1
