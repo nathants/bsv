@@ -1,6 +1,5 @@
 #include "murmur3.h"
-#include "load.h"
-#include "dump.h"
+#include "load_dump.h"
 
 #define SEED 0
 
@@ -12,10 +11,7 @@ void showusage() {
 }
 
 int main(int argc, const char **argv) {
-    FILE *load_files[1] = {stdin};
-    FILE *dump_files[1] = {stdout};
-    LOAD_INIT_VARS(load_files, 1);
-    DUMP_INIT_VARS(dump_files, 1);
+    LOAD_DUMP_INIT();
     char hash_str[64];
     int mod, num_buckets, hash_num[1];
     int new_sizes[MAX_COLUMNS];

@@ -1,5 +1,4 @@
-#include "load.h"
-#include "dump.h"
+#include "load_dump.h"
 
 void showusage() {
     fprintf(stderr, "Like cut, but can rearrange columns.\n");
@@ -25,10 +24,7 @@ void showusage() {
     } while (0)
 
 int main(int argc, const char **argv) {
-    FILE *load_files[1] = {stdin};
-    FILE *dump_files[1] = {stdout};
-    LOAD_INIT_VARS(load_files, 1);
-    DUMP_INIT_VARS(dump_files, 1);
+    LOAD_DUMP_INIT();
     char *f;
     char *fs;
     int i;
