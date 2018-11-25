@@ -15,7 +15,6 @@ def test_max_bytes():
     assert 'error: cannot have columns with more than 2**16 bytes, column: 0,size: 65536, content: aaaaaaaaaa...' == res['stderr']
     assert res['exitcode'] == 1
 
-
 def test_encoding():
     stdin = """
     aa,bbb

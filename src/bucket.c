@@ -35,7 +35,7 @@ int main(int argc, const char **argv) {
             sprintf(hash_str, "%d", mod);
             new_sizes[0] = strlen(hash_str);
             new_columns[0] = hash_str;
-            memcpy(new_sizes + 1, load_sizes, (load_max + 1) * sizeof(int *));
+            memcpy(new_sizes + 1, load_sizes, (load_max + 1) * sizeof(int));
             memcpy(new_columns + 1, load_columns, (load_max + 1) * sizeof(char *));
             DUMP(0, load_max + 1, new_columns, new_sizes);
         }
