@@ -2,9 +2,9 @@
 #include "dump.h"
 
 int main(int argc, const char **argv) {
-    CSV_INIT_VARS();
+    CSV_INIT();
     FILE *files[1] = {stdout};
-    DUMP_INIT_VARS(files, 1);
+    DUMP_INIT(files, 1);
     while (1) {
         CSV_READ_LINE(stdin);
         if (csv_stop)

@@ -3,8 +3,8 @@
 
 #include "write.h"
 
-#define DUMP_INIT_VARS(files, num_files)        \
-    WRITE_INIT_VARS(files, num_files);          \
+#define DUMP_INIT(files, num_files)             \
+    WRITE_INIT(files, num_files);               \
     int _dump_i;                                \
     unsigned short _dump_ushort;
 

@@ -3,7 +3,7 @@
 
 #include "util.h"
 
-#define READ_INIT_VARS(files, num_files)                                                                        \
+#define READ_INIT(files, num_files)                                                                             \
     FILE **_read_files = files;                                                                                 \
     int read_bytes;                                                                                             \
     char *read_buffer;                                                                                          \

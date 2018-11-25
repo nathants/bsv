@@ -3,20 +3,36 @@
 
 #include "read.h"
 
-#define LOAD_INIT_VARS(files, num_files)                                                        \
-    READ_INIT_VARS(files, num_files);                                                           \
-    int _load_bytes;                                                                            \
-    int _load_sum;                                                                              \
-    int _load_i;                                                                                \
-    char *_load_buffer = malloc(BUFFER_SIZE);                                                   \
-    if (_load_buffer == NULL) { fprintf(stderr, "error: failed to allocate memory"); exit(1); } \
-    unsigned short _load_ushort;                                                                \
-    int load_max;                                                                               \
-    int load_stop;                                                                              \
-    int load_sizes[MAX_COLUMNS];                                                                \
-    char *load_columns[MAX_COLUMNS];
+#define LOAD_COPY(to, from)                                     \
+    do {                                                        \
+        to##_size = from##_size;                                \
+        to##_max = from##_max;                                  \
+        memcpy(to##_buffer, from##_columns[0], from##_size);    \
+        _load_offset = 0;                                       \
+        for (_load_i = 0; _load_i <= from##_max; _load_i++) {   \
+            to##_columns[_load_i] = to##_buffer + _load_offset; \
+            to##_sizes[_load_i] = from##_sizes[_load_i];        \
+            _load_offset += from##_sizes[_load_i];              \
+        }                                                       \
+    } while(0)
 
-/* TODO is if more performant to merge LOAD and READ? */
+#define LOAD_NEW(name)                                                                              \
+    char * name##_buffer = malloc(BUFFER_SIZE);                                                     \
+    if (name##_buffer == NULL) { fprintf(stderr, "error: failed to allocate memory"); exit(1); }    \
+    int name##_max;                                                                                 \
+    int name##_stop;                                                                                \
+    int name##_size;                                                                                \
+    int name##_sizes[MAX_COLUMNS];                                                                  \
+    char * name##_columns[MAX_COLUMNS];
+
+#define LOAD_INIT(files, num_files)             \
+    READ_INIT(files, num_files);                \
+    int _load_bytes;                            \
+    int _load_i;                                \
+    int _load_offset;                           \
+    unsigned short _load_ushort;                \
+    LOAD_NEW(load);
+
 #define LOAD(i)                                                                                                         \
     do {                                                                                                                \
         READ(2, i);                                                                                                     \
@@ -28,16 +44,16 @@
             _load_bytes = (load_max + 1) * 2;                                                                           \
             READ(_load_bytes, i);                                                                                       \
             if (read_bytes != _load_bytes) { fprintf(stderr, "sizes didnt read enough bytes, only got: %d, expected: %d\n", read_bytes, _load_bytes); exit(1); } \
-            _load_sum = 0;                                                                                              \
+            load_size = 0;                                                                                              \
             for (_load_i = 0; _load_i <= load_max; _load_i++) {                                                         \
                 memcpy(&_load_ushort, read_buffer + _load_i * 2, 2);                                                    \
                 load_sizes[_load_i] = (int)_load_ushort;                                                                \
-                load_columns[_load_i] = _load_buffer + _load_sum;                                                       \
-                _load_sum += load_sizes[_load_i];                                                                       \
+                load_columns[_load_i] = load_buffer + load_size;                                                        \
+                load_size += load_sizes[_load_i];                                                                       \
             }                                                                                                           \
-            READ(_load_sum, i);                                                                                         \
-            memcpy(_load_buffer, read_buffer, _load_sum);                                                               \
-            if (read_bytes != _load_sum) { fprintf(stderr, "columns didnt read enough bytes, only got: %d, expected: %d\n", read_bytes, _load_sum); exit(1); } \
+            READ(load_size, i);                                                                                         \
+            memcpy(load_buffer, read_buffer, load_size);                                                                \
+            if (read_bytes != load_size) { fprintf(stderr, "columns didnt read enough bytes, only got: %d, expected: %d\n", read_bytes, load_size); exit(1); } \
         }                                                                                                               \
     } while(0)
 

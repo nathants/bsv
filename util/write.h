@@ -3,7 +3,7 @@
 
 #include "util.h"
 
-#define WRITE_INIT_VARS(files, num_files)                                                                       \
+#define WRITE_INIT(files, num_files)                                                                            \
     FILE **_write_files = files;                                                                                \
     char *_write_buffer[num_files];                                                                             \
     int _write_bytes;                                                                                           \

@@ -3,7 +3,7 @@
 
 #include "util.h"
 
-#define CSV_INIT_VARS()                                                                         \
+#define CSV_INIT()                                                                              \
     int _csv_escaped;                                                                           \
     int _csv_break;                                                                             \
     int _csv_i;                                                                                 \

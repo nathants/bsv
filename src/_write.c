@@ -2,7 +2,7 @@
 
 int main(int argc, const char **argv) {
     FILE *files[1] = {stdin};
-    WRITE_INIT_VARS(files, 1);
+    WRITE_INIT(files, 1);
     int size = 2;
     int bytes;
     char buffer[size];

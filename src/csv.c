@@ -4,8 +4,8 @@
 int main(int argc, const char **argv) {
     FILE *load_files[1] = {stdin};
     FILE *write_files[1] = {stdout};
-    LOAD_INIT_VARS(load_files, 1);
-    WRITE_INIT_VARS(write_files, 1);
+    LOAD_INIT(load_files, 1);
+    WRITE_INIT(write_files, 1);
     int i;
     int ran = 0;
     while (1) {

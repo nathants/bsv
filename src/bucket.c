@@ -13,9 +13,10 @@ void showusage() {
 int main(int argc, const char **argv) {
     LOAD_DUMP_INIT();
     char hash_str[64];
-    int mod, num_buckets, hash_num[1];
-    int new_sizes[MAX_COLUMNS];
-    char *new_columns[MAX_COLUMNS];
+    int mod;
+    int num_buckets;
+    int hash_num[1];
+    LOAD_NEW(new);
 
     if (argc < 2)
         showusage();

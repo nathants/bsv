@@ -1,7 +1,7 @@
 #include "csv.h"
 
 int main(int argc, const char **argv) {
-    CSV_INIT_VARS();
+    CSV_INIT();
     while (1) {
         CSV_READ_LINE(stdin);
         if (csv_stop)

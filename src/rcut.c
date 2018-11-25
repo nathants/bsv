@@ -32,6 +32,7 @@ int main(int argc, const char **argv) {
     int field;
     int num_fields=0;
     int field_nums[MAX_COLUMNS];
+    LOAD_NEW(new);
 
     if (argc < 2)
         showusage();
@@ -43,9 +44,6 @@ int main(int argc, const char **argv) {
         if (field < 1) { fprintf(stderr, "error: fields must be positive, got: %d", field); exit(1); }
         if (num_fields > MAX_COLUMNS) { fprintf(stderr, "error: cannot select more than %d fields\n", MAX_COLUMNS); exit(1); }
     }
-
-    char *new_columns[num_fields];
-    int new_sizes[num_fields];
 
     while (1) {
         LOAD(0);
