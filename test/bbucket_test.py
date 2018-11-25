@@ -9,7 +9,7 @@ from test_util import run, rm_whitespace, rm_whitespace, rm_whitespace
 
 def setup_module():
     with shell.climb_git_root():
-        shell.run('make clean && make bsv csv bucket', stream=True)
+        shell.run('make clean && make bsv csv bbucket', stream=True)
 
 @composite
 def inputs(draw):
@@ -34,7 +34,7 @@ def expected(buckets, csv):
 def test_props(args):
     buckets, csv = args
     result = expected(buckets, csv)
-    assert result == run(csv, 'bin/bsv | bin/bucket', buckets, '| bin/csv')
+    assert result == run(csv, 'bin/bsv | bin/bbucket', buckets, '| bin/csv')
 
 def test_single_column():
     stdin = """
@@ -47,7 +47,7 @@ def test_single_column():
     3,1
     3,x
     """
-    assert rm_whitespace(stdout) + '\n' == run(rm_whitespace(stdin), 'bin/bsv | bin/bucket 4 | bin/csv')
+    assert rm_whitespace(stdout) + '\n' == run(rm_whitespace(stdin), 'bin/bsv | bin/bbucket 4 | bin/csv')
 
 def test_basic():
     stdin = """
@@ -60,19 +60,19 @@ def test_basic():
     3,1,2,3
     3,x,y
     """
-    assert rm_whitespace(stdout) + '\n' == run(rm_whitespace(stdin), 'bin/bsv | bin/bucket 4 | bin/csv')
+    assert rm_whitespace(stdout) + '\n' == run(rm_whitespace(stdin), 'bin/bsv | bin/bbucket 4 | bin/csv')
 
 def test_fails_when_non_positive_buckets():
     with shell.climb_git_root():
         stdin = 'a'
         print(shell.run('pwd'))
-        res = shell.run('bin/bsv | bin/bucket 0', stdin=stdin, warn=True)
+        res = shell.run('bin/bsv | bin/bbucket 0', stdin=stdin, warn=True)
         assert 'NUM_BUCKETS must be positive, got: 0' == res['stderr']
         assert res['exitcode'] == 1
 
 def test_fails_when_too_many_buckets():
     with shell.climb_git_root():
         stdin = 'a'
-        res = shell.run('bin/bsv | bin/bucket', int(1e8), stdin=stdin, warn=True)
+        res = shell.run('bin/bsv | bin/bbucket', int(1e8), stdin=stdin, warn=True)
         assert res['exitcode'] == 1
         assert 'NUM_BUCKETS must be less than 1e8, got: 100000000' == res['stderr']

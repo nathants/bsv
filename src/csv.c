@@ -1,7 +1,13 @@
 #include "load.h"
 #include "write.h"
 
+#define NUM_ARGS 1
+#define DESCRIPTION "convert bsv to csv\n\n"
+#define USAGE "csv\n\n"
+#define EXAMPLE ">> echo a,b,c | bsv | csv\na,b,c\n"
+
 int main(int argc, const char **argv) {
+    HELP();
     FILE *load_files[1] = {stdin};
     FILE *write_files[1] = {stdout};
     LOAD_INIT(load_files, 1);

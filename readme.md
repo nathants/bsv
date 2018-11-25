@@ -1,17 +1,84 @@
 ## why
 
-it should be possible to process csv at speeds approaching that of network io.
+it should be possible to process data faster than io, and io is fast now.
 
 ## what
 
-a number of small c utilities for sequential access processing of csv at bare metal speeds. they are meant to be combined into processing pipelines.
+small fast cli utilites to combine into processing pipelines.
 
-sanity of the c programs is ensured by generative testing from python with hypothesis. this helps shake out all the corner cases of c, like complex buffer handling, and increase confidence in general correctness of implementation.
+## utilities
 
-## brief aside on generative testing
+- [bbucket](#bbucket) - prefix each row with a consistent hash of the first column
 
-generative testing has become an ideal design tool for all serious work. by modeling your system twice, once naively and once production ready, you get a number of things.
+- [bcounteach](#bcounteach) - count and collapse each contiguous identical row
 
-first, you get to test your system against a naive rewrite by running millions of valid inputs through both systems. if the two implementations don't agree, you probably have a bug.
+- [bcut](#bcut) - select some columns
 
-second, you get to build your system twice. as the two systems converge on a single specification, you are inescapably faced with your problem domain. any ambiguity is revealed as a failure of convergence.
+- [bsv](#bsv) - convert csv to bsv
+
+- [csv](#csv) - convert bsv to csv
+
+### bbucket
+
+prefix each row with a consistent hash of the first column
+
+usage: `bbucket NUM_BUCKETS`
+
+```
+>> echo '
+a
+b
+c
+' | bsv | bbucket 100 | csv
+50,a
+39,b
+83,c
+```
+### bcounteach
+
+count and collapse each contiguous identical row
+
+usage: `bcounteach`
+
+```
+echo 'a
+a
+b
+b
+b
+a
+' | bsv | bcounteach | csv
+a,2
+b,3
+a,1
+```
+### bcut
+
+select some columns
+
+usage: `bcut FIELD1,...,FIELDN`
+
+```
+>> echo a,b,c | bsv | bcut 3,3,3,2,2,1 | csv
+c,c,c,b,b,a
+```
+### bsv
+
+convert csv to bsv
+
+usage: `bsv`
+
+```
+>> echo a,b,c | bsv | bcut 3,2,1 | csv
+c,b,a
+```
+### csv
+
+convert bsv to csv
+
+usage: `csv`
+
+```
+>> echo a,b,c | bsv | csv
+a,b,c
+```

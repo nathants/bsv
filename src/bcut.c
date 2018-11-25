@@ -1,12 +1,5 @@
 #include "load_dump.h"
 
-void showusage() {
-    fprintf(stderr, "Like cut, but can rearrange columns.\n");
-    fprintf(stderr, "\nusage: $ bcut FIELD1,FIELD2\n");
-    fprintf(stderr, "\nexample: $ cat in.csv | bsv | bcut 1,5,3 | csv > out.csv\n");
-    exit(1);
-}
-
 #define ERROR_CHECK_NOT_ENOUGH_COLUMNS(max, sizes, columns)                         \
     do {                                                                            \
         if (field_nums[i] > max) {                                                  \
@@ -23,8 +16,15 @@ void showusage() {
         }                                                                           \
     } while (0)
 
+#define NUM_ARGS 2
+#define DESCRIPTION "select some columns\n\n"
+#define USAGE "bcut FIELD1,...,FIELDN\n\n"
+#define EXAMPLE ">> echo a,b,c | bsv | bcut 3,3,3,2,2,1 | csv\nc,c,c,b,b,a\n"
+
 int main(int argc, const char **argv) {
+    HELP();
     LOAD_DUMP_INIT();
+    LOAD_NEW(new);
     char *f;
     char *fs;
     int i;
@@ -32,10 +32,8 @@ int main(int argc, const char **argv) {
     int field;
     int num_fields=0;
     int field_nums[MAX_COLUMNS];
-    LOAD_NEW(new);
 
-    if (argc < 2)
-        showusage();
+    if (argc < 2) showusage();
     fs = argv[1];
     while ((f = strsep(&fs, ","))) {
         field = atoi(f);

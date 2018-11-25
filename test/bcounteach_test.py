@@ -8,7 +8,7 @@ from test_util import run, rm_whitespace, rm_whitespace
 
 def setup_module():
     with shell.climb_git_root():
-        shell.run('make clean && make bsv csv count_each', stream=True)
+        shell.run('make clean && make bsv csv bcounteach', stream=True)
 
 @composite
 def inputs(draw):
@@ -45,7 +45,7 @@ def expected(csv):
 def test_props(args):
     csv = args
     result = expected(csv)
-    assert result == run(csv, f'bin/bsv | bin/count_each | bin/csv')
+    assert result == run(csv, f'bin/bsv | bin/bcounteach | bin/csv')
 
 def test_basic():
     stdin = """
@@ -61,4 +61,4 @@ def test_basic():
     b,2
     a,1
     """
-    assert rm_whitespace(stdout) + '\n' == run(rm_whitespace(stdin), 'bin/bsv | bin/count_each | bin/csv')
+    assert rm_whitespace(stdout) + '\n' == run(rm_whitespace(stdin), 'bin/bsv | bin/bcounteach | bin/csv')

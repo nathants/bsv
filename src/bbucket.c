@@ -3,22 +3,19 @@
 
 #define SEED 0
 
-void showusage() {
-    fprintf(stderr, "\nMurmurHash3_x86_32 the first load_columns, modulo the number of buckets, ");
-    fprintf(stderr, "and insert the selected bucket as the new first load_columns, offsetting the rest.\n");
-    fprintf(stderr, "\nusage: $ bucket NUM_BUCKETS\n");
-    exit(1);
-}
+#define NUM_ARGS 2
+#define DESCRIPTION "prefix each row with a consistent hash of the first column\n\n"
+#define USAGE "bbucket NUM_BUCKETS\n\n"
+#define EXAMPLE ">> echo '\na\nb\nc\n' | bsv | bbucket 100 | csv\n50,a\n39,b\n83,c\n"
 
 int main(int argc, const char **argv) {
+    HELP();
     LOAD_DUMP_INIT();
     char hash_str[64];
     int mod;
     int num_buckets;
     int hash_num[1];
 
-    if (argc < 2)
-        showusage();
     if (strlen(argv[1]) > 8) { fprintf(stderr, "NUM_BUCKETS must be less than 1e8, got: %s\n", argv[1]); exit(1); }
     num_buckets = atoi(argv[1]);
     if (num_buckets < 1) { fprintf(stderr, "NUM_BUCKETS must be positive, got: %d\n", num_buckets); exit(1); }
