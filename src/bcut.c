@@ -2,8 +2,8 @@
 
 void showusage() {
     fprintf(stderr, "Like cut, but can rearrange columns.\n");
-    fprintf(stderr, "\nusage: $ rcut FIELD1,FIELD2\n");
-    fprintf(stderr, "\nexample: $ cat in.csv | bsv | rcut 1,5,3 | csv > out.csv\n");
+    fprintf(stderr, "\nusage: $ bcut FIELD1,FIELD2\n");
+    fprintf(stderr, "\nexample: $ cat in.csv | bsv | bcut 1,5,3 | csv > out.csv\n");
     exit(1);
 }
 
