@@ -16,7 +16,6 @@ int main(int argc, const char **argv) {
     int mod;
     int num_buckets;
     int hash_num[1];
-    LOAD_NEW(new);
 
     if (argc < 2)
         showusage();
@@ -34,11 +33,11 @@ int main(int argc, const char **argv) {
             if(mod < 0)
                 mod += num_buckets;
             sprintf(hash_str, "%d", mod);
-            new_sizes[0] = strlen(hash_str);
-            new_columns[0] = hash_str;
-            memcpy(new_sizes + 1, load_sizes, (load_max + 1) * sizeof(int));
-            memcpy(new_columns + 1, load_columns, (load_max + 1) * sizeof(char *));
-            DUMP(0, load_max + 1, new_columns, new_sizes);
+            memmove(load_sizes + 1, load_sizes, (load_max + 1) * sizeof(int));
+            memmove(load_columns + 1, load_columns, (load_max + 1) * sizeof(char *));
+            load_sizes[0] = strlen(hash_str);
+            load_columns[0] = hash_str;
+            DUMP(0, load_max + 1, load_columns, load_sizes);
         }
     }
     DUMP_FLUSH(0);
