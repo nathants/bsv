@@ -13,8 +13,7 @@
     int _csv_char_index = BUFFER_SIZE;                                                          \
     int _csv_offset = BUFFER_SIZE;                                                              \
     char _csv_char;                                                                             \
-    char *_csv_buffer = malloc(BUFFER_SIZE);                                                    \
-    if (_csv_buffer == NULL) { fprintf(stderr, "error: failed to allocate memory"); exit(1); }  \
+    char *_csv_buffer = malloc(BUFFER_SIZE); if (_csv_buffer == NULL) { fprintf(stderr, "error: failed to allocate memory"); exit(1); } \
     char *_csv_next_column[MAX_COLUMNS];                                                        \
     int csv_stop = 0;                                                                           \
     int csv_max = 0;                                                                            \
@@ -39,8 +38,7 @@
                 _csv_offset = 0;                                                                                        \
                 for (_csv_i = 0; _csv_i <= csv_max; _csv_i++)                                                           \
                     _csv_offset += csv_sizes[_csv_i] + 1;                                                               \
-                _csv_offset--;                                                                                          \
-                if (_csv_offset >= BUFFER_SIZE) { fprintf(stderr, "error: line longer than BUFFER_SIZE\n"); exit(1); }  \
+                _csv_offset--; if (_csv_offset >= BUFFER_SIZE) { fprintf(stderr, "error: line longer than BUFFER_SIZE\n"); exit(1); }  \
                 /* move the bytes to head of buffer, and update vars for new buffer positions */                        \
                 memmove(_csv_buffer, csv_columns[0], _csv_offset);                                                      \
                 _csv_escaped = _csv_buffer[_csv_offset - 1] == '\\' ;                                                   \
@@ -88,10 +86,7 @@
                 else                                                                                                    \
                     /* the last row didnt have a newline, so lets return control to the caller, and stop next time */   \
                     _csv_handled = 1;                                                                                   \
-                if (ferror(file)) {                                                                                     \
-                    fprintf(stderr, "error: couldnt read input\n");                                                     \
-                    exit(1);                                                                                            \
-                }                                                                                                       \
+                if (ferror(file)) { fprintf(stderr, "error: couldnt read input\n"); exit(1); }                          \
                 break;                                                                                                  \
             }                                                                                                           \
             if (_csv_break)                                                                                             \

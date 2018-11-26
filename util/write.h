@@ -10,8 +10,7 @@
     int _write_offset[num_files];                                                                               \
     for (int _write_i = 0; _write_i < num_files; _write_i++) {                                                  \
         _write_offset[_write_i] = 0;                                                                            \
-        _write_buffer[_write_i] = malloc(BUFFER_SIZE);                                                          \
-        if (_write_buffer[_write_i] == NULL) { fprintf(stderr, "error: failed to allocate memory"); exit(1); }  \
+        _write_buffer[_write_i] = malloc(BUFFER_SIZE); if (_write_buffer[_write_i] == NULL) { fprintf(stderr, "error: failed to allocate memory"); exit(1); }  \
     }
 
 #define WRITE(str, size, i)                                                                                         \

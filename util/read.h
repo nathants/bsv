@@ -15,8 +15,7 @@
     int _read_offset[num_files];                                                                                \
     for (int _read_i = 0; _read_i < num_files; _read_i++) {                                                     \
         _read_offset[_read_i] = BUFFER_SIZE;                                                                    \
-        _read_buffer[_read_i] = malloc(BUFFER_SIZE);                                                            \
-        if (_read_buffer[_read_i] == NULL) { fprintf(stderr, "error: failed to allocate memory"); exit(1); }    \
+        _read_buffer[_read_i] = malloc(BUFFER_SIZE); if (_read_buffer[_read_i] == NULL) { fprintf(stderr, "error: failed to allocate memory"); exit(1); }    \
     }
 
 #define READ(size, i)                                                                                                   \

@@ -33,7 +33,6 @@ int main(int argc, const char **argv) {
     int num_fields=0;
     int field_nums[MAX_COLUMNS];
 
-    if (argc < 2) showusage();
     fs = argv[1];
     while ((f = strsep(&fs, ","))) {
         field = atoi(f);
