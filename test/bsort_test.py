@@ -21,7 +21,9 @@ def inputs(draw):
     return csv
 
 def expected(csv):
-    return '\n'.join(sorted(csv.splitlines(), key=lambda x: x.replace(',', ''))) + '\n'
+    xs = csv.splitlines()
+    xs = sorted(xs, key=lambda x: x.replace(',', ''))
+    return '\n'.join(xs) + '\n'
 
 @given(inputs())
 @settings(max_examples=100 * int(os.environ.get('TEST_FACTOR', 1)), timeout=hypothesis.unlimited, suppress_health_check=[hypothesis.HealthCheck.hung_test])
