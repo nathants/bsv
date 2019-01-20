@@ -1,6 +1,8 @@
 import shell
 from test_util import run, rm_whitespace, rm_whitespace
 
+## TODO generative test multiple buffer sizes
+
 def setup_module():
     with shell.climb_git_root():
         shell.run('make clean && make csv bsv', stream=True)

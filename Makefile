@@ -1,6 +1,6 @@
 .PHONY: all clean test
 CFLAGS=-Iutil -O3 -march=native -mtune=native
-ALL=bbucket bcounteach bcut bsort bsv _csv csv _gen_csv _read _write
+ALL=bbucket bcounteach bcut bdisjoint bsort bsv _csv csv _gen_csv _read _write
 
 all: $(ALL)
 
@@ -21,6 +21,9 @@ bcounteach: setup
 
 bcut: setup
 	gcc $(CFLAGS) src/bcut.c -o bin/bcut
+
+bdisjoint: setup
+	gcc $(CFLAGS) src/bdisjoint.c -o bin/bdisjoint
 
 bsort: setup
 	gcc $(CFLAGS) src/bsort.c -o bin/bsort
