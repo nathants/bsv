@@ -1,7 +1,8 @@
 import shell
 from test_util import run, rm_whitespace, rm_whitespace
 
-## TODO generative test multiple buffer sizes
+# TODO generative test multiple buffer sizes
+# TODO use python bsv/csv to avoid extra shelling out in gen tests
 
 def setup_module():
     with shell.climb_git_root():
