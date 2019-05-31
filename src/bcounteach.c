@@ -2,7 +2,7 @@
 
 #define DUMP_COUNT()                                        \
     do {                                                    \
-        if (last_size != 0) {                               \
+        if (last_size != 0 && last_sizes[0] != 0) {         \
             last_max++;                                     \
             sprintf(output, "%llu", val);                   \
             last_sizes[last_max] = strlen(output);          \
