@@ -24,7 +24,7 @@
 
 #define READ(size, i)                                                                                                   \
     do {                                                                                                                \
-        if (size > BUFFER_SIZE) { fprintf(stderr, "error: cant read more bytes than BUFFER_SIZE\n"); exit(1); }         \
+        if (size > BUFFER_SIZE) { fprintf(stderr, "error: cant read more bytes than %d\n", BUFFER_SIZE); exit(1); }     \
         /* if we havent stopped freading */                                                                             \
         if (_read_stop[i] == 0) {                                                                                       \
             /* prepare to fread */                                                                                      \
