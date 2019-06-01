@@ -1,4 +1,3 @@
-import pytest
 import os
 import string
 import shell
@@ -10,6 +9,10 @@ from test_util import run, rm_whitespace, rm_whitespace, max_columns
 def setup_module():
     with shell.climb_git_root():
         shell.run('make clean && make bsv csv bdisjoint', stream=True)
+
+def teardown_module():
+    with shell.climb_git_root():
+        shell.run('rm *.out', stream=True)
 
 @composite
 def inputs(draw):
@@ -55,87 +58,86 @@ def test_props(inputs):
                 shell.run(f'cat {path} | {csv} > {path.split(".csv")[0]}')
         assert result == shell.run('(grep --with-filename ".*" *.suffix || true) | LC_ALL=C sort')
 
-# def test_basic():
-#     bsv = os.path.abspath('bin/bsv')
-#     with shell.tempdir(cleanup=False):
-#         with open('a.csv', 'w') as f:
-#             f.write(rm_whitespace("""
-#                 1
-#                 2
-#                 3
-#             """))
-#         a = os.path.abspath('a')
-#         shell.run('cat a.csv |', bsv, '> a')
-#         with open('b.csv', 'w') as f:
-#             f.write(rm_whitespace("""
-#                 3
-#                 4
-#                 5
-#                 6
-#             """))
-#         shell.run('cat b.csv |', bsv, '> b')
-#         b = os.path.abspath('b')
-#         with open('c.csv', 'w') as f:
-#             f.write(rm_whitespace("""
-#                 5
-#                 6
-#                 7
-#                 8
-#                 9
-#             """))
-#         shell.run('cat c.csv |', bsv, '> c')
-#         c = os.path.abspath('c')
-#     try:
-#         shell.run('bin/bdisjoint out', a, b, c, stream=True)
-#         stdout = """
-#         a.out:1
-#         a.out:2
-#         b.out:4
-#         c.out:7
-#         c.out:8
-#         c.out:9
-#         """
-#         shell.run(f'cat {a}.out | csv > a.out')
-#         shell.run(f'cat {b}.out | csv > b.out')
-#         shell.run(f'cat {c}.out | csv > c.out')
-#         assert rm_whitespace(stdout) == shell.run(f'grep ".*" a.out b.out c.out')
-#     finally:
-#         shell.run('rm', a b c)
+def test_basic():
+    bsv = os.path.abspath('bin/bsv')
+    with shell.tempdir(cleanup=False):
+        with open('a.csv', 'w') as f:
+            f.write(rm_whitespace("""
+                1
+                2
+                3
+            """))
+        a = os.path.abspath('a')
+        shell.run('cat a.csv |', bsv, '> a')
+        with open('b.csv', 'w') as f:
+            f.write(rm_whitespace("""
+                3
+                4
+                5
+                6
+            """))
+        shell.run('cat b.csv |', bsv, '> b')
+        b = os.path.abspath('b')
+        with open('c.csv', 'w') as f:
+            f.write(rm_whitespace("""
+                5
+                6
+                7
+                8
+                9
+            """))
+        shell.run('cat c.csv |', bsv, '> c')
+        c = os.path.abspath('c')
+    try:
+        shell.run('bin/bdisjoint out', a, b, c, stream=True)
+        stdout = """
+        a.out:1
+        a.out:2
+        b.out:4
+        c.out:7
+        c.out:8
+        c.out:9
+        """
+        shell.run(f'cat {a}.out | csv > a.out')
+        shell.run(f'cat {b}.out | csv > b.out')
+        shell.run(f'cat {c}.out | csv > c.out')
+        assert rm_whitespace(stdout) == shell.run(f'grep ".*" a.out b.out c.out')
+    finally:
+        shell.run('rm', a, b, c)
 
-# def test_basic2():
-#     bsv = os.path.abspath('bin/bsv')
-#     with shell.tempdir(cleanup=False):
-#         with open('a.csv', 'w') as f:
-#             f.write(rm_whitespace("""
-#                 1
-#             """))
-#         a = os.path.abspath('a')
-#         shell.run('cat a.csv |', bsv, '> a')
-#         with open('b.csv', 'w') as f:
-#             f.write(rm_whitespace("""
-#                 2
-#             """))
-#         shell.run('cat b.csv |', bsv, '> b')
-#         b = os.path.abspath('b')
-#         with open('c.csv', 'w') as f:
-#             f.write(rm_whitespace("""
-#                 1
-#                 2
-#                 3
-#             """))
-#         shell.run('cat c.csv |', bsv, '> c')
-#         c = os.path.abspath('c')
-#     try:
-#         shell.run('bin/bdisjoint out', a, b, c, stream=True)
-#         stdout = """
-#         a.out:
-#         b.out:
-#         c.out:3
-#         """
-#         shell.run(f'cat {a}.out | csv > a.out')
-#         shell.run(f'cat {b}.out | csv > b.out')
-#         shell.run(f'cat {c}.out | csv > c.out')
-#         assert rm_whitespace(stdout) == shell.run('grep ".*" a.out b.out c.out')
-#     finally:
-#         # shell.run('rm', a, b, c)
-#         pass
+def test_basic2():
+    bsv = os.path.abspath('bin/bsv')
+    with shell.tempdir(cleanup=False):
+        with open('a.csv', 'w') as f:
+            f.write(rm_whitespace("""
+                1
+            """))
+        a = os.path.abspath('a')
+        shell.run('cat a.csv |', bsv, '> a')
+        with open('b.csv', 'w') as f:
+            f.write(rm_whitespace("""
+                2
+            """))
+        shell.run('cat b.csv |', bsv, '> b')
+        b = os.path.abspath('b')
+        with open('c.csv', 'w') as f:
+            f.write(rm_whitespace("""
+                1
+                2
+                3
+            """))
+        shell.run('cat c.csv |', bsv, '> c')
+        c = os.path.abspath('c')
+    try:
+        shell.run('bin/bdisjoint out', a, b, c, stream=True)
+        stdout = """
+        a.out:
+        b.out:
+        c.out:3
+        """
+        shell.run(f'cat {a}.out | csv > a.out')
+        shell.run(f'cat {b}.out | csv > b.out')
+        shell.run(f'cat {c}.out | csv > c.out')
+        assert rm_whitespace(stdout) == shell.run('grep ".*" a.out b.out c.out')
+    finally:
+        shell.run('rm', a, b, c)
