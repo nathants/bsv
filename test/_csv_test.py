@@ -1,4 +1,5 @@
 import os
+import random
 import string
 import shell
 import hypothesis
@@ -6,7 +7,7 @@ from hypothesis import given, settings
 from hypothesis.strategies import text, lists, composite, integers, sampled_from
 from test_util import compile_buffer_sizes, run, rm_whitespace
 
-buffers = [2, 3, 5, 8, 11, 17, 64, 256, 1024]
+buffers = list(sorted(set([2, 3, 5, 8, 11, 17, 64, 256, 1024] + [random.randint(1, 1024) for _ in range(10)])))
 
 def setup_module():
     with shell.climb_git_root():
@@ -16,7 +17,7 @@ def setup_module():
 
 def teardown_module():
     with shell.climb_git_root():
-        shell.run('rm -f bin/_csv.*')
+        shell.run('make clean', stream=True)
 
 @composite
 def inputs(draw):
