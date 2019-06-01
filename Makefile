@@ -8,7 +8,7 @@ setup:
 	mkdir -p bin
 
 clean: setup
-	cd bin && rm -f -- $(ALL) csv.* bsv.*
+	cd bin && rm -f -- $(ALL) csv.* bsv.* _csv.*
 
 test: setup
 	tox
