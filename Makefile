@@ -8,7 +8,7 @@ setup:
 	mkdir -p bin
 
 clean: setup
-	cd bin && rm -f -- $(ALL)
+	cd bin && rm -f -- $(ALL) csv.* bsv.*
 
 test: setup
 	tox
@@ -45,4 +45,3 @@ _read: setup
 
 _write: setup
 	gcc $(CFLAGS) src/_write.c -o bin/_write
-
