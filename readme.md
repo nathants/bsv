@@ -10,7 +10,7 @@ small fast cli utilites to combine into processing pipelines.
 
 - [bbucket](#bbucket) - prefix each row with a consistent hash of the first column
 
-- [bcounteach](#bcounteach) - count and collapse each contiguous identical row
+- [bcounteach](#bcounteach) - count each contiguous identical row
 
 - [bdisjoint](#bdisjoint) - given sorted files, create new files with values not in multiple files
 
