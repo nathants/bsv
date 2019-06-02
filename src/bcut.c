@@ -18,7 +18,7 @@
 
 #define NUM_ARGS 2
 #define DESCRIPTION "select some columns\n\n"
-#define USAGE "bcut FIELD1,...,FIELDN\n\n"
+#define USAGE "... | bcut FIELD1,...,FIELDN\n\n"
 #define EXAMPLE ">> echo a,b,c | bsv | bcut 3,3,3,2,2,1 | csv\nc,c,c,b,b,a\n"
 
 int main(int argc, const char **argv) {

@@ -3,7 +3,7 @@
 
 #define NUM_ARGS 1
 #define DESCRIPTION "convert bsv to csv\n\n"
-#define USAGE "csv\n\n"
+#define USAGE "... | csv\n\n"
 #define EXAMPLE ">> echo a,b,c | bsv | csv\na,b,c\n"
 
 int main(int argc, const char **argv) {

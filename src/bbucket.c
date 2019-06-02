@@ -5,7 +5,7 @@
 
 #define NUM_ARGS 2
 #define DESCRIPTION "prefix each row with a consistent hash of the first column\n\n"
-#define USAGE "bbucket NUM_BUCKETS\n\n"
+#define USAGE "... | bbucket NUM_BUCKETS\n\n"
 #define EXAMPLE ">> echo '\na\nb\nc\n' | bsv | bbucket 100 | csv\n50,a\n39,b\n83,c\n"
 
 int main(int argc, const char **argv) {

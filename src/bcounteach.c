@@ -13,7 +13,7 @@
 
 #define NUM_ARGS 1
 #define DESCRIPTION "count and collapse each contiguous identical row\n\n"
-#define USAGE "bcounteach\n\n"
+#define USAGE "... | bcounteach\n\n"
 #define EXAMPLE "echo 'a\na\nb\nb\nb\na\n' | bsv | bcounteach | csv\na,2\nb,3\na,1\n"
 
 int main(int argc, const char **argv) {

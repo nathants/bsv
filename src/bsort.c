@@ -4,7 +4,7 @@
 
 #define NUM_ARGS 1
 #define DESCRIPTION "sort rows\n\n"
-#define USAGE "sort\n\n"
+#define USAGE "... | sort\n\n"
 #define EXAMPLE ">> echo '\nc\nb\na\n' | bsv | bsort | csv\na\nb\nc\n\n"
 
 #define SORT_NAME str
