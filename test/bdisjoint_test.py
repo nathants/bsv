@@ -141,3 +141,44 @@ def test_basic2():
         assert rm_whitespace(stdout) == shell.run('grep ".*" a.out b.out c.out')
     finally:
         shell.run('rm', a, b, c)
+
+def test_dedupes():
+    bsv = os.path.abspath('bin/bsv')
+    with shell.tempdir(cleanup=False):
+        with open('a.csv', 'w') as f:
+            f.write(rm_whitespace("""
+                1
+                1
+                1
+            """))
+        a = os.path.abspath('a')
+        shell.run('cat a.csv |', bsv, '> a')
+        with open('b.csv', 'w') as f:
+            f.write(rm_whitespace("""
+                2
+            """))
+        shell.run('cat b.csv |', bsv, '> b')
+        b = os.path.abspath('b')
+        with open('c.csv', 'w') as f:
+            f.write(rm_whitespace("""
+                1
+                2
+                3
+                3
+                3
+            """))
+        shell.run('cat c.csv |', bsv, '> c')
+        c = os.path.abspath('c')
+    try:
+        shell.run('bin/bdisjoint out', a, b, c, stream=True)
+        stdout = """
+        a.out:
+        b.out:
+        c.out:3
+        """
+        shell.run(f'cat {a}.out | csv > a.out')
+        shell.run(f'cat {b}.out | csv > b.out')
+        shell.run(f'cat {c}.out | csv > c.out')
+        assert rm_whitespace(stdout) == shell.run('grep ".*" a.out b.out c.out')
+    finally:
+        shell.run('rm', a, b, c)

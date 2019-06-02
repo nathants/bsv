@@ -20,16 +20,28 @@ for path in co('ls src/*.c').splitlines():
         with open(path) as f:
             xs = f.read().splitlines()
         try:
-            assert any(x.strip() == 'HELP();' for x in xs)
+            assert any(x.strip() == 'HELP();' for x in xs), path
             name = path.split('/')[-1].split('.c')[0]
             description = [x for x in xs if x.startswith('#define DESCRIPTION')][0].replace('\\n', '\n').split('"')[1]
             usage = [x for x in xs if x.startswith('#define USAGE')][0].replace('\\n', '\n').split('"')[1]
-            example = [x for x in xs if x.startswith('#define EXAMPLE')][0].replace('\\n', '\n').split('"')[1]
+            try:
+                example = [x for x in xs if x.startswith('#define EXAMPLE')][0].replace('\\n', '\n').split('"')[1]
+            except IndexError:
+                example = ''
+                while True:
+                    x = xs.pop(0)
+                    if x.startswith('#define EXAMPLE'):
+                        break
+                while True:
+                    x = xs.pop(0)
+                    if not x.strip():
+                        break
+                    example += x.replace('\\n', '\n').split('"')[1]
         except:
             print(f'error: failed to parse docs in file: {name}.c')
             raise
-        before.append(f'- [{name}](#{name}) - {description}'.strip() + '\n')
-        after.append(f'### {name}\n\n{description}usage: `{usage.strip()}`\n\n```\n{example.strip()}\n```')
+        before.append(f'- [{name}](#{name}) - {description}'.strip())
+        after.append(f'\n### {name}\n\n{description}usage: `{usage.strip()}`\n\n```\n{example.strip()}\n```')
 
 with open('readme.md', 'w') as f:
     f.write('\n'.join(before + after))

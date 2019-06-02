@@ -3,15 +3,20 @@
 #include "row.h"
 
 #define NUM_ARGS 0
-#define DESCRIPTION "given sorted files, create new files with values not in multiple files\n\n"
+#define DESCRIPTION "given sorted files, create new files with deduped values not in multiple files\n\n"
 #define USAGE "... | bdisjoint SUFFIX FILE1 ... FILEN\n\n"
 #define EXAMPLE \
-    ">> echo -e '1\\n2' | bsv > a\n\n" \
-    ">> echo -e '2\\n3\\n4' | bsv > b\n\n" \
-    ">> echo -e '4\\n5' | bsv > c\n\n" \
-    ">> bdisjoint out a b c\n\n" \
-    ">> csv < a.out\n1\n\n" \
-    ">> csv < b.out\n3\n\n" \
+    ">> echo 1 | bsv > a\n" \
+    ">> echo 2 | bsv > a\n" \
+    ">> echo 2 | bsv > b\n" \
+    ">> echo 3 | bsv > b\n" \
+    ">> echo 4 | bsv > b\n" \
+    ">> echo 4 | bsv > c\n" \
+    ">> echo 5 | bsv > c\n" \
+    ">> echo 5 | bsv > c\n" \
+    ">> bdisjoint out a b c\n" \
+    ">> csv < a.out\n1\n" \
+    ">> csv < b.out\n3\n" \
     ">> csv < c.out\n5\n\n"
 
 int main(int argc, const char **argv) {
