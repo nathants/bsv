@@ -41,7 +41,7 @@ def expected(csv):
     return '\n'.join(result) + '\n'
 
 @given(inputs())
-@settings(max_examples=100 * int(os.environ.get('TEST_FACTOR', 1)), timeout=hypothesis.unlimited, suppress_health_check=[hypothesis.HealthCheck.hung_test])
+@settings(max_examples=100 * int(os.environ.get('TEST_FACTOR', 1)))
 def test_props(args):
     csv = args
     result = expected(csv)

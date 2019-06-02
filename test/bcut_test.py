@@ -51,7 +51,7 @@ def expected(fields, csv):
     return '\n'.join(result) + '\n'
 
 @given(inputs())
-@settings(max_examples=100 * int(os.environ.get('TEST_FACTOR', 1)), timeout=hypothesis.unlimited, suppress_health_check=[hypothesis.HealthCheck.hung_test])
+@settings(max_examples=100 * int(os.environ.get('TEST_FACTOR', 1)))
 def test_props(args):
     fields, csv = args
     result = expected(fields, csv)
@@ -62,7 +62,7 @@ def test_props(args):
             run(csv, f'bin/bsv | bin/bcut {fields} | bin/csv')
 
 @given(inputs_ascending_unique_fields())
-@settings(max_examples=100 * int(os.environ.get('TEST_FACTOR', 1)), timeout=hypothesis.unlimited, suppress_health_check=[hypothesis.HealthCheck.hung_test])
+@settings(max_examples=100 * int(os.environ.get('TEST_FACTOR', 1)))
 def test_props_compatability(args):
     fields, csv = args
     result = expected(fields, csv)

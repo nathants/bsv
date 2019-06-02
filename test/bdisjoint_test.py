@@ -41,7 +41,7 @@ def expected(inputs):
                       if line])
 
 @given(inputs())
-@settings(max_examples=50 * int(os.environ.get('TEST_FACTOR', 1)), timeout=hypothesis.unlimited, suppress_health_check=[hypothesis.HealthCheck.hung_test])
+@settings(max_examples=50 * int(os.environ.get('TEST_FACTOR', 1)))
 def test_props(inputs):
     cmd = os.path.abspath('bin/bdisjoint')
     bsv = os.path.abspath('bin/bsv')

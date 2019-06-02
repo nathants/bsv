@@ -30,7 +30,7 @@ def expected(buckets, csv):
     return '\n'.join(xs) + '\n'
 
 @given(inputs())
-@settings(max_examples=100 * int(os.environ.get('TEST_FACTOR', 1)), timeout=hypothesis.unlimited, suppress_health_check=[hypothesis.HealthCheck.hung_test])
+@settings(max_examples=100 * int(os.environ.get('TEST_FACTOR', 1)))
 def test_props(args):
     buckets, csv = args
     result = expected(buckets, csv)
