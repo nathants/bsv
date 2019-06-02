@@ -1,6 +1,6 @@
 .PHONY: all clean test
 CFLAGS=-Iutil -O3 -march=native -mtune=native
-ALL=bbucket bcounteach bcut bdisjoint bsort bsv _csv csv _gen_csv _read _write
+ALL=docs bdedupe bbucket bcounteach bcut bdisjoint bsort bsv _csv csv _gen_csv _read _write
 
 all: $(ALL)
 
@@ -10,8 +10,14 @@ setup:
 clean: setup
 	cd bin && rm -f -- $(ALL) csv.* bsv.* _csv.*
 
+docs:
+	./readme.py
+
 test: setup
 	tox
+
+bdedupe: setup
+	gcc $(CFLAGS) src/bdedupe.c -o bin/bdedupe
 
 bbucket: setup
 	gcc $(CFLAGS) src/bbucket.c -o bin/bbucket

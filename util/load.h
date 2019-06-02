@@ -17,12 +17,12 @@
     } while(0)
 
 #define LOAD_NEW(name)                                                                              \
-    char * name##_buffer = malloc(BUFFER_SIZE); if (name##_buffer == NULL) { fprintf(stderr, "error: failed to allocate memory"); exit(1); }    \
     int name##_max;                                                                                 \
     int name##_stop;                                                                                \
     int name##_size;                                                                                \
     int name##_sizes[MAX_COLUMNS];                                                                  \
-    char * name##_columns[MAX_COLUMNS];
+    char * name##_columns[MAX_COLUMNS];                                                             \
+    char * name##_buffer = malloc(BUFFER_SIZE); if (name##_buffer == NULL) { fprintf(stderr, "error: failed to allocate memory"); exit(1); }
 
 #define LOAD_INIT(files, num_files)             \
     READ_INIT(files, num_files);                \

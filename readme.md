@@ -11,6 +11,7 @@ small fast cli utilites to combine into processing pipelines.
 - [bbucket](#bbucket) - prefix each row with a consistent hash of the first column
 - [bcounteach](#bcounteach) - count and collapse each contiguous identical row
 - [bcut](#bcut) - select some columns
+- [bdedupe](#bdedupe) - dedupe identical contiguous lines
 - [bdisjoint](#bdisjoint) - given sorted files, create new files with deduped values not in multiple files
 - [bsort](#bsort) - sort rows
 - [bsv](#bsv) - convert csv to bsv
@@ -61,6 +62,25 @@ usage: `... | bcut FIELD1,...,FIELDN`
 ```
 >> echo a,b,c | bsv | bcut 3,3,3,2,2,1 | csv
 c,c,c,b,b,a
+```
+
+### bdedupe
+
+dedupe identical contiguous lines
+
+usage: `... | bdedupe`
+
+```
+>> echo -e '
+a
+a
+b
+b
+a
+a' | bsv | bdedupe | csv
+a
+b
+a
 ```
 
 ### bdisjoint
