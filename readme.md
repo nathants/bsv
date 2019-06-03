@@ -71,13 +71,14 @@ dedupe identical contiguous lines
 usage: `... | bdedupe`
 
 ```
->> echo -e '
+>> echo '
 a
 a
 b
 b
 a
-a' | bsv | bdedupe | csv
+a
+' | bsv | bdedupe | csv
 a
 b
 a
@@ -90,19 +91,31 @@ given sorted files, create new files with deduped values not in multiple files
 usage: `... | bdisjoint SUFFIX FILE1 ... FILEN`
 
 ```
->> echo 1 | bsv > a
->> echo 2 | bsv > a
->> echo 2 | bsv > b
->> echo 3 | bsv > b
->> echo 4 | bsv > b
->> echo 4 | bsv > c
->> echo 5 | bsv > c
->> echo 5 | bsv > c
+>> echo '
+1
+2
+' | bsv > a
+
+>> echo '
+2
+3
+4
+' | bsv > b
+
+>> echo '
+4
+5
+5
+' | bsv > c
+
 >> bdisjoint out a b c
+
 >> csv < a.out
 1
+
 >> csv < b.out
 3
+
 >> csv < c.out
 5
 ```

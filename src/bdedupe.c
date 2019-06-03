@@ -3,7 +3,7 @@
 #define NUM_ARGS 1
 #define DESCRIPTION "dedupe identical contiguous lines\n\n"
 #define USAGE "... | bdedupe\n\n"
-#define EXAMPLE ">> echo '\na\na\nb\nb\na\na' | bsv | bdedupe | csv\na\nb\na\n"
+#define EXAMPLE ">> echo '\na\na\nb\nb\na\na\n' | bsv | bdedupe | csv\na\nb\na\n"
 
 int main(int argc, const char **argv) {
     HELP();

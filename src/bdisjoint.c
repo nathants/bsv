@@ -6,17 +6,23 @@
 #define DESCRIPTION "given sorted files, create new files with deduped values not in multiple files\n\n"
 #define USAGE "... | bdisjoint SUFFIX FILE1 ... FILEN\n\n"
 #define EXAMPLE \
-    ">> echo 1 | bsv > a\n" \
-    ">> echo 2 | bsv > a\n" \
-    ">> echo 2 | bsv > b\n" \
-    ">> echo 3 | bsv > b\n" \
-    ">> echo 4 | bsv > b\n" \
-    ">> echo 4 | bsv > c\n" \
-    ">> echo 5 | bsv > c\n" \
-    ">> echo 5 | bsv > c\n" \
-    ">> bdisjoint out a b c\n" \
-    ">> csv < a.out\n1\n" \
-    ">> csv < b.out\n3\n" \
+    ">> echo '\n"                \
+    "1\n"                        \
+    "2\n"                        \
+    "' | bsv > a\n\n"            \
+    ">> echo '\n"                \
+    "2\n"                        \
+    "3\n"                        \
+    "4\n"                        \
+    "' | bsv > b\n\n"            \
+    ">> echo '\n"                \
+    "4\n"                        \
+    "5\n"                        \
+    "5\n"                        \
+    "' | bsv > c\n\n"            \
+    ">> bdisjoint out a b c\n\n" \
+    ">> csv < a.out\n1\n\n"      \
+    ">> csv < b.out\n3\n\n"      \
     ">> csv < c.out\n5\n\n"
 
 int main(int argc, const char **argv) {
