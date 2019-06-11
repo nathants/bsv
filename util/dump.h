@@ -3,6 +3,8 @@
 
 #include "write.h"
 
+/* see bsv.c for example usage */
+
 #define DUMP_INIT(files, num_files)             \
     WRITE_INIT(files, num_files);               \
     int _dump_i;                                \

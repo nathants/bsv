@@ -3,6 +3,8 @@
 
 #include "read.h"
 
+/* see csv.c for example usage */
+
 #define LOAD_COPY(to, from)                                     \
     do {                                                        \
         to##_size = from##_size;                                \
@@ -16,12 +18,12 @@
         }                                                       \
     } while(0)
 
-#define LOAD_NEW(name)                                                                              \
-    int name##_max;                                                                                 \
-    int name##_stop;                                                                                \
-    int name##_size;                                                                                \
-    int name##_sizes[MAX_COLUMNS];                                                                  \
-    char * name##_columns[MAX_COLUMNS];                                                             \
+#define LOAD_NEW(name)                                                                                                  \
+    int name##_stop;                    /* stop immediately */                                                          \
+    int name##_max;                     /* highest zero-based index into sizes and columns */                           \
+    int name##_size;                    /* total number of chars in all columns */                                      \
+    int name##_sizes[MAX_COLUMNS];      /* array of the number of chars in each column */                               \
+    char * name##_columns[MAX_COLUMNS]; /* array of columns as char-star */                                             \
     char * name##_buffer = malloc(BUFFER_SIZE); if (name##_buffer == NULL) { fprintf(stderr, "error: failed to allocate memory"); exit(1); }
 
 #define LOAD_INIT(files, num_files)             \

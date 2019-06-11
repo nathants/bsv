@@ -3,22 +3,24 @@
 
 #include "util.h"
 
-#define CSV_INIT()                                                                              \
-    int _csv_escaped;                                                                           \
-    int _csv_break;                                                                             \
-    int _csv_i;                                                                                 \
-    int _csv_handled = 0;                                                                       \
-    int _csv_update_columns = 0;                                                                \
-    int _csv_bytes_read = 0;                                                                    \
-    int _csv_char_index = BUFFER_SIZE;                                                          \
-    int _csv_offset = BUFFER_SIZE;                                                              \
-    char _csv_char;                                                                             \
+/* see bsv.c for example usage */
+
+#define CSV_INIT()                                                                                                      \
+    int _csv_escaped;                                                                                                   \
+    int _csv_break;                                                                                                     \
+    int _csv_i;                                                                                                         \
+    int _csv_handled = 0;                                                                                               \
+    int _csv_update_columns = 0;                                                                                        \
+    int _csv_bytes_read = 0;                                                                                            \
+    int _csv_char_index = BUFFER_SIZE;                                                                                  \
+    int _csv_offset = BUFFER_SIZE;                                                                                      \
+    char _csv_char;                                                                                                     \
     char *_csv_buffer = malloc(BUFFER_SIZE); if (_csv_buffer == NULL) { fprintf(stderr, "error: failed to allocate memory"); exit(1); } \
-    char *_csv_next_column[MAX_COLUMNS];                                                        \
-    int csv_stop = 0;                                                                           \
-    int csv_max = 0;                                                                            \
-    int csv_sizes[MAX_COLUMNS] = {0};                                                           \
-    char *csv_columns[MAX_COLUMNS];                                                             \
+    char *_csv_next_column[MAX_COLUMNS];                                                                                \
+    int csv_stop = 0;                 /* stop immediately */                                                            \
+    int csv_max = 0;                  /* highest zero-based index into sizes and columns */                             \
+    int csv_sizes[MAX_COLUMNS] = {0}; /* array of the number of chars in each column */                                 \
+    char *csv_columns[MAX_COLUMNS];   /* array of columns as char-star */                                               \
     csv_columns[0] = _csv_buffer;
 
 #define CSV_READ_LINE(file)                                                                                             \

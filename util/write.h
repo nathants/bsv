@@ -3,6 +3,8 @@
 
 #include "util.h"
 
+/* see csv.c for example usage */
+
 #define WRITE_INIT(files, num_files)                                                                            \
     FILE **_write_files = files;                                                                                \
     char *_write_buffer[num_files];                                                                             \
