@@ -13,6 +13,7 @@ small fast cli utilites to combine into processing pipelines.
 - [bcut](#bcut) - select some columns
 - [bdedupe](#bdedupe) - dedupe identical contiguous lines
 - [bdisjoint](#bdisjoint) - given sorted files, create new files with deduped values not in multiple files
+- [bdropuntil](#bdropuntil) - drop until the first column is gte to VALUE
 - [bsort](#bsort) - sort rows
 - [bsv](#bsv) - convert csv to bsv
 - [csv](#csv) - convert bsv to csv
@@ -118,6 +119,23 @@ usage: `... | bdisjoint SUFFIX FILE1 ... FILEN`
 
 >> csv < c.out
 5
+```
+
+### bdropuntil
+
+drop until the first column is gte to VALUE
+
+usage: `... | bdropuntil VALUE`
+
+```
+>> echo '
+a
+b
+c
+d
+' | bsv | bdropuntil c | csv
+c
+d
 ```
 
 ### bsort

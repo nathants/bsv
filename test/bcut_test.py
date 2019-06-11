@@ -2,7 +2,6 @@ import pytest
 import os
 import string
 import shell
-import hypothesis
 from hypothesis import given, settings
 from hypothesis.strategies import text, lists, composite, integers
 from test_util import run, rm_whitespace, rm_whitespace, max_columns
@@ -86,6 +85,11 @@ def test_compatability():
     """
     assert rm_whitespace(stdout) + '\n' == run(rm_whitespace(stdin), 'bin/bsv | bin/bcut 1,2 | bin/csv')
     assert rm_whitespace(stdout) + '\n' == run(rm_whitespace(stdin), 'cut -d, -f1,2')
+
+def test_single_char():
+    stdin = "1\n2\n10\n20\n"
+    stdout = "1\n2\n10\n20\n"
+    assert stdout == run(rm_whitespace(stdin), 'bin/bsv | bin/bcut 1 | bin/csv')
 
 def test_double_digits():
     stdin = "1,2,3,4,5,6,7,8,9,10\n"

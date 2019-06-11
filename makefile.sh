@@ -4,7 +4,7 @@ cd $(dirname $(realpath $0))
 
 echo ".PHONY: all clean test" > Makefile
 echo "CFLAGS=-Iutil -O3 -march=native -mtune=native" >> Makefile
-echo ALL=$(for src in src/*.c; do basename $src | cut -d. -f1; done) >> Makefile
+echo ALL=docs $(for src in src/*.c; do basename $src | cut -d. -f1; done) >> Makefile
 echo >> Makefile
 
 echo "all: \$(ALL)" >> Makefile
@@ -15,7 +15,11 @@ echo -e '\tmkdir -p bin' >> Makefile
 echo >> Makefile
 
 echo clean: setup >> Makefile
-echo -e '\tcd bin && rm -f -- $(ALL)' >> Makefile
+echo -e '\tcd bin && rm -f -- $(ALL) csv.* bsv.* _csv.*' >> Makefile
+echo >> Makefile
+
+echo docs: >> Makefile
+echo -e '\t./readme.py' >> Makefile
 echo >> Makefile
 
 echo test: setup >> Makefile

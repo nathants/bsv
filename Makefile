@@ -1,6 +1,6 @@
 .PHONY: all clean test
 CFLAGS=-Iutil -O3 -march=native -mtune=native
-ALL=docs bdedupe bbucket bcounteach bcut bdisjoint bsort bsv _csv csv _gen_csv _read _write
+ALL=docs bbucket bcounteach bcut bdedupe bdisjoint bdropuntil bsort bsv _csv csv _gen_csv _read _write
 
 all: $(ALL)
 
@@ -16,9 +16,6 @@ docs:
 test: setup
 	tox
 
-bdedupe: setup
-	gcc $(CFLAGS) src/bdedupe.c -o bin/bdedupe
-
 bbucket: setup
 	gcc $(CFLAGS) src/bbucket.c -o bin/bbucket
 
@@ -28,8 +25,14 @@ bcounteach: setup
 bcut: setup
 	gcc $(CFLAGS) src/bcut.c -o bin/bcut
 
+bdedupe: setup
+	gcc $(CFLAGS) src/bdedupe.c -o bin/bdedupe
+
 bdisjoint: setup
 	gcc $(CFLAGS) src/bdisjoint.c -o bin/bdisjoint
+
+bdropuntil: setup
+	gcc $(CFLAGS) src/bdropuntil.c -o bin/bdropuntil
 
 bsort: setup
 	gcc $(CFLAGS) src/bsort.c -o bin/bsort
@@ -51,3 +54,4 @@ _read: setup
 
 _write: setup
 	gcc $(CFLAGS) src/_write.c -o bin/_write
+
