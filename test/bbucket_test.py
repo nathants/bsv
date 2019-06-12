@@ -1,7 +1,6 @@
 import os
 import string
 import shell
-import hypothesis
 import mmh3
 from hypothesis import given, settings
 from hypothesis.strategies import text, lists, composite, integers

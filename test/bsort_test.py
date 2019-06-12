@@ -2,7 +2,6 @@ import pytest
 import os
 import string
 import shell
-import hypothesis
 from hypothesis import given, settings
 from hypothesis.strategies import text, lists, composite, integers
 from test_util import run, rm_whitespace

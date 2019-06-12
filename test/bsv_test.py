@@ -1,7 +1,6 @@
 import shell
 import random
 import os
-import hypothesis
 import string
 from hypothesis import given, settings
 from hypothesis.strategies import text, lists, composite, integers, sampled_from

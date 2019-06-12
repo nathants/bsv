@@ -2,7 +2,6 @@ import os
 import random
 import string
 import shell
-import hypothesis
 from hypothesis import given, settings
 from hypothesis.strategies import text, lists, composite, integers, sampled_from
 from test_util import compile_buffer_sizes, run, rm_whitespace

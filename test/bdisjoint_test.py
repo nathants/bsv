@@ -1,10 +1,9 @@
 import os
 import string
 import shell
-import hypothesis
 from hypothesis import given, settings
-from hypothesis.strategies import text, lists, composite, integers
-from test_util import run, rm_whitespace, rm_whitespace, max_columns
+from hypothesis.strategies import text, lists, composite
+from test_util import rm_whitespace, rm_whitespace
 
 def setup_module():
     with shell.climb_git_root():
