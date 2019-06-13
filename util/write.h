@@ -31,7 +31,7 @@
 
 #define WRITE_FLUSH(i)                                                                                          \
     do {                                                                                                        \
-        _write_bytes = fwrite(_write_buffer[i], 1, _write_offset[i], _write_files[i]);                          \
+        _write_bytes = fwrite_unlocked(_write_buffer[i], 1, _write_offset[i], _write_files[i]);                 \
         if (_write_offset[i] != _write_bytes) { fprintf(stderr, "error: failed to write output"); exit(1); }    \
     } while (0)
 

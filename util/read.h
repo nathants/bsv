@@ -13,9 +13,8 @@
     int _read_bytes = 0;                                                                                        \
     int _read_stop[num_files];                                                                                  \
     int _read_i;                                                                                                \
-    for (_read_i = 0; _read_i < num_files; _read_i++) {                                                         \
+    for (_read_i = 0; _read_i < num_files; _read_i++)                                                           \
         _read_stop[_read_i] = 0;                                                                                \
-    }                                                                                                           \
     int _read_offset[num_files];                                                                                \
     for (_read_i = 0; _read_i < num_files; _read_i++) {                                                         \
         _read_offset[_read_i] = BUFFER_SIZE;                                                                    \

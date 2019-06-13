@@ -38,7 +38,7 @@
     do {                                                                                                                \
         READ(2, i);                                                                                                     \
         load_stop = 1;                                                                                                  \
-        if (read_bytes) {                                                                                               \
+        if (read_bytes == 2) {                                                                                          \
             load_stop = 0;                                                                                              \
             memcpy(&_load_ushort, read_buffer, 2);                                                                      \
             load_max = (int)_load_ushort;                                                                               \
