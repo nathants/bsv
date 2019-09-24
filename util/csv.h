@@ -5,93 +5,95 @@
 
 /* see bsv.c for example usage */
 
-#define CSV_INIT()                                                                                                      \
-    int _csv_escaped;                                                                                                   \
-    int _csv_break;                                                                                                     \
-    int _csv_i;                                                                                                         \
-    int _csv_handled = 0;                                                                                               \
-    int _csv_update_columns = 0;                                                                                        \
-    int _csv_bytes_read = 0;                                                                                            \
-    int _csv_char_index = BUFFER_SIZE;                                                                                  \
-    int _csv_offset = BUFFER_SIZE;                                                                                      \
-    char _csv_char;                                                                                                     \
-    char *_csv_buffer = malloc(BUFFER_SIZE); if (_csv_buffer == NULL) { fprintf(stderr, "error: failed to allocate memory"); exit(1); } \
-    char *_csv_next_column[MAX_COLUMNS];                                                                                \
-    int csv_stop = 0;                 /* stop immediately */                                                            \
-    int csv_max = 0;                  /* highest zero-based index into sizes and columns */                             \
-    int csv_sizes[MAX_COLUMNS] = {0}; /* array of the number of chars in each column */                                 \
-    char *csv_columns[MAX_COLUMNS];   /* array of columns as char-star */                                               \
-    csv_columns[0] = _csv_buffer;
+#define CSV_INIT()                                                                          \
+    int c_escaped;                                                                          \
+    int c_break;                                                                            \
+    int c_i;                                                                                \
+    int c_handled = 0;                                                                      \
+    int c_update_columns = 0;                                                               \
+    int c_bytes_read = 0;                                                                   \
+    int c_char_index = BUFFER_SIZE;                                                         \
+    int c_offset = BUFFER_SIZE;                                                             \
+    char c_char;                                                                            \
+    char *c_buffer;                                                                         \
+    MALLOC(c_buffer, BUFFER_SIZE);                                                          \
+    char *c_next_column[MAX_COLUMNS];                                                       \
+    int csv_stop = 0;                 /* stop immediately */                                \
+    int csv_max = 0;                  /* highest zero-based index into sizes and columns */ \
+    int csv_sizes[MAX_COLUMNS] = {0}; /* array of the number of chars in each column */     \
+    char *csv_columns[MAX_COLUMNS];   /* array of columns as char-star */                   \
+    csv_columns[0] = c_buffer;
 
 #define CSV_READ_LINE(file)                                                                                             \
     do {                                                                                                                \
         while (1) {                                                                                                     \
-            _csv_break = 0;                                                                                             \
+            c_break = 0;                                                                                                \
             /* apply any updates that are left over from the last read */                                               \
-            if (_csv_update_columns) {                                                                                  \
+            if (c_update_columns) {                                                                                     \
                 csv_max = 0;                                                                                            \
                 csv_sizes[0] = 0;                                                                                       \
-                csv_columns[0] = _csv_next_column[0];                                                                   \
-                _csv_update_columns = 0;                                                                                \
+                csv_columns[0] = c_next_column[0];                                                                      \
+                c_update_columns = 0;                                                                                   \
             }                                                                                                           \
             /* read, if necessary, rolling over unused bytes to the start of the buffer */                              \
-            if (_csv_char_index - _csv_offset == _csv_bytes_read) {                                                     \
+            if (c_char_index - c_offset == c_bytes_read) {                                                              \
                 /* figure out how many bytes to move */                                                                 \
-                _csv_offset = 0;                                                                                        \
-                for (_csv_i = 0; _csv_i <= csv_max; _csv_i++)                                                           \
-                    _csv_offset += csv_sizes[_csv_i] + 1;                                                               \
-                _csv_offset--; if (_csv_offset >= BUFFER_SIZE) { fprintf(stderr, "error: line longer than BUFFER_SIZE\n"); exit(1); }  \
+                c_offset = 0;                                                                                           \
+                for (c_i = 0; c_i <= csv_max; c_i++)                                                                    \
+                    c_offset += csv_sizes[c_i] + 1;                                                                     \
+                c_offset--;                                                                                             \
+                ASSERT(c_offset < BUFFER_SIZE, "fatal: line longer than BUFFER_SIZE\n");                                \
                 /* move the bytes to head of buffer, and update vars for new buffer positions */                        \
-                memmove(_csv_buffer, csv_columns[0], _csv_offset);                                                      \
-                _csv_escaped = _csv_buffer[_csv_offset - 1] == '\\' ;                                                   \
-                csv_columns[0] = _csv_buffer;                                                                           \
-                for (_csv_i = 1; _csv_i <= csv_max; _csv_i++)                                                           \
-                    csv_columns[_csv_i] = csv_columns[_csv_i - 1] + csv_sizes[_csv_i - 1] + 1;                          \
+                memmove(c_buffer, csv_columns[0], c_offset);                                                            \
+                c_escaped = c_buffer[c_offset - 1] == '\\' ;                                                            \
+                csv_columns[0] = c_buffer;                                                                              \
+                for (c_i = 1; c_i <= csv_max; c_i++)                                                                    \
+                    csv_columns[c_i] = csv_columns[c_i - 1] + csv_sizes[c_i - 1] + 1;                                   \
                 /* read into the buffer */                                                                              \
-                _csv_char_index = _csv_offset;                                                                          \
-                _csv_bytes_read = fread_unlocked(_csv_buffer + _csv_offset, 1, BUFFER_SIZE - _csv_offset, file);        \
+                c_char_index = c_offset;                                                                                \
+                c_bytes_read = fread_unlocked(c_buffer + c_offset, 1, BUFFER_SIZE - c_offset, file);                    \
             }                                                                                                           \
             /* process buffer char by char */                                                                           \
-            if (_csv_char_index - _csv_offset != _csv_bytes_read) {                                                     \
-                _csv_handled = 0;                                                                                       \
-                while (_csv_char_index - _csv_offset != _csv_bytes_read) {                                              \
-                    _csv_char = _csv_buffer[_csv_char_index];                                                           \
+            if (c_char_index - c_offset != c_bytes_read) {                                                              \
+                c_handled = 0;                                                                                          \
+                while (c_char_index - c_offset != c_bytes_read) {                                                       \
+                    c_char = c_buffer[c_char_index];                                                                    \
                     /* start next column */                                                                             \
-                    if (_csv_char == DELIMITER && !(_csv_escaped || _csv_buffer[_csv_char_index - 1] == '\\')) {        \
-                        if (++csv_max >= MAX_COLUMNS) { fprintf(stderr, "error: line with more than %d columns\n", MAX_COLUMNS); exit(1); } \
+                    if (c_char == DELIMITER && !(c_escaped || c_buffer[c_char_index - 1] == '\\')) {                    \
+                        ASSERT(++csv_max < MAX_COLUMNS, "fatal: line with more than %d columns\n", MAX_COLUMNS);        \
                         csv_sizes[csv_max] = 0;                                                                         \
-                        csv_columns[csv_max] = _csv_buffer + _csv_char_index + 1;                                       \
+                        csv_columns[csv_max] = c_buffer + c_char_index + 1;                                             \
                         /* sanely handle null bytes in input */                                                         \
-                    } else if (_csv_char == '\0') {                                                                     \
-                        _csv_buffer[_csv_char_index] = ' ';                                                             \
+                    } else if (c_char == '\0') {                                                                        \
+                        c_buffer[c_char_index] = ' ';                                                                   \
                         csv_sizes[csv_max]++;                                                                           \
                         /* line is ready. prepare updates for the next iteration, and return control to caller */       \
-                    } else if (_csv_char == '\n') {                                                                     \
-                        _csv_update_columns = 1;                                                                        \
-                        _csv_next_column[0] = _csv_buffer + _csv_char_index + 1;                                        \
-                        _csv_char_index++;                                                                              \
-                        _csv_handled = 1;                                                                               \
-                        _csv_break = 1;                                                                                 \
+                    } else if (c_char == '\n') {                                                                        \
+                        c_update_columns = 1;                                                                           \
+                        c_next_column[0] = c_buffer + c_char_index + 1;                                                 \
+                        c_char_index++;                                                                                 \
+                        c_handled = 1;                                                                                  \
+                        c_break = 1;                                                                                    \
                         break; /* break out of double while loop */                                                     \
                         /* normal character increases current column size */                                            \
                     } else                                                                                              \
                         csv_sizes[csv_max]++;                                                                           \
                     /* bump the char index */                                                                           \
-                    _csv_char_index++;                                                                                  \
+                    c_char_index++;                                                                                     \
                 }                                                                                                       \
             }                                                                                                           \
             /* nothing more to read, finish up and handle any unhandled row */                                          \
-            else if (_csv_bytes_read != BUFFER_SIZE - _csv_offset) {                                                    \
-                if (_csv_handled)                                                                                       \
+            else if (c_bytes_read != BUFFER_SIZE - c_offset) {                                                          \
+                if (c_handled)                                                                                          \
                     /* stop now */                                                                                      \
                     csv_stop = 1;                                                                                       \
                 else                                                                                                    \
                     /* the last row didnt have a newline, so lets return control to the caller, and stop next time */   \
-                    _csv_handled = 1;                                                                                   \
-                if (ferror(file)) { fprintf(stderr, "error: couldnt read input\n"); exit(1); }                          \
+                    c_handled = 1;                                                                                      \
+                ASSERT(!ferror(file), "fatal: couldnt read input\n");                                                   \
                 break;                                                                                                  \
             }                                                                                                           \
-            if (_csv_break)                                                                                             \
+            if (c_break)                                                                                                \
                 break;                                                                                                  \
         }                                                                                                               \
     } while(0)
