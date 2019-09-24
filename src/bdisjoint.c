@@ -28,21 +28,31 @@
 int main(int argc, const char **argv) {
     HELP();
     ROW_INIT();
-
     int x = 0;
     int i, j, hits, index, num_files = argc - 2, stop = 0;
     int hits_index[num_files];
     FILE *in_files[num_files], *out_files[num_files];
     char *suffix = argv[1], *in_path;
-    char out_path[1024], last_line[BUFFER_SIZE] = {255}, *min_line, max_value[BUFFER_SIZE] = {255};
+    char out_path[1024];
+    char *last_line;
+    MALLOC(last_line, BUFFER_SIZE);
+    for (i = 0; i < BUFFER_SIZE; i++)
+        last_line[i] = 255;
+    char *min_line;
+    char *max_value;
+    MALLOC(max_value, BUFFER_SIZE);
+    for (i = 0; i < BUFFER_SIZE; i++)
+        max_value[i] = 255;
     int max_index = num_files;
     int last_line_index = num_files + 1;
 
     for (i = 0; i < num_files; i++) {
         in_path = argv[i + 2];
-        in_files[i] = fopen(in_path, "rb"); if (!in_files[i]) { fprintf(stderr, "error: failed to open: %s\n", in_path); exit(1); }
+        in_files[i] = fopen(in_path, "rb");
+        ASSERT(in_files[i], "fatal: failed to open: %s\n", in_path);
         sprintf(out_path, "%s.%s", in_path, suffix);
-        out_files[i] = fopen(out_path, "w"); if (!out_files[i]) { fprintf(stderr, "error: failed to open: %s\n", out_path); exit(1); }
+        out_files[i] = fopen(out_path, "w");
+        ASSERT(out_files[i], "fatal: failed to open: %s\n", out_path);
     }
 
     LOAD_INIT(in_files, num_files);
@@ -59,16 +69,18 @@ int main(int argc, const char **argv) {
 
     int _sizes[1] = {0};
     char **_columns;
-    ROW(max_value, 0, BUFFER_SIZE, _sizes, _columns);
+    ROW(max_value, 0, BUFFER_SIZE, _sizes);
     rows[max_index] = row;
-    ROW(max_value, 0, BUFFER_SIZE, _sizes, _columns);
+    ROW(max_value, 0, BUFFER_SIZE, _sizes);
     rows[last_line_index] = row;
 
     for (i = 0; i < num_files; i++) {
         LOAD(i);
-        ROW(load_buffer, load_max, load_size, load_sizes, load_columns);
-        rows[i] = row;
         load_stops[i] = load_stop;
+        if (!load_stop) {
+            ROW(load_buffer, load_max, load_size, load_sizes);
+            rows[i] = row;
+        }
     }
 
     while (!stop) {
@@ -88,12 +100,12 @@ int main(int argc, const char **argv) {
                 hits_index[hits++] = i;
 
         if (hits == 1 && strcmp(rows[index]->buffer, rows[last_line_index]->buffer) != 0) {
-            DUMP(index, rows[index]->max, rows[index]->columns, rows[index]->sizes);
+            DUMP(index, rows[index]->max, rows[index]->columns, rows[index]->sizes, rows[index]->size);
             written[index] = 1;
         }
 
         ROW_FREE(rows[last_line_index]);
-        ROW(rows[index]->buffer, rows[index]->max, rows[index]->size, rows[index]->sizes, rows[index]->columns);
+        ROW(rows[index]->buffer, rows[index]->max, rows[index]->size, rows[index]->sizes);
         rows[last_line_index] = row;
 
         for (i = 0; i < hits; i++) {
@@ -101,7 +113,7 @@ int main(int argc, const char **argv) {
             row = rows[j];
             ROW_FREE(row);
             LOAD(j);
-            ROW(load_buffer, load_max, load_size, load_sizes, load_columns);
+            ROW(load_buffer, load_max, load_size, load_sizes);
             rows[j] = row;
             load_stops[j] = load_stop;
         }

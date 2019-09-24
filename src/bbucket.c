@@ -34,7 +34,7 @@ int main(int argc, const char **argv) {
             memmove(load_columns + 1, load_columns, (load_max + 1) * sizeof(char *));
             load_sizes[0] = strlen(hash_str);
             load_columns[0] = hash_str;
-            DUMP(0, load_max + 1, load_columns, load_sizes);
+            DUMP(0, load_max + 1, load_columns, load_sizes, load_size);
         }
     }
     DUMP_FLUSH(0);

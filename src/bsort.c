@@ -26,7 +26,14 @@ int main(int argc, const char **argv) {
         LOAD(0);
         if (load_stop)
             break;
-        ROW(load_columns[0], load_max, load_size, load_sizes, load_columns);
+        for (i = load_max; i >= 0; i--) {
+            memmove(load_columns[i] + i, load_columns[i], load_sizes[i]);
+            load_columns[i] = load_columns[i] + i;
+            load_columns[i][load_sizes[i]] = ',';
+            load_sizes[i] += 1;
+        }
+        load_size += load_max + 1;
+        ROW(load_columns[0], load_max, load_size, load_sizes);
         kv_push(row_t*, array, row);
     }
 
@@ -34,7 +41,11 @@ int main(int argc, const char **argv) {
 
     for (i = 0; i < array.n; i++) {
         row = array.a[i];
-        DUMP(0, row->max, row->columns, row->sizes);
+        for (j = 0; j <= row->max; j++) {
+            /* TODO see dump.h */
+            row->sizes[j] -= 1;
+        }
+        DUMP(0, row->max, row->columns, row->sizes, row->size - (row->max + 1));
     }
 
     DUMP_FLUSH(0);

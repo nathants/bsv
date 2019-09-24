@@ -47,13 +47,15 @@ int main(int argc, const char **argv) {
         if (load_stop)
             break;
         if (load_max || load_sizes[0]) {
+            new_size = 0;
             for (i = 0; i < num_fields; i++) {
                 ERROR_CHECK_NOT_ENOUGH_COLUMNS(load_max, load_sizes, load_columns);
                 field = field_nums[i];
                 new_columns[i] = load_columns[field];
                 new_sizes[i] = load_sizes[field];
+                new_size += new_sizes[i];
             }
-            DUMP(0, num_fields - 1, new_columns, new_sizes);
+            DUMP(0, num_fields - 1, new_columns, new_sizes, new_size);
         }
     }
     DUMP_FLUSH(0);

@@ -1,3 +1,4 @@
+#include "load_copy.h"
 #include "load_dump.h"
 
 #define NUM_ARGS 1
@@ -13,8 +14,8 @@ int main(int argc, const char **argv) {
         LOAD(0);
         if (load_stop)
             break;
-        if (!EQUAL(last_columns[0], load_columns[0], last_size, load_size)) {
-            DUMP(0, load_max, load_columns, load_sizes);
+        if (!EQUAL(last, load)) {
+            DUMP(0, load_max, load_columns, load_sizes, load_size);
             LOAD_COPY(last, load);
         }
     }
