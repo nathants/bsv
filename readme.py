@@ -38,7 +38,7 @@ for path in co('ls src/*.c').splitlines():
                         break
                     example += x.replace('\\n', '\n').split('"')[1]
         except:
-            print(f'error: failed to parse docs in file: {name}.c')
+            print(f'fatal: failed to parse docs in file: {name}.c')
             raise
         before.append(f'- [{name}](#{name}) - {description}'.strip())
         after.append(f'\n### {name}\n\n{description}usage: `{usage.strip()}`\n\n```\n{example.strip()}\n```')

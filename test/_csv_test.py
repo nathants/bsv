@@ -184,11 +184,11 @@ def test_fails_when_too_many_columns():
         finally:
             shell.run('rm', path)
         assert res['exitcode'] == 1
-        assert 'error: line with more than 65535 columns' == res['stderr']
+        assert 'fatal: line with more than 65535 columns' == res['stderr']
 
 def test_oversized_line():
     with shell.climb_git_root():
         stdin = 'a' * 8
         res = shell.run('bin/_csv.8', stdin=stdin, warn=True)
         assert res['exitcode'] == 1
-        assert 'error: line longer than BUFFER_SIZE' == res['stderr']
+        assert 'fatal: line longer than BUFFER_SIZE' == res['stderr']

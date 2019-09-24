@@ -231,12 +231,12 @@ def test_fails_when_not_enough_columns():
     with shell.climb_git_root():
         stdin = 'a,b,c'
         res = shell.run('bin/bsv | bin/bcut 4', stdin=stdin, warn=True)
-        assert 'error: line without 4 columns: a,b,c' == res['stderr']
+        assert 'fatal: line without 4 columns: a,b,c' == res['stderr']
         assert res['exitcode'] == 1
 
 def test_fails_when_non_positive_fields():
     with shell.climb_git_root():
         stdin = 'a,b,c'
         res = shell.run('bin/bsv | bin/bcut 0', stdin=stdin, warn=True)
-        assert 'error: fields must be positive, got: 0' == res['stderr']
+        assert 'fatal: fields must be positive, got: 0' == res['stderr']
         assert res['exitcode'] == 1

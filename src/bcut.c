@@ -3,7 +3,7 @@
 #define ERROR_CHECK_NOT_ENOUGH_COLUMNS(max, sizes, columns)                         \
     do {                                                                            \
         if (field_nums[i] > max) {                                                  \
-            fprintf(stderr, "error: line without %d columns: ", field_nums[i] + 1); \
+            fprintf(stderr, "fatal: line without %d columns: ", field_nums[i] + 1); \
             add_delimeter = 0;                                                      \
             for (i = 0; i <= max ; i++) {                                           \
                 if (add_delimeter)                                                  \
