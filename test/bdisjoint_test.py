@@ -11,7 +11,8 @@ def setup_module():
 
 def teardown_module():
     with shell.climb_git_root():
-        shell.run('rm *.out', stream=True)
+        shell.run('make clean')
+        shell.run('rm -f *.out', stream=True)
 
 @composite
 def inputs(draw):
@@ -40,7 +41,7 @@ def expected(inputs):
                       if line])
 
 @given(inputs())
-@settings(max_examples=50 * int(os.environ.get('TEST_FACTOR', 1)))
+@settings(max_examples=50 * int(os.environ.get('TEST_FACTOR', 1)), deadline=os.environ.get("TEST_DEADLINE", 1000 * 60))
 def test_props(inputs):
     cmd = os.path.abspath('bin/bdisjoint')
     bsv = os.path.abspath('bin/bsv')
@@ -51,7 +52,7 @@ def test_props(inputs):
             with open(f'{path}.csv', 'w') as f:
                 f.write('\n'.join(lines) + '\n')
             shell.run(f'cat {path}.csv | {bsv} > {path}')
-        shell.run(cmd, 'suffix.csv', *inputs)
+        shell.run(cmd, 'suffix.csv', *inputs, echo=True)
         for path in shell.run('ls').splitlines():
             if path.endswith('.suffix.csv'):
                 shell.run(f'cat {path} | {csv} > {path.split(".csv")[0]}')

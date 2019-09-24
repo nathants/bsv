@@ -9,12 +9,16 @@ def setup_module():
     with shell.climb_git_root():
         shell.run('make clean && make bsv csv bdedupe', stream=True)
 
+def teardown_module():
+    with shell.climb_git_root():
+        shell.run('make clean', stream=True)
+
 @composite
 def inputs(draw):
     random = draw(randoms())
-    num_columns = draw(integers(min_value=1, max_value=12))
+    num_columns = draw(integers(min_value=1, max_value=64))
     max_repeats = draw(integers(min_value=1, max_value=3))
-    column = text(string.ascii_lowercase, min_size=1, max_size=3)
+    column = text(string.ascii_lowercase, min_size=1, max_size=64)
     line = lists(column, min_size=num_columns, max_size=num_columns)
     lines = draw(lists(line))
     lines = [','.join(x) for x in lines]
@@ -32,7 +36,7 @@ def expected(csv):
     return '\n'.join(result) + '\n'
 
 @given(inputs())
-@settings(max_examples=100 * int(os.environ.get('TEST_FACTOR', 1)))
+@settings(max_examples=100 * int(os.environ.get('TEST_FACTOR', 1)), deadline=os.environ.get("TEST_DEADLINE", 1000 * 60))
 def test_props(args):
     csv = args
     result = expected(csv)

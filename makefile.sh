@@ -15,7 +15,7 @@ echo -e '\tmkdir -p bin' >> Makefile
 echo >> Makefile
 
 echo clean: setup >> Makefile
-echo -e '\tcd bin && rm -f -- $(ALL) csv.* bsv.* _csv.*' >> Makefile
+echo -e '\tcd bin && rm -f -- $(ALL) *.*' >> Makefile
 echo >> Makefile
 
 echo docs: >> Makefile

@@ -5,7 +5,6 @@ __pycache__/
 /todo*/
 bsv
 csv
-gen_csv
 rcut
 _csv
 _read
@@ -15,7 +14,7 @@ bdedupe
 bcut
 bbucket
 bcounteach
-_gen_csv
 bsort
 bdisjoint
 bdropuntil
+_copy

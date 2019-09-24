@@ -1,6 +1,6 @@
 .PHONY: all clean test
 CFLAGS=-Iutil -O3 -march=native -mtune=native
-ALL=docs bbucket bcounteach bcut bdedupe bdisjoint bdropuntil bsort bsv _csv csv _gen_csv _read _write
+ALL=docs bbucket bcounteach bcut bdedupe bdisjoint bdropuntil bsort bsv _copy _csv csv
 
 all: $(ALL)
 
@@ -8,7 +8,7 @@ setup:
 	mkdir -p bin
 
 clean: setup
-	cd bin && rm -f -- $(ALL) csv.* bsv.* _csv.*
+	cd bin && rm -f -- $(ALL) *.*
 
 docs:
 	./readme.py
@@ -40,18 +40,12 @@ bsort: setup
 bsv: setup
 	gcc $(CFLAGS) src/bsv.c -o bin/bsv
 
+_copy: setup
+	gcc $(CFLAGS) src/_copy.c -o bin/_copy
+
 _csv: setup
 	gcc $(CFLAGS) src/_csv.c -o bin/_csv
 
 csv: setup
 	gcc $(CFLAGS) src/csv.c -o bin/csv
-
-_gen_csv: setup
-	gcc $(CFLAGS) src/_gen_csv.c -o bin/_gen_csv
-
-_read: setup
-	gcc $(CFLAGS) src/_read.c -o bin/_read
-
-_write: setup
-	gcc $(CFLAGS) src/_write.c -o bin/_write
 

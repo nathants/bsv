@@ -10,10 +10,14 @@ def setup_module():
     with shell.climb_git_root():
         shell.run('make clean && make bsv csv bcut', stream=True)
 
+def teardown_module():
+    with shell.climb_git_root():
+        shell.run('make clean', stream=True)
+
 @composite
 def inputs(draw):
-    num_columns = draw(integers(min_value=1, max_value=12))
-    column = text(string.ascii_lowercase, min_size=1)
+    num_columns = draw(integers(min_value=1, max_value=64))
+    column = text(string.ascii_lowercase, min_size=1, max_size=64)
     line = lists(column, min_size=num_columns, max_size=num_columns)
     lines = draw(lists(line))
     csv = '\n'.join([','.join(x) for x in lines]) + '\n'
@@ -50,7 +54,7 @@ def expected(fields, csv):
     return '\n'.join(result) + '\n'
 
 @given(inputs())
-@settings(max_examples=100 * int(os.environ.get('TEST_FACTOR', 1)))
+@settings(max_examples=100 * int(os.environ.get('TEST_FACTOR', 1)), deadline=os.environ.get("TEST_DEADLINE", 1000 * 60))
 def test_props(args):
     fields, csv = args
     result = expected(fields, csv)
@@ -61,7 +65,7 @@ def test_props(args):
             run(csv, f'bin/bsv | bin/bcut {fields} | bin/csv')
 
 @given(inputs_ascending_unique_fields())
-@settings(max_examples=100 * int(os.environ.get('TEST_FACTOR', 1)))
+@settings(max_examples=100 * int(os.environ.get('TEST_FACTOR', 1)), deadline=os.environ.get("TEST_DEADLINE", 1000 * 60))
 def test_props_compatability(args):
     fields, csv = args
     result = expected(fields, csv)

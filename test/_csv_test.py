@@ -6,7 +6,10 @@ from hypothesis import given, settings
 from hypothesis.strategies import text, lists, composite, integers, sampled_from
 from test_util import compile_buffer_sizes, run, rm_whitespace
 
-buffers = list(sorted(set([2, 3, 5, 8, 11, 17, 64, 256, 1024] + [random.randint(1, 1024) for _ in range(10)])))
+if os.environ.get('TEST_FACTOR'):
+    buffers = list(sorted(set([5, 8, 11, 17, 64, 256, 1024] + [random.randint(8, 1024) for _ in range(10)])))
+else:
+    buffers = [5, 8, 11, 17, 64]
 
 def setup_module():
     with shell.climb_git_root():
@@ -24,8 +27,9 @@ def inputs(draw):
     num_columns = draw(integers(min_value=1, max_value=64))
     column = text(string.ascii_lowercase + ' ', min_size=1, max_size=64)
     line = lists(column, min_size=1, max_size=num_columns)
+    line = line.filter(lambda x: len(' '.join(x)) + len(x) * 2 + 1 < buffer)
     lines = lists(line)
-    csv = '\n'.join([','.join(x)[:buffer - 1] for x in draw(lines)]) + '\n'
+    csv = '\n'.join([','.join(x) for x in draw(lines)]) + '\n'
     cmd = 'bin/_csv.%s' % buffer
     return cmd, csv
 
@@ -37,7 +41,7 @@ def expected(csv):
     return '\n'.join(res) + '\n'
 
 @given(inputs())
-@settings(max_examples=100 * int(os.environ.get('TEST_FACTOR', 1)))
+@settings(max_examples=100 * int(os.environ.get('TEST_FACTOR', 1)), deadline=os.environ.get("TEST_DEADLINE", 1000 * 60))
 def test_props(arg):
     cmd, csv = arg
     result = expected(csv)
@@ -55,7 +59,7 @@ def test_escapes():
     f
     g\,h\\n\,i
     """
-    assert rm_whitespace(stdout) == run(rm_whitespace(stdin), 'bin/_csv.1024').strip()
+    assert rm_whitespace(stdout) == run(rm_whitespace(stdin), 'bin/_csv.64').strip()
 
 def test_cycling1():
     stdin = """
