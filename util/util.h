@@ -1,12 +1,16 @@
 #ifndef UTIL_H
 #define UTIL_H
 
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
-#define DEBUG(...) ;
-/* #define DEBUG(...) fprintf(stderr, ##__VA_ARGS__) */
+int _util_int;
+unsigned short _util_ushort;
+
+/* #define DEBUG(...) ; */
+#define DEBUG(...) fprintf(stderr, ##__VA_ARGS__)
 
 #define MIN(x, y) ((x < y) ? x : y)
 
