@@ -1,5 +1,5 @@
 #include "load.h"
-#include "write.h"
+#include "write_simple.h"
 
 #define NUM_ARGS 1
 #define DESCRIPTION "convert bsv to csv\n\n"
