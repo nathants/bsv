@@ -37,9 +37,9 @@ int main(int argc, const char **argv) {
     while ((f = strsep(&fs, ","))) {
         field = atoi(f);
         field_nums[num_fields++] = field - 1;
-        if (field > MAX_COLUMNS) { fprintf(stderr, "error: cannot select fields above %d, tried to select: %d\n", MAX_COLUMNS, field); exit(1); }
-        if (field < 1) { fprintf(stderr, "error: fields must be positive, got: %d", field); exit(1); }
-        if (num_fields > MAX_COLUMNS) { fprintf(stderr, "error: cannot select more than %d fields\n", MAX_COLUMNS); exit(1); }
+        ASSERT(field <= MAX_COLUMNS, "fatal: cannot select fields above %d, tried to select: %d\n", MAX_COLUMNS, field);
+        ASSERT(field >= 1, "fatal: fields must be positive, got: %d", field);
+        ASSERT(num_fields <= MAX_COLUMNS, "fatal: cannot select more than %d fields\n", MAX_COLUMNS);
     }
 
     while (1) {

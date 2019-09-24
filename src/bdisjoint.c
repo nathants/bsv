@@ -110,8 +110,8 @@ int main(int argc, const char **argv) {
 
     for (i = 0; i < num_files; i++) {
         DUMP_FLUSH(i);
-        if (fclose(in_files[i])  == EOF) { fputs("error: failed to close files\n", stderr); exit(1); }
-        if (fclose(out_files[i]) == EOF) { fputs("error: failed to close files\n", stderr); exit(1); }
+        ASSERT(fclose(in_files[i]) != EOF, "fatal: failed to close files\n");
+        ASSERT(fclose(out_files[i]) != EOF, "fatal: failed to close files\n");
         if (!written[i]) {
             in_path = argv[i + 2];
             sprintf(out_path, "%s.%s", in_path, suffix);

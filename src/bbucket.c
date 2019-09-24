@@ -16,9 +16,9 @@ int main(int argc, const char **argv) {
     int num_buckets;
     int hash_num[1];
 
-    if (strlen(argv[1]) > 8) { fprintf(stderr, "NUM_BUCKETS must be less than 1e8, got: %s\n", argv[1]); exit(1); }
+    ASSERT(strlen(argv[1]) <= 8, "NUM_BUCKETS must be less than 1e8, got: %s\n", argv[1]);
     num_buckets = atoi(argv[1]);
-    if (num_buckets < 1) { fprintf(stderr, "NUM_BUCKETS must be positive, got: %d\n", num_buckets); exit(1); }
+    ASSERT(num_buckets >= 1, "NUM_BUCKETS must be positive, got: %d\n", num_buckets);
 
     while (1) {
         LOAD(0);
