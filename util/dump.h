@@ -3,28 +3,25 @@
 
 #include "write.h"
 
-/* see bsv.c for example usage */
-
 #define DUMP_INIT(files, num_files)             \
     WRITE_INIT(files, num_files);               \
-    int _dump_i;                                \
-    unsigned short _dump_ushort;
+    int d_i;
 
-#define DUMP(i, max, columns, sizes)                                                                                    \
+#define DUMP(i, max, columns, sizes, size)                                                                              \
     do {                                                                                                                \
-        if (max > MAX_COLUMNS) { fprintf(stderr, "error: cannot have more then 2**16 columns"); exit(1); }              \
-        _dump_ushort = (unsigned short)max;                                                                             \
-        WRITE(&_dump_ushort, 2, i);                                                                                     \
-        for (_dump_i = 0; _dump_i <= max; _dump_i++) {                                                                  \
-            if (sizes[_dump_i] > MAX_COLUMNS) { fprintf(stderr, "error: cannot have columns with more than 2**16 bytes, column: %d,size: %d, content: %.*s...", _dump_i, sizes[_dump_i], 10, columns[_dump_i]); exit(1); } \
-            _dump_ushort = (unsigned short)sizes[_dump_i];                                                              \
-            WRITE((&_dump_ushort), 2, i);                                                                               \
+        ASSERT(max <= MAX_COLUMNS, "fatal: cannot have more then 2**16 columns\n");                                     \
+        WRITE_START(2 + ((max + 1) * 2) + size, i);                                                                     \
+        WRITE(USHORT(max), sizeof(short), i);                                                                           \
+        for (d_i = 0; d_i <= max; d_i++) {                                                                              \
+            ASSERT(sizes[d_i] <= MAX_COLUMNS, "fatal: cannot have columns with more than 2**16 bytes, column: %d, size: %d, content: %.*s...\n", d_i, sizes[d_i], 10, columns[d_i]); \
+            WRITE(USHORT(sizes[d_i]), sizeof(short), i);                                                                \
         }                                                                                                               \
-        for (_dump_i = 0; _dump_i <= max; _dump_i++)                                                                    \
-            WRITE(columns[_dump_i], sizes[_dump_i], i);                                                                 \
+        for (d_i = 0; d_i <= max; d_i++) {                                                                              \
+            /* TODO should can be a single write of SIZE, bsort.c needs an update first to make columns contiguous */   \
+            WRITE(columns[d_i], sizes[d_i], i);                                                                         \
+        }                                                                                                               \
     } while(0)
 
-#define DUMP_FLUSH(i)                           \
-    WRITE_FLUSH(i);
+#define DUMP_FLUSH(i) WRITE_FLUSH(i);
 
 #endif

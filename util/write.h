@@ -3,36 +3,34 @@
 
 #include "util.h"
 
-/* see csv.c for example usage */
-
-#define WRITE_INIT(files, num_files)                                                                            \
-    FILE **_write_files = files;                                                                                \
-    char *_write_buffer[num_files];                                                                             \
-    int _write_bytes;                                                                                           \
-    int _write_offset[num_files];                                                                               \
-    for (int _write_i = 0; _write_i < num_files; _write_i++) {                                                  \
-        _write_offset[_write_i] = 0;                                                                            \
-        _write_buffer[_write_i] = malloc(BUFFER_SIZE); if (_write_buffer[_write_i] == NULL) { fprintf(stderr, "error: failed to allocate memory"); exit(1); }  \
+#define WRITE_INIT(files, num_files)                                            \
+    INVARIANTS();                                                               \
+    FILE **w_files = files;                                                     \
+    char *w_buffer[num_files];                                                  \
+    int w_offset[num_files];                                                    \
+    int w_int;                                                                  \
+    for (int w_i = 0; w_i < num_files; w_i++) {                                 \
+        w_offset[w_i] = 0;                                                      \
+        w_buffer[w_i] = malloc(BUFFER_SIZE);                                    \
+        ASSERT(w_buffer[w_i] != NULL, "fatal: failed to allocate memory\n");    \
     }
 
-#define WRITE(str, size, i)                                                                                         \
-    do {                                                                                                            \
-        if (size > BUFFER_SIZE) { fprintf(stderr, "error: cant write more bytes than BUFFER_SIZE\n"); exit(1); }    \
-        if (size > BUFFER_SIZE - _write_offset[i]) {                                                                \
-            _write_bytes = fwrite_unlocked(_write_buffer[i], 1, _write_offset[i], _write_files[i]);                 \
-            if (_write_offset[i] != _write_bytes) { fprintf(stderr, "error: failed to write output"); exit(1); }    \
-            memcpy(_write_buffer[i], str, size);                                                                    \
-            _write_offset[i] = size;                                                                                \
-        } else {                                                                                                    \
-            memcpy(_write_buffer[i] + _write_offset[i], str, size);                                                 \
-            _write_offset[i] += size;                                                                               \
-        }                                                                                                           \
-    } while (0)
+#define WRITE(str, size, i)                         \
+    memcpy(w_buffer[i] + w_offset[i], str, size);   \
+    w_offset[i] += size;
 
-#define WRITE_FLUSH(i)                                                                                          \
-    do {                                                                                                        \
-        _write_bytes = fwrite_unlocked(_write_buffer[i], 1, _write_offset[i], _write_files[i]);                 \
-        if (_write_offset[i] != _write_bytes) { fprintf(stderr, "error: failed to write output"); exit(1); }    \
+#define WRITE_START(size, i)                                                    \
+    ASSERT(size <= BUFFER_SIZE, "fatal: cant write larger than BUFFER_SIZE\n"); \
+    if (size > BUFFER_SIZE - w_offset[i])                                       \
+        WRITE_FLUSH(i);
+
+#define WRITE_FLUSH(i)                                      \
+    do {                                                    \
+        if (w_offset[i]) {                                  \
+            FWRITE(&w_offset[i], sizeof(int), w_files[i]);  \
+            FWRITE(w_buffer[i], w_offset[i], w_files[i]);   \
+            w_offset[i] = 0;                                \
+        }                                                   \
     } while (0)
 
 #endif
