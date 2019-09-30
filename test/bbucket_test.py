@@ -1,14 +1,13 @@
 import os
 import string
 import shell
-import mmh3
 from hypothesis import given, settings
 from hypothesis.strategies import text, lists, composite, integers
 from test_util import run, rm_whitespace, rm_whitespace, rm_whitespace
 
 def setup_module():
     with shell.climb_git_root():
-        shell.run('make clean && make bsv csv bbucket', stream=True)
+        shell.run('make clean && make bsv csv bbucket xxh3', stream=True)
 
 def teardown_module():
     with shell.climb_git_root():
@@ -24,12 +23,14 @@ def inputs(draw):
     buckets = draw(integers(min_value=1, max_value=1e5))
     return (buckets, csv)
 
+def xxh3_hash(x):
+    return int(shell.run('xxh3 --int 2>&1', stdin=x))
+
 def expected(buckets, csv):
-    xs = ["%d,%s" % (mmh3.hash(x.split(',')[0]) % buckets, x)
+    xs = ["%d,%s" % (xxh3_hash(x.split(',')[0]) % buckets, x)
           if x.strip()
           else x
           for x in csv.splitlines()]
-
     return '\n'.join(xs) + '\n'
 
 @given(inputs())
@@ -46,9 +47,9 @@ def test_single_column():
     x
     """
     stdout = """
-    2,a
-    3,1
-    3,x
+    3,a
+    2,1
+    2,x
     """
     assert rm_whitespace(stdout) + '\n' == run(rm_whitespace(stdin), 'bin/bsv | bin/bbucket 4 | bin/csv')
 
@@ -59,9 +60,9 @@ def test_basic():
     x,y
     """
     stdout = """
-    2,a,b,c,d
-    3,1,2,3
-    3,x,y
+    3,a,b,c,d
+    2,1,2,3
+    2,x,y
     """
     assert rm_whitespace(stdout) + '\n' == run(rm_whitespace(stdin), 'bin/bsv | bin/bbucket 4 | bin/csv')
 

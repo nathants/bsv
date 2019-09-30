@@ -18,3 +18,5 @@ bsort
 bdisjoint
 bdropuntil
 _copy
+_gen_csv_c
+xxh3
