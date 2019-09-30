@@ -54,3 +54,4 @@ _gen_csv_c: setup
 
 xxh3: setup
 	gcc $(CFLAGS) src/xxh3.c -o bin/xxh3
+

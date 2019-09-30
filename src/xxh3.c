@@ -3,7 +3,14 @@
 #include "write_simple.h"
 #include "xxh3.h"
 
+
+#define NUM_ARGS 0
+#define DESCRIPTION "xxh3_64 hash stdin, defaults to hex, can be --int, or --stream to hex and pass stdin through\n\n"
+#define USAGE "... | xxh3\n\n"
+#define EXAMPLE ">> echo abc | xxh3\nB5CA312E51D77D64\n"
+
 int main(int argc, const char **argv) {
+    HELP();
     FILE *read_files[1] = {stdin};
     READ_INIT(read_files, 1);
     FILE *write_files[1] = {stdout};

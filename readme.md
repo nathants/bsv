@@ -17,6 +17,7 @@ small fast cli utilites to combine into processing pipelines.
 - [bsort](#bsort) - sort rows
 - [bsv](#bsv) - convert csv to bsv
 - [csv](#csv) - convert bsv to csv
+- [xxh3](#xxh3) - xxh3_64 hash stdin, defaults to hex, can be --int, or --stream to hex and pass stdin through
 
 ### bbucket
 
@@ -175,4 +176,15 @@ usage: `... | csv`
 ```
 >> echo a,b,c | bsv | csv
 a,b,c
+```
+
+### xxh3
+
+xxh3_64 hash stdin, defaults to hex, can be --int, or --stream to hex and pass stdin through
+
+usage: `... | xxh3`
+
+```
+>> echo abc | xxh3
+B5CA312E51D77D64
 ```
