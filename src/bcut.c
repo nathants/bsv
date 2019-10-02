@@ -1,3 +1,4 @@
+#include "util.h"
 #include "load_dump.h"
 
 #define ERROR_CHECK_NOT_ENOUGH_COLUMNS(max, sizes, columns)                         \
