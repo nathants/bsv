@@ -17,7 +17,8 @@ int main(int argc, const char **argv) {
     WRITE_INIT(write_files, 1)
     XXH3_state_t state;
     XXH3_64bits_reset(&state);
-    if (argc > 1 && strcmp(argv[1], "--stream") == 0) {
+    int stream_mode = argc > 1 && strcmp(argv[1], "--stream") == 0;
+    if (stream_mode) {
         while (1) {
             READ(BUFFER_SIZE, 0);
             XXH3_64bits_update(&state, read_buffer, read_bytes);
@@ -34,10 +35,11 @@ int main(int argc, const char **argv) {
         }
     }
     uint64_t hash = XXH3_64bits_digest(&state);
+    FILE *out = (stream_mode) ? stderr : stdout;
     if (argc > 1 && strcmp(argv[1], "--int") == 0)
-        fprintf(stderr, "%lu\n", hash);
+        fprintf(out, "%lu\n", hash);
     else
-        fprintf(stderr, "%08X%08X\n", (uint32_t)(hash>>32), (uint32_t)hash);
+        fprintf(out, "%08X%08X\n", (uint32_t)(hash>>32), (uint32_t)hash);
     if (argc > 1 && strcmp(argv[1], "--stream") == 0)
         WRITE_FLUSH(0);
 }

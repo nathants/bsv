@@ -24,7 +24,7 @@ def inputs(draw):
     return (buckets, csv)
 
 def xxh3_hash(x):
-    return int(shell.run('xxh3 --int 2>&1', stdin=x))
+    return int(shell.run('xxh3 --int', stdin=x))
 
 def expected(buckets, csv):
     xs = ["%d,%s" % (xxh3_hash(x.split(',')[0]) % buckets, x)
