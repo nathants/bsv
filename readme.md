@@ -15,6 +15,7 @@ small fast cli utilites to combine into processing pipelines.
 - [bdisjoint](#bdisjoint) - given sorted files, create new files with deduped values not in multiple files
 - [bdropuntil](#bdropuntil) - drop until the first column is gte to VALUE
 - [bsort](#bsort) - sort rows
+- [bsplit](#bsplit) - split a stream into a file per chunk
 - [bsv](#bsv) - convert csv to bsv
 - [csv](#csv) - convert bsv to csv
 - [xxh3](#xxh3) - xxh3_64 hash stdin, defaults to hex, can be --int, or --stream to hex and pass stdin through
@@ -154,6 +155,17 @@ a
 a
 b
 c
+```
+
+### bsplit
+
+split a stream into a file per chunk
+
+usage: `... | bsplit`
+
+```
+>> echo a,b,c | bsv | bsplit
+BF163BBADE92064C_0000000000
 ```
 
 ### bsv
