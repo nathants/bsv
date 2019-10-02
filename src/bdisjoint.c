@@ -51,7 +51,7 @@ int main(int argc, const char **argv) {
         in_files[i] = fopen(in_path, "rb");
         ASSERT(in_files[i], "fatal: failed to open: %s\n", in_path);
         sprintf(out_path, "%s.%s", in_path, suffix);
-        out_files[i] = fopen(out_path, "w");
+        out_files[i] = fopen(out_path, "wb");
         ASSERT(out_files[i], "fatal: failed to open: %s\n", out_path);
     }
 
