@@ -14,6 +14,7 @@ small fast cli utilites to combine into processing pipelines.
 - [bdedupe](#bdedupe) - dedupe identical contiguous lines
 - [bdisjoint](#bdisjoint) - given sorted files, create new files with deduped values not in multiple files
 - [bdropuntil](#bdropuntil) - drop until the first column is gte to VALUE
+- [bpartition](#bpartition) - split into multiple files by the first column value
 - [bsort](#bsort) - sort rows
 - [bsplit](#bsplit) - split a stream into a file per chunk
 - [bsv](#bsv) - convert csv to bsv
@@ -138,6 +139,23 @@ d
 ' | bsv | bdropuntil c | csv
 c
 d
+```
+
+### bpartition
+
+split into multiple files by the first column value
+
+usage: `... | bbucket NUM_BUCKETS | bpartition PREFIX NUM_BUCKETS`
+
+```
+>> echo '
+0,a
+1,b
+2,c
+' | bsv | bpartition prefix 10
+prefix00
+prefix01
+prefix02
 ```
 
 ### bsort

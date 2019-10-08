@@ -1,6 +1,6 @@
 .PHONY: all clean test
 CFLAGS=-Iutil -O3 -march=native -mtune=native
-ALL=docs bbucket bcounteach bcut bdedupe bdisjoint bdropuntil bsort bsplit bsv _copy _csv csv _gen_csv_c xxh3
+ALL=docs bbucket bcounteach bcut bdedupe bdisjoint bdropuntil bpartition bsort bsplit bsv _copy _csv csv _gen_csv_c xxh3
 
 all: $(ALL)
 
@@ -33,6 +33,9 @@ bdisjoint: setup
 
 bdropuntil: setup
 	gcc $(CFLAGS) src/bdropuntil.c -o bin/bdropuntil
+
+bpartition: setup
+	gcc $(CFLAGS) src/bpartition.c -o bin/bpartition
 
 bsort: setup
 	gcc $(CFLAGS) src/bsort.c -o bin/bsort
