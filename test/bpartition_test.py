@@ -8,7 +8,7 @@ from test_util import run, unindent, rm_whitespace
 
 def setup_module():
     with shell.climb_git_root():
-        shell.run('make clean && make bsv csv bpartition', stream=True)
+        shell.run('make clean && make bsv csv bcat bpartition', stream=True)
 
 def teardown_module():
     with shell.climb_git_root():
@@ -34,12 +34,13 @@ def expected(num_buckets, csv):
     val = ''
     for k in sorted(res):
         for line in res[k]:
-            val += f'prefix{k}.csv:{line}\n'
+            val += f'prefix{k}:{line}\n'
     return val.strip()
 
-csv = os.path.abspath('./bin/bsv')
-bsv = os.path.abspath('./bin/csv')
+csv = os.path.abspath('./bin/csv')
+bsv = os.path.abspath('./bin/bsv')
 bpartition = os.path.abspath('./bin/bpartition')
+bcat = os.path.abspath('./bin/bcat')
 
 @given(inputs())
 @settings(max_examples=100 * int(os.environ.get('TEST_FACTOR', 1)), deadline=os.environ.get("TEST_DEADLINE", 1000 * 60))
@@ -47,10 +48,9 @@ def test_props(args):
     num_buckets, csv = args
     result = expected(num_buckets, csv)
     with shell.tempdir():
-        stdout = '\n'.join(sorted({l.split('.csv')[0] for l in result.splitlines()}))
-        assert stdout == shell.run(f'bsv | {bpartition} {num_buckets} prefix', stdin=csv, echo=True)
-        shell.run('for path in prefix*; do csv < $path > $path.csv; done')
-        assert result == shell.run('grep --with-filename ".*" prefix*.csv')
+        stdout = '\n'.join(sorted({l.split(':')[0] for l in result.splitlines()}))
+        assert stdout == shell.run(f'{bsv} | {bpartition} {num_buckets} prefix', stdin=csv, echo=True)
+        assert result == shell.run(f'{bcat} --prefix prefix*')
 
 def test_basic():
     with shell.tempdir():
@@ -64,20 +64,19 @@ def test_basic():
         prefix01
         prefix02
         """
-        assert rm_whitespace(unindent(stdout)) == shell.run(f'bsv | {bpartition} 10 prefix', stdin=unindent(stdin))
+        assert rm_whitespace(unindent(stdout)) == shell.run(f'{bsv} | {bpartition} 10 prefix', stdin=unindent(stdin))
         stdout = """
-        prefix00.csv:b,c,d
-        prefix01.csv:e,f,g
-        prefix02.csv:h,i,j
+        prefix00:b,c,d
+        prefix01:e,f,g
+        prefix02:h,i,j
         """
-        shell.run('for path in prefix*; do csv < $path > $path.csv; done')
-        assert unindent(stdout).strip() == shell.run('grep --with-filename ".*" prefix*.csv')
+        assert unindent(stdout).strip() == shell.run(f'{bcat} --prefix prefix*')
         stdout = """
-        prefix00.csv
-        prefix01.csv
-        prefix02.csv
+        prefix00
+        prefix01
+        prefix02
         """
-        assert unindent(stdout).strip() == shell.run('ls prefix*.csv')
+        assert unindent(stdout).strip() == shell.run('ls prefix*')
 
 def test_appends():
     with shell.tempdir():
@@ -91,21 +90,20 @@ def test_appends():
         prefix01
         prefix02
         """
-        assert rm_whitespace(unindent(stdout)) == shell.run(f'bsv | {bpartition} 10 prefix', stdin=unindent(stdin))
-        assert rm_whitespace(unindent(stdout)) == shell.run(f'bsv | {bpartition} 10 prefix', stdin=unindent(stdin))
+        assert rm_whitespace(unindent(stdout)) == shell.run(f'{bsv} | {bpartition} 10 prefix', stdin=unindent(stdin))
+        assert rm_whitespace(unindent(stdout)) == shell.run(f'{bsv} | {bpartition} 10 prefix', stdin=unindent(stdin))
         stdout = """
-        prefix00.csv:b,c,d
-        prefix00.csv:b,c,d
-        prefix01.csv:e,f,g
-        prefix01.csv:e,f,g
-        prefix02.csv:h,i,j
-        prefix02.csv:h,i,j
+        prefix00:b,c,d
+        prefix00:b,c,d
+        prefix01:e,f,g
+        prefix01:e,f,g
+        prefix02:h,i,j
+        prefix02:h,i,j
         """
-        shell.run('for path in prefix*; do csv < $path > $path.csv; done')
-        assert unindent(stdout).strip() == shell.run('grep --with-filename ".*" prefix*.csv')
+        assert unindent(stdout).strip() == shell.run(f'{bcat} --prefix prefix*')
         stdout = """
-        prefix00.csv
-        prefix01.csv
-        prefix02.csv
+        prefix00
+        prefix01
+        prefix02
         """
-        assert unindent(stdout).strip() == shell.run('ls prefix*.csv')
+        assert unindent(stdout).strip() == shell.run('ls prefix*')

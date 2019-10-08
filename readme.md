@@ -4,11 +4,12 @@ it should be possible to process data faster than sequential io, and sequential 
 
 ## what
 
-small fast cli utilites to combine into processing pipelines.
+cli utilites to combine into pipelines.
 
 ## utilities
 
 - [bbucket](#bbucket) - prefix each row with a consistent hash of the first column
+- [bcat](#bcat) - cat some bsv file to csv
 - [bcounteach](#bcounteach) - count and collapse each contiguous identical row
 - [bcut](#bcut) - select some columns
 - [bdedupe](#bdedupe) - dedupe identical contiguous lines
@@ -36,6 +37,23 @@ c
 50,a
 39,b
 83,c
+```
+
+### bcat
+
+cat some bsv file to csv
+
+usage: `bcat [--prefix] [--head NUM] FILE1 ... FILEN`
+
+```
+>> for char in a a b b c c; do 
+     echo $char | bsv >> /tmp/$char
+   done
+
+>> bcat --head 1 --prefix /tmp/{a,b,c}
+/tmp/a:a
+/tmp/b:b
+/tmp/c:c
 ```
 
 ### bcounteach
@@ -212,7 +230,7 @@ a,b,c
 
 xxh3_64 hash stdin, defaults to hex, can be --int, or --stream to hex and pass stdin through
 
-usage: `... | xxh3`
+usage: `... | xxh3 [--stream|--int]`
 
 ```
 >> echo abc | xxh3
