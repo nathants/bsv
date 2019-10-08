@@ -31,10 +31,8 @@ static int isdigits(const char *s, const int size) {
             file_num = atoi(columns[0]);                                                                                                            \
             if (file_num >= num_buckets) { fprintf(stderr, "error: columns higher than num_buckets: %d\n", file_num); exit(1); }                    \
             size -= sizes[0];                                                                                                                       \
-            memmove(sizes, sizes + 1, load_max * sizeof(int));                                                                                      \
-            memmove(columns, columns + 1, load_max * sizeof(char *));                                                                               \
             max -= 1;                                                                                                                               \
-            DUMP(file_num, max, columns, sizes, size);                                                                                              \
+            DUMP(file_num, max, (columns + 1), (sizes + 1), size);                                                                                  \
         }                                                                                                                                           \
     } while (0)
 
