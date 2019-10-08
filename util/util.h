@@ -54,13 +54,17 @@ unsigned short _util_ushort;
 
 #define INT(src) (memcpy(&_util_ushort, src, 2), (int)_util_ushort)
 
-#define INVARIANTS()                            \
-    do {                                        \
-        ASSERT(sizeof(int) == 4 &&              \
-               sizeof(unsigned int) == 4 &&     \
-               sizeof(short) == 2 &&            \
-               sizeof(unsigned short) == 2,     \
-               "invariants are varying!\n");    \
+#define INVARIANTS()                                                                                    \
+    do {                                                                                                \
+        unsigned char __a[4] = {0x80, 0x00, 0x00, 0x00}; ASSERT(*(int*)__a == 128,        "fail\n");    \
+        unsigned char __b[4] = {0x31, 0x2c, 0x28, 0x44}; ASSERT(*(int*)__b == 1143483441, "fail\n");    \
+        unsigned char __c[2] = {0x7b, 0x3d};  ASSERT(*(unsigned short*)__c == 15739,      "fail\n");    \
+        unsigned char __d[2] = {0x2a, 0x00};  ASSERT(*(unsigned short*)__d == 42,         "fail\n");    \
+        ASSERT(sizeof(int)            == 4 &&                                                           \
+               sizeof(unsigned int)   == 4 &&                                                           \
+               sizeof(short)          == 2 &&                                                           \
+               sizeof(unsigned short) == 2,                                                             \
+               "fatal: invariants are varying!\n");                                                     \
     } while (0)
 
 #endif
