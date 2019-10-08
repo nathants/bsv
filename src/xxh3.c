@@ -6,7 +6,7 @@
 
 #define NUM_ARGS 0
 #define DESCRIPTION "xxh3_64 hash stdin, defaults to hex, can be --int, or --stream to hex and pass stdin through\n\n"
-#define USAGE "... | xxh3\n\n"
+#define USAGE "... | xxh3 [--stream|--int]\n\n"
 #define EXAMPLE ">> echo abc | xxh3\nB5CA312E51D77D64\n"
 
 int main(int argc, const char **argv) {

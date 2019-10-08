@@ -39,7 +39,7 @@ def expected(num_buckets, csv):
 
 csv = os.path.abspath('./bin/bsv')
 bsv = os.path.abspath('./bin/csv')
-partition = os.path.abspath('./bin/bpartition')
+bpartition = os.path.abspath('./bin/bpartition')
 
 @given(inputs())
 @settings(max_examples=100 * int(os.environ.get('TEST_FACTOR', 1)), deadline=os.environ.get("TEST_DEADLINE", 1000 * 60))
@@ -48,7 +48,7 @@ def test_props(args):
     result = expected(num_buckets, csv)
     with shell.tempdir():
         stdout = '\n'.join(sorted({l.split('.csv')[0] for l in result.splitlines()}))
-        assert stdout == shell.run(f'bsv | {partition} {num_buckets} prefix', stdin=csv, echo=True)
+        assert stdout == shell.run(f'bsv | {bpartition} {num_buckets} prefix', stdin=csv, echo=True)
         shell.run('for path in prefix*; do csv < $path > $path.csv; done')
         assert result == shell.run('grep --with-filename ".*" prefix*.csv')
 
@@ -64,7 +64,7 @@ def test_basic():
         prefix01
         prefix02
         """
-        assert rm_whitespace(unindent(stdout)) == shell.run(f'bsv | {partition} 10 prefix', stdin=unindent(stdin))
+        assert rm_whitespace(unindent(stdout)) == shell.run(f'bsv | {bpartition} 10 prefix', stdin=unindent(stdin))
         stdout = """
         prefix00.csv:b,c,d
         prefix01.csv:e,f,g
@@ -91,8 +91,8 @@ def test_appends():
         prefix01
         prefix02
         """
-        assert rm_whitespace(unindent(stdout)) == shell.run(f'bsv | {partition} 10 prefix', stdin=unindent(stdin))
-        assert rm_whitespace(unindent(stdout)) == shell.run(f'bsv | {partition} 10 prefix', stdin=unindent(stdin))
+        assert rm_whitespace(unindent(stdout)) == shell.run(f'bsv | {bpartition} 10 prefix', stdin=unindent(stdin))
+        assert rm_whitespace(unindent(stdout)) == shell.run(f'bsv | {bpartition} 10 prefix', stdin=unindent(stdin))
         stdout = """
         prefix00.csv:b,c,d
         prefix00.csv:b,c,d

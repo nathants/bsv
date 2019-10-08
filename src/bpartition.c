@@ -27,7 +27,7 @@ static int isdigits(const char *s, const int size) {
     do {                                                                                                                                            \
         if (max || sizes[0]) {                                                                                                                      \
             if (!max) { fprintf(stderr, "error: line with only one columns: %s\n", columns[0]); exit(1); }                                          \
-            if (!isdigits(columns[0], sizes[0])) { fprintf(stderr, "error: first columns not a digit: %.*s %d\n", sizes[0], columns[0]); exit(1); } \
+            if (!isdigits(columns[0], sizes[0])) { fprintf(stderr, "error: first columns not a digit: %.*s\n", sizes[0], columns[0]); exit(1); }    \
             file_num = atoi(columns[0]);                                                                                                            \
             if (file_num >= num_buckets) { fprintf(stderr, "error: columns higher than num_buckets: %d\n", file_num); exit(1); }                    \
             size -= sizes[0];                                                                                                                       \
@@ -60,7 +60,7 @@ int main(int argc, const char **argv) {
     for (i = 0; i < num_buckets; i++) {
         sprintf(path, "%s%0*d", prefix, (int)strlen(num_buckets_str), i);
         file = fopen(path, "ab");
-        if (!file) { fprintf(stderr, "error: failed to open: %s\n", path); exit(1); }
+        ASSERT(file, "fatal: failed to open: %s\n", path);
         files[i] = file;
     }
 
@@ -75,24 +75,16 @@ int main(int argc, const char **argv) {
 
     for (i = 0; i < num_buckets; i++) {
         DUMP_FLUSH(i);
-        if (fclose(files[i]) == EOF) {
-            fputs("error: failed to close files\n", stderr);
-            exit(1);
-        }
+        ASSERT(fclose(files[i]) != EOF, "fatal: failed to close files\n");
     }
 
     for (i = 0; i < num_buckets; i++) {
         sprintf(path, "%s%0*d", prefix, (int)strlen(num_buckets_str), i);
         empty = empty_file(path);
         if (empty == 1) {
-            if (remove(path) != 0) {
-                fprintf(stderr, "error: failed to delete file: %s\n", path);
-                exit(1);
-            }
-        } else if (empty == -1) {
-            fprintf(stderr, "error: failed to stat file: %s\n", path);
-            exit(1);
+            ASSERT(remove(path) == 0, "fatal: failed to delete file: %s\n", path);
         } else {
+            ASSERT(empty != -1, "fatal: failed to stat file: %s\n", path);
             fprintf(stdout, "%s\n", path);
         }
     }
