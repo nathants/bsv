@@ -41,10 +41,8 @@ int main(int argc, const char **argv) {
 
     for (i = 0; i < array.n; i++) {
         row = array.a[i];
-        for (j = 0; j <= row->max; j++) {
-            /* TODO see dump.h */
+        for (j = 0; j <= row->max; j++)
             row->sizes[j] -= 1;
-        }
         DUMP(0, row->max, row->columns, row->sizes, row->size - (row->max + 1));
     }
 

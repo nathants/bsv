@@ -15,14 +15,18 @@
         ASSERT(w_buffer[w_i] != NULL, "fatal: failed to allocate memory\n");    \
     }
 
-#define WRITE(str, size, i)                         \
-    memcpy(w_buffer[i] + w_offset[i], str, size);   \
-    w_offset[i] += size;
+#define WRITE(str, size, i)                             \
+    do {                                                \
+        memcpy(w_buffer[i] + w_offset[i], str, size);   \
+        w_offset[i] += size;                            \
+    } while (0)
 
-#define WRITE_START(size, i)                                                    \
-    ASSERT(size <= BUFFER_SIZE, "fatal: cant write larger than BUFFER_SIZE\n"); \
-    if (size > BUFFER_SIZE - w_offset[i])                                       \
-        WRITE_FLUSH(i);
+#define WRITE_START(size, i)                                                        \
+    do {                                                                            \
+        ASSERT(size <= BUFFER_SIZE, "fatal: cant write larger than BUFFER_SIZE\n"); \
+        if (size > BUFFER_SIZE - w_offset[i])                                       \
+            WRITE_FLUSH(i);                                                         \
+    } while (0)
 
 #define WRITE_FLUSH(i)                                      \
     do {                                                    \
