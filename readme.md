@@ -19,6 +19,7 @@ cli utilites to combine into pipelines.
 - [bsort](#bsort) - sort rows
 - [bsplit](#bsplit) - split a stream into a file per chunk
 - [bsv](#bsv) - convert csv to bsv
+- [btake](#btake) - take while the first column is VALUE
 - [btakeuntil](#btakeuntil) - take until the first column is gte to VALUE
 - [csv](#csv) - convert bsv to csv
 - [xxh3](#xxh3) - xxh3_64 hash stdin, defaults to hex, can be --int, or --stream to hex and pass stdin through
@@ -214,6 +215,22 @@ usage: `... | bsv`
 ```
 >> echo a,b,c | bsv | bcut 3,2,1 | csv
 c,b,a
+```
+
+### btake
+
+take while the first column is VALUE
+
+usage: `... | btake VALUE`
+
+```
+>> echo '
+a
+b
+c
+d
+' | bsv | bdropntil c | btake c | csv
+c
 ```
 
 ### btakeuntil
