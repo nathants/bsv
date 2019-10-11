@@ -41,7 +41,7 @@ for path in co('ls src/*.c').splitlines():
             print(f'fatal: failed to parse docs in file: {name}.c')
             raise
         before.append(f'- [{name}](#{name}) - {description}'.strip())
-        after.append(f'\n### {name}\n\n{description}usage: `{usage.strip()}`\n\n```\n{example.strip()}\n```')
+        after.append(f'\n### [{name}](https://github.com/nathants/bsv/blob/master/src/{name}.c)\n\n{description}usage: `{usage.strip()}`\n\n```\n{example.strip()}\n```')
 
 with open('readme.md', 'w') as f:
     f.write('\n'.join(before + after))

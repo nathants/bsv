@@ -24,7 +24,7 @@ cli utilites to combine into pipelines.
 - [csv](#csv) - convert bsv to csv
 - [xxh3](#xxh3) - xxh3_64 hash stdin, defaults to hex, can be --int, or --stream to hex and pass stdin through
 
-### bbucket
+### [bbucket](https://github.com/nathants/bsv/blob/master/src/bbucket.c)
 
 prefix each row with a consistent hash of the first column
 
@@ -41,7 +41,7 @@ c
 83,c
 ```
 
-### bcat
+### [bcat](https://github.com/nathants/bsv/blob/master/src/bcat.c)
 
 cat some bsv file to csv
 
@@ -58,7 +58,7 @@ usage: `bcat [--prefix] [--head NUM] FILE1 ... FILEN`
 /tmp/c:c
 ```
 
-### bcounteach
+### [bcounteach](https://github.com/nathants/bsv/blob/master/src/bcounteach.c)
 
 count and collapse each contiguous identical row
 
@@ -77,7 +77,7 @@ b,3
 a,1
 ```
 
-### bcut
+### [bcut](https://github.com/nathants/bsv/blob/master/src/bcut.c)
 
 select some columns
 
@@ -88,7 +88,7 @@ usage: `... | bcut FIELD1,...,FIELDN`
 c,c,c,b,b,a
 ```
 
-### bdedupe
+### [bdedupe](https://github.com/nathants/bsv/blob/master/src/bdedupe.c)
 
 dedupe identical contiguous lines
 
@@ -108,7 +108,7 @@ b
 a
 ```
 
-### bdisjoint
+### [bdisjoint](https://github.com/nathants/bsv/blob/master/src/bdisjoint.c)
 
 given sorted files, create new files with deduped values not in multiple files
 
@@ -144,7 +144,7 @@ usage: `... | bdisjoint SUFFIX FILE1 ... FILEN`
 5
 ```
 
-### bdropuntil
+### [bdropuntil](https://github.com/nathants/bsv/blob/master/src/bdropuntil.c)
 
 drop until the first column is gte to VALUE
 
@@ -161,7 +161,7 @@ c
 d
 ```
 
-### bpartition
+### [bpartition](https://github.com/nathants/bsv/blob/master/src/bpartition.c)
 
 split into multiple files by the first column value
 
@@ -178,7 +178,7 @@ prefix01
 prefix02
 ```
 
-### bsort
+### [bsort](https://github.com/nathants/bsv/blob/master/src/bsort.c)
 
 sort rows
 
@@ -195,7 +195,7 @@ b
 c
 ```
 
-### bsplit
+### [bsplit](https://github.com/nathants/bsv/blob/master/src/bsplit.c)
 
 split a stream into a file per chunk
 
@@ -206,7 +206,7 @@ usage: `... | bsplit`
 BF163BBADE92064C_0000000000
 ```
 
-### bsv
+### [bsv](https://github.com/nathants/bsv/blob/master/src/bsv.c)
 
 convert csv to bsv
 
@@ -217,7 +217,7 @@ usage: `... | bsv`
 c,b,a
 ```
 
-### btake
+### [btake](https://github.com/nathants/bsv/blob/master/src/btake.c)
 
 take while the first column is VALUE
 
@@ -233,7 +233,7 @@ d
 c
 ```
 
-### btakeuntil
+### [btakeuntil](https://github.com/nathants/bsv/blob/master/src/btakeuntil.c)
 
 take until the first column is gte to VALUE
 
@@ -250,7 +250,7 @@ a
 b
 ```
 
-### csv
+### [csv](https://github.com/nathants/bsv/blob/master/src/csv.c)
 
 convert bsv to csv
 
@@ -261,7 +261,7 @@ usage: `... | csv`
 a,b,c
 ```
 
-### xxh3
+### [xxh3](https://github.com/nathants/bsv/blob/master/src/xxh3.c)
 
 xxh3_64 hash stdin, defaults to hex, can be --int, or --stream to hex and pass stdin through
 
