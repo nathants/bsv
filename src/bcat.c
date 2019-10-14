@@ -30,7 +30,7 @@ int main(int argc, const char **argv) {
     int head = 0;
     int i, j;
     int ran = 0;
-    long long line;
+    unsigned long long line;
 
     while (1) {
         if (argc > 1 && strcmp(argv[1], "--prefix") == 0) {
