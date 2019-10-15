@@ -39,7 +39,7 @@ int main(int argc, const char **argv) {
     if (argc > 1 && strcmp(argv[1], "--int") == 0)
         fprintf(out, "%lu\n", hash);
     else
-        fprintf(out, "%08X%08X\n", (uint32_t)(hash>>32), (uint32_t)hash);
+        fprintf(out, "%08x%08x\n", (uint32_t)(hash>>32), (uint32_t)hash);
     if (argc > 1 && strcmp(argv[1], "--stream") == 0)
         WRITE_FLUSH(0);
 }

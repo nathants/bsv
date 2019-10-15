@@ -23,4 +23,5 @@ xxh3
 bsplit
 bpartition
 bcat
+btake
 btakeuntil

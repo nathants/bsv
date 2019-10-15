@@ -9,11 +9,11 @@ def teardown_module():
         shell.run('make clean', stream=True)
 
 def test_hex():
-    assert 'B5CA312E51D77D64' == shell.run('echo abc | xxh3')
+    assert 'b5ca312e51d77d64' == shell.run('echo abc | xxh3')
 
 def test_int():
     assert '13099336541171842404' == shell.run('echo abc | xxh3 --int')
 
 def test_stream():
     assert 'abc' == shell.run('echo abc | xxh3 --stream')
-    assert 'B5CA312E51D77D64' == shell.run('echo abc | xxh3 --stream 2>&1 1>/dev/null')
+    assert 'b5ca312e51d77d64' == shell.run('echo abc | xxh3 --stream 2>&1 1>/dev/null')
