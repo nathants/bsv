@@ -15,7 +15,7 @@ int main(int argc, const char **argv) {
         if (load_stop)
             break;
         if (!EQUAL(last, load)) {
-            DUMP(0, load_max, load_columns, load_sizes, load_size);
+            DUMP(0, load_max, load_columns, load_types, load_sizes, load_size);
             LOAD_COPY(last, load);
         }
     }

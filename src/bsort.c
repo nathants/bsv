@@ -9,7 +9,7 @@
 
 #define SORT_NAME str
 #define SORT_TYPE row_t *
-#define SORT_CMP(x, y) strcmp((x)->buffer, (y)->buffer)
+#define SORT_CMP(x, y) row_cmp(x, y)
 #include "sort.h"
 
 int main(int argc, const char **argv) {
@@ -26,14 +26,7 @@ int main(int argc, const char **argv) {
         LOAD(0);
         if (load_stop)
             break;
-        for (i = load_max; i >= 0; i--) {
-            memmove(load_columns[i] + i, load_columns[i], load_sizes[i]);
-            load_columns[i] = load_columns[i] + i;
-            load_columns[i][load_sizes[i]] = ',';
-            load_sizes[i] += 1;
-        }
-        load_size += load_max + 1;
-        ROW(load_columns[0], load_max, load_size, load_sizes);
+        ROW(load_columns[0], load_max, load_size, load_types, load_sizes);
         kv_push(row_t*, array, row);
     }
 
@@ -41,9 +34,7 @@ int main(int argc, const char **argv) {
 
     for (i = 0; i < array.n; i++) {
         row = array.a[i];
-        for (j = 0; j <= row->max; j++)
-            row->sizes[j] -= 1;
-        DUMP(0, row->max, row->columns, row->sizes, row->size - (row->max + 1));
+        DUMP(0, row->max, row->columns, row->types, row->sizes, row->size - (row->max + 1));
     }
 
     DUMP_FLUSH(0);

@@ -16,6 +16,17 @@ def run(stdin, *args):
         with open(stdoutpath) as f:
             return f.read()
 
+def runb(stdin, *args):
+    with shell.climb_git_root():
+        tmp = os.environ.get('TMP_DIR', '/tmp').rstrip('/')
+        stdinpath = '%s/%s.stdin' % (tmp, hashlib.md5(__file__.encode('ascii')).hexdigest())
+        stdoutpath = '%s/%s.stdout' % (tmp, hashlib.md5(__file__.encode('ascii')).hexdigest())
+        with open(stdinpath, 'w') as f:
+            f.write(stdin)
+        shell.run(*(('set -o pipefail; cat', stdinpath, '|') + args + ('>', stdoutpath)), stream=True)
+        with open(stdoutpath, 'rb') as f:
+            return f.read()
+
 def unindent(text):
     return '\n'.join([x.lstrip() for x in text.splitlines()]) + '\n'
 

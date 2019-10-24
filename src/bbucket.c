@@ -29,12 +29,13 @@ int main(int argc, const char **argv) {
             mod = hash % num_buckets;
             if(mod < 0)
                 mod += num_buckets;
-            sprintf(hash_str, "%d", mod);
+            memmove(load_types + 1, load_types, (load_max + 1) * sizeof(short));
             memmove(load_sizes + 1, load_sizes, (load_max + 1) * sizeof(int));
             memmove(load_columns + 1, load_columns, (load_max + 1) * sizeof(char *));
-            load_sizes[0] = strlen(hash_str);
-            load_columns[0] = hash_str;
-            DUMP(0, load_max + 1, load_columns, load_sizes, load_size);
+            load_types[0] = BSV_INT;
+            load_sizes[0] = sizeof(bsv_int_t);
+            load_columns[0] = (char*)&mod;
+            DUMP(0, load_max + 1, load_columns, load_types, load_sizes, load_size);
         }
     }
     DUMP_FLUSH(0);

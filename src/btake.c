@@ -8,18 +8,18 @@
 int main(int argc, const char **argv) {
     HELP();
     LOAD_DUMP_INIT();
-    char *match = argv[1];
-    char *value;
-    MALLOC(value, BUFFER_SIZE);
+    CMP_INIT();
+    PARSE_INIT();
+    PARSE(argv[1]);
+
     while (1) {
         LOAD(0);
         if (load_stop)
             break;
-        memcpy(value, load_columns[0], load_sizes[0]); /* -------- copy the value and insert \0 so strcmp works properly */
-        value[load_sizes[0]] = '\0';
-        if (strcmp(value, match) != 0)
+        CMP(load_types[0], load_columns[0], load_sizes[0], parsed_type, parsed, parsed_size);
+        if (cmp != 0)
             break;
-        DUMP(0, load_max, load_columns, load_sizes, load_size);
+        DUMP(0, load_max, load_columns, load_types, load_sizes, load_size);
     }
     DUMP_FLUSH(0);
 }

@@ -5,12 +5,12 @@ import string
 import random
 from hypothesis import given, settings
 from hypothesis.strategies import text, lists, composite, integers, sampled_from, randoms
-from test_util import run, rm_whitespace, rm_whitespace, compile_buffer_sizes
+from test_util import runb, run, rm_whitespace, rm_whitespace, compile_buffer_sizes
 
 if os.environ.get('TEST_FACTOR'):
-    buffers = list(sorted(set([5, 8, 11, 17, 64, 256, 1024] + [random.randint(8, 1024) for _ in range(10)])))
+    buffers = list(sorted(set([12, 17, 64, 256, 1024] + [random.randint(8, 1024) for _ in range(10)])))
 else:
-    buffers = [5, 8, 11, 17, 64]
+    buffers = [12, 17, 64]
 
 def setup_module():
     with shell.climb_git_root():
@@ -36,35 +36,38 @@ def partition(r, n, x):
 @composite
 def inputs(draw):
     buffer = draw(sampled_from(buffers))
+    bytes = buffer - 5
+    cols = bytes // (2 + 1 + 4)
     r = draw(randoms())
-    bytes_available = buffer - 2
-    max_columns = bytes_available // 2
-    num_columns = draw(integers(min_value=1, max_value=min(64, max_columns)))
-    bytes_available -= num_columns * 2
-    line = text(string.ascii_lowercase + ' ', min_size=0, max_size=bytes_available)
-    line = line.map(lambda x: ','.join(partition(r, num_columns, x)))
+    num_columns = draw(integers(min_value=1, max_value=64))
+    line = text(string.ascii_lowercase, min_size=0, max_size=1024)
+    line = line.map(lambda x: ','.join(partition(r, num_columns, x))[:cols])
     lines = draw(lists(line))
     lines = '\n'.join([l for l in lines if l]).strip() + '\n'
     return buffer, lines
 
+def expected(text):
+    return '\n'.join(','.join('%d' % int(y) if y.isdigit() else y for y in x.split(',')) for x in text.splitlines())
+
 @given(inputs())
 @settings(max_examples=100 * int(os.environ.get('TEST_FACTOR', 1)), deadline=os.environ.get("TEST_DEADLINE", 1000 * 60))
 def test_props(arg):
-    buffer, csv = arg
-    assert csv == run(csv, f'bin/bsv.{buffer} | bin/csv.{buffer}')
+    buffers, csv = arg
+    assert expected(csv) + '\n' == run(csv, f'bin/bsv.{buffers} | bin/csv.{buffers}')
 
 def test_example1():
-    buffer, csv = 11, ',\n'
-    val = run(csv, 'bin/bsv')
-    val = bytes(val, 'utf-8')
+    csv = ',\n'
+    val = runb(csv, 'bin/bsv')
     bsv = b''.join([
-        struct.pack('i', 6), # uint32 num bytes in this chunk,
+        struct.pack('i', 8), # uint32 num bytes in this chunk,
         struct.pack('H', 1), # uint16 max, see load.h
+        struct.pack('B', 0), # uint8 types, see load.h
+        struct.pack('B', 0), # uint8 types, see load.h
         struct.pack('H', 0), # uint16 sizes, see load.h
         struct.pack('H', 0), # uint16 sizes, see load.h
     ])
     assert bsv == val
-    assert csv == run(csv, f'bin/bsv.{buffer} | bin/csv.{buffer}')
+    assert csv == run(csv, f'bin/bsv | bin/csv')
 
 def test_max_bytes():
     stdin = 'a' * (2**16 - 1)
@@ -79,13 +82,13 @@ def test_encoding():
     stdin = """
     a
     """
-    val = run(rm_whitespace(stdin), 'bin/bsv')
-    val = bytes(val, 'utf-8')
+    val = runb(rm_whitespace(stdin), 'bin/bsv')
     bsv = b''.join([
         # chunk header
-        struct.pack('i', 5), # uint32 num bytes in this chunk,
+        struct.pack('i', 6), # uint32 num bytes in this chunk,
         # chunk body
         struct.pack('H', 0), # uint16 max, see load.h
+        struct.pack('B', 0), # uint8 types, see load.h
         struct.pack('H', 1), # uint16 sizes, see load.h
         b'a',
     ])
@@ -95,17 +98,39 @@ def test_encoding():
     stdin = """
     a,bb,ccc
     """
-    val = run(rm_whitespace(stdin), 'bin/bsv')
-    val = bytes(val, 'utf-8')
+    val = runb(rm_whitespace(stdin), 'bin/bsv')
     bsv = b''.join([
         # chunk header
-        struct.pack('i', 14), # uint32 num bytes in this chunk,
+        struct.pack('i', 17), # uint32 num bytes in this chunk,
         # chunk body
         struct.pack('H', 2), # uint16 max, see load.h
+        struct.pack('B', 0), # uint8 types, see load.h
+        struct.pack('B', 0), # uint8 types, see load.h
+        struct.pack('B', 0), # uint8 types, see load.h
         struct.pack('H', 1), # uint16 sizes, see load.h
         struct.pack('H', 2), # uint16 sizes, see load.h
         struct.pack('H', 3), # uint16 sizes, see load.h
         b'abbccc',
+    ])
+    assert bsv == val
+    assert rm_whitespace(stdin) + '\n' == run(rm_whitespace(stdin), 'bin/bsv | bin/csv')
+
+    stdin = """
+    a,12,1.500000
+    """
+    val = runb(rm_whitespace(stdin), 'bin/bsv')
+    bsv = b''.join([
+        # chunk header
+        struct.pack('i', 20), # uint32 num bytes in this chunk,
+        # chunk body
+        struct.pack('H', 2), # uint16 max, see load.h
+        struct.pack('B', 0), # uint8 types, see load.h
+        struct.pack('B', 1), # uint8 types, see load.h
+        struct.pack('B', 2), # uint8 types, see load.h
+        struct.pack('H', 1), # uint16 sizes, see load.h
+        struct.pack('H', 4), # uint16 sizes, see load.h
+        struct.pack('H', 4), # uint16 sizes, see load.h
+        b'a', struct.pack('i', 12), struct.pack('f', 1.5),
     ])
     assert bsv == val
     assert rm_whitespace(stdin) + '\n' == run(rm_whitespace(stdin), 'bin/bsv | bin/csv')
@@ -117,9 +142,10 @@ def test_encoding():
     val = bytes(val, 'utf-8')
     bsv = b''.join([
         # chunk header
-        struct.pack('i', 5), # uint32 num bytes in this chunk,
+        struct.pack('i', 6), # uint32 num bytes in this chunk,
         # chunk body
         struct.pack('H', 0), # uint16 max, see load.h
+        struct.pack('B', 0), # uint8 types, see load.h
         struct.pack('H', 1), # uint16 sizes, see load.h
         b'a',
     ])

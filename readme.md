@@ -18,6 +18,7 @@ cli utilites to combine into pipelines.
 - [bpartition](#bpartition) - split into multiple files by the first column value
 - [bsort](#bsort) - sort rows
 - [bsplit](#bsplit) - split a stream into a file per chunk
+- [bsum](#bsum) - integer sum numbers in the first column and output a single value
 - [bsv](#bsv) - convert csv to bsv
 - [btake](#btake) - take while the first column is VALUE
 - [btakeuntil](#btakeuntil) - take until the first column is gte to VALUE
@@ -204,6 +205,22 @@ usage: `... | bsplit`
 ```
 >> echo a,b,c | bsv | bsplit
 BF163BBADE92064C_0000000000
+```
+
+### [bsum](https://github.com/nathants/bsv/blob/master/src/bsum.c)
+
+integer sum numbers in the first column and output a single value
+
+usage: `... | bsum`
+
+```
+>> echo '
+1
+2
+3
+4.1
+' | bsv | bsum | csv
+10
 ```
 
 ### [bsv](https://github.com/nathants/bsv/blob/master/src/bsv.c)

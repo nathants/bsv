@@ -68,17 +68,18 @@ int main(int argc, const char **argv) {
 
 
     int _sizes[1] = {0};
+    int _types[1] = {0};
     char **_columns;
-    ROW(max_value, 0, BUFFER_SIZE, _sizes);
+    ROW(max_value, 0, BUFFER_SIZE, _types, _sizes);
     rows[max_index] = row;
-    ROW(max_value, 0, BUFFER_SIZE, _sizes);
+    ROW(max_value, 0, BUFFER_SIZE, _types, _sizes);
     rows[last_line_index] = row;
 
     for (i = 0; i < num_files; i++) {
         LOAD(i);
         load_stops[i] = load_stop;
         if (!load_stop) {
-            ROW(load_buffer, load_max, load_size, load_sizes);
+            ROW(load_buffer, load_max, load_size, load_types, load_sizes);
             rows[i] = row;
         }
     }
@@ -100,12 +101,12 @@ int main(int argc, const char **argv) {
                 hits_index[hits++] = i;
 
         if (hits == 1 && strcmp(rows[index]->buffer, rows[last_line_index]->buffer) != 0) {
-            DUMP(index, rows[index]->max, rows[index]->columns, rows[index]->sizes, rows[index]->size);
+            DUMP(index, rows[index]->max, rows[index]->columns, rows[index]->types, rows[index]->sizes, rows[index]->size);
             written[index] = 1;
         }
 
         ROW_FREE(rows[last_line_index]);
-        ROW(rows[index]->buffer, rows[index]->max, rows[index]->size, rows[index]->sizes);
+        ROW(rows[index]->buffer, rows[index]->max, rows[index]->size, rows[index]->types, rows[index]->sizes);
         rows[last_line_index] = row;
 
         for (i = 0; i < hits; i++) {
@@ -113,7 +114,7 @@ int main(int argc, const char **argv) {
             row = rows[j];
             ROW_FREE(row);
             LOAD(j);
-            ROW(load_buffer, load_max, load_size, load_sizes);
+            ROW(load_buffer, load_max, load_size, load_types, load_sizes);
             rows[j] = row;
             load_stops[j] = load_stop;
         }

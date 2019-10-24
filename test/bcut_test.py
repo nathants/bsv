@@ -32,6 +32,11 @@ def inputs_ascending_unique_fields(draw):
     fields = ','.join(sorted(set(fields.split(',')), key=int))
     return (fields, csv)
 
+def parse(value):
+    if value.isdigit():
+        value = int(value)
+    return value
+
 def expected(fields, csv):
     fields = [int(x) - 1 for x in fields.split(',')]
     result = []
@@ -39,7 +44,7 @@ def expected(fields, csv):
         if not line.strip():
             result.append('')
         else:
-            columns = line.split(',')
+            columns = [str(parse(x)) for x in line.split(',')]
             if len(columns) > max_columns:
                 return
             res = []

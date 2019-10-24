@@ -9,6 +9,7 @@
         l_offset = 0;                                           \
         for (l_i = 0; l_i <= from##_max; l_i++) {               \
             to##_columns[l_i] = to##_buffer + l_offset;         \
+            to##_types[l_i] = from##_types[l_i];                \
             to##_sizes[l_i] = from##_sizes[l_i];                \
             l_offset += from##_sizes[l_i];                      \
         }                                                       \

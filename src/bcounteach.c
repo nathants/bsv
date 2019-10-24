@@ -1,15 +1,15 @@
 #include "load_copy.h"
 #include "load_dump.h"
 
-#define DUMP_COUNT()                                                \
-    do {                                                            \
-        if (last_size != 0 && last_sizes[0] != 0) {                 \
-            last_max++;                                             \
-            sprintf(output, "%llu", val);                           \
-            last_sizes[last_max] = strlen(output);                  \
-            last_columns[last_max] = output;                        \
-            DUMP(0, last_max, last_columns, last_sizes, last_size); \
-        }                                                           \
+#define DUMP_COUNT()                                                            \
+    do {                                                                        \
+        if (last_size != 0 && last_sizes[0] != 0) {                             \
+            last_max++;                                                         \
+            sprintf(output, "%llu", val);                                       \
+            last_sizes[last_max] = strlen(output);                              \
+            last_columns[last_max] = output;                                    \
+            DUMP(0, last_max, last_columns, last_types, last_sizes, last_size); \
+        }                                                                       \
     } while(0)
 
 #define NUM_ARGS 1

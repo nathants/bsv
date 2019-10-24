@@ -1,4 +1,6 @@
 import os
+import struct
+import re
 import string
 import shell
 from hypothesis import given, settings
@@ -43,12 +45,12 @@ def test_props(args):
 def test_single_column():
     stdin = """
     a
-    1
+    y
     x
     """
     stdout = """
     3,a
-    2,1
+    3,y
     2,x
     """
     assert rm_whitespace(stdout) + '\n' == run(rm_whitespace(stdin), 'bin/bsv | bin/bbucket 4 | bin/csv')
@@ -56,12 +58,12 @@ def test_single_column():
 def test_basic():
     stdin = """
     a,b,c,d
-    1,2,3
+    e,f,g
     x,y
     """
     stdout = """
     3,a,b,c,d
-    2,1,2,3
+    3,e,f,g
     2,x,y
     """
     assert rm_whitespace(stdout) + '\n' == run(rm_whitespace(stdin), 'bin/bsv | bin/bbucket 4 | bin/csv')

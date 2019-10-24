@@ -3,17 +3,18 @@
 typedef struct row_s {
     int max;
     int size;
+    int *types;
     int *sizes;
     char *buffer;
     char **columns;
 } row_t;
 
-#define ROW_INIT()                              \
-    row_t *row;                                 \
-    int _row_i;                                 \
+#define ROW_INIT()                                      \
+    row_t *row;                                         \
+    int _row_i;                                         \
     int _row_offset;
 
-#define ROW(_str, _max, _size, _sizes)                                                                                  \
+#define ROW(_str, _max, _size, _types, _sizes)                                                                          \
     do {                                                                                                                \
         MALLOC(row, sizeof(row_t));                                                                                     \
         row->max = _max;                                                                                                \
@@ -21,6 +22,8 @@ typedef struct row_s {
         MALLOC(row->buffer, _size + 1);                                                                                 \
         memcpy(row->buffer, _str, _size);                                                                               \
         row->buffer[_size] = '\0';                                                                                      \
+        MALLOC(row->types, sizeof(int) * (_max + 1))                                                                    \
+        memcpy(row->types, _types, sizeof(int) * (_max + 1));                                                           \
         MALLOC(row->sizes, sizeof(int) * (_max + 1))                                                                    \
         memcpy(row->sizes, _sizes, sizeof(int) * (_max + 1));                                                           \
         MALLOC(row->columns, sizeof(char*) * (_max + 1));                                                               \
@@ -33,8 +36,19 @@ typedef struct row_s {
 
 #define ROW_FREE(_row)                          \
     free(_row->buffer);                         \
+    free(_row->types);                          \
     free(_row->sizes);                          \
     free(_row->columns);                        \
     free(_row);
+
+static inline int row_cmp(const row_t * a, const row_t * b) {
+    CMP_INIT();
+    for (int i = 0; i <= MIN(a->max, b->max); i++) {
+        CMP(a->types[i], a->columns[i], a->sizes[i], b->types[i], b->columns[i], b->sizes[i]);
+        if (cmp != 0)
+            return cmp;
+    }
+    return 0;
+}
 
 #endif

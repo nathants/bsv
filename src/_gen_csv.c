@@ -13,6 +13,14 @@ int main(int argc, const char **argv) {
     if (argc < 2)
         showusage();
     int num_columns = atoi(argv[1]);
+    int add_int = 0;
+    int add_float = 0;
+    if (argc > 2) {
+        if (strcmp("f", argv[2]) == 0)
+            add_float = 1;
+        else if (strcmp("i", argv[2]) == 0)
+            add_int = 1;
+    }
     time_t t;
     int i, j, num_words, add_delimiter;
     char *words[1024 * 128];
@@ -36,6 +44,12 @@ int main(int argc, const char **argv) {
             fputs(words[rand() % num_words], stdout);
             add_delimiter = 1;
         }
+        if (add_int) {
+            fprintf(stdout, ",%d", rand() % 100);
+        } else if (add_float) {
+            fprintf(stdout, ",%f", ((float)rand()/(float)(RAND_MAX)) * 10000);
+        }
+
         fputs("\n", stdout);
     }
 }

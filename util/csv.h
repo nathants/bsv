@@ -1,6 +1,7 @@
 #ifndef CSV_H
 #define CSV_H
 
+#include <ctype.h>
 #include "util.h"
 
 /* see bsv.c for example usage */
@@ -20,6 +21,8 @@
     char *c_next_column[MAX_COLUMNS];                                                       \
     int csv_stop = 0;                 /* stop immediately */                                \
     int csv_max = 0;                  /* highest zero-based index into sizes and columns */ \
+    int csv_num_alphas[MAX_COLUMNS] = {0};                                                  \
+    int csv_num_dots[MAX_COLUMNS] = {0};                                                    \
     int csv_sizes[MAX_COLUMNS] = {0}; /* array of the number of chars in each column */     \
     char *csv_columns[MAX_COLUMNS];   /* array of columns as char-star */                   \
     csv_columns[0] = c_buffer;
@@ -34,6 +37,8 @@
                 csv_sizes[0] = 0;                                                                                       \
                 csv_columns[0] = c_next_column[0];                                                                      \
                 c_update_columns = 0;                                                                                   \
+                csv_num_alphas[0] = 0;                                                                                  \
+                csv_num_dots[0] = 0;                                                                                    \
             }                                                                                                           \
             /* read, if necessary, rolling over unused bytes to the start of the buffer */                              \
             if (c_char_index - c_offset == c_bytes_read) {                                                              \
@@ -61,23 +66,36 @@
                     /* start next column */                                                                             \
                     if (c_char == DELIMITER && !(c_escaped || c_buffer[c_char_index - 1] == '\\')) {                    \
                         ASSERT(++csv_max < MAX_COLUMNS, "fatal: line with more than %d columns\n", MAX_COLUMNS);        \
+                        csv_num_alphas[csv_max] = 0;                                                                    \
+                        csv_num_dots[csv_max] = 0;                                                                      \
                         csv_sizes[csv_max] = 0;                                                                         \
                         csv_columns[csv_max] = c_buffer + c_char_index + 1;                                             \
-                        /* sanely handle null bytes in input */                                                         \
-                    } else if (c_char == '\0') {                                                                        \
+                    }                                                                                                   \
+                    /* sanely handle null bytes in input */                                                             \
+                    else if (c_char == '\0') {                                                                          \
                         c_buffer[c_char_index] = ' ';                                                                   \
                         csv_sizes[csv_max]++;                                                                           \
-                        /* line is ready. prepare updates for the next iteration, and return control to caller */       \
-                    } else if (c_char == '\n') {                                                                        \
+                        csv_num_alphas[csv_max]++;                                                                      \
+                    }                                                                                                   \
+                    /* line is ready. prepare updates for the next iteration, and return control to caller */           \
+                    else if (c_char == '\n') {                                                                          \
                         c_update_columns = 1;                                                                           \
                         c_next_column[0] = c_buffer + c_char_index + 1;                                                 \
                         c_char_index++;                                                                                 \
                         c_handled = 1;                                                                                  \
                         c_break = 1;                                                                                    \
                         break; /* break out of double while loop */                                                     \
-                        /* normal character increases current column size */                                            \
-                    } else                                                                                              \
+                    }                                                                                                   \
+                    /* normal character increases current column size */                                                \
+                    else {                                                                                              \
+                        /* check for digits, alphas, and dots to set to once the end of column is reached */            \
+                        if (c_char == '.')                                                                              \
+                            csv_num_dots[csv_max]++;                                                                    \
+                        else if (!isdigit(c_char))                                                                      \
+                            csv_num_alphas[csv_max]++;                                                                  \
+                        /* bump size */                                                                                 \
                         csv_sizes[csv_max]++;                                                                           \
+                    }                                                                                                   \
                     /* bump the char index */                                                                           \
                     c_char_index++;                                                                                     \
                 }                                                                                                       \

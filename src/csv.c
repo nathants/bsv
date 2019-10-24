@@ -10,6 +10,7 @@ int main(int argc, const char **argv) {
     HELP();
     FILE *load_files[1] = {stdin};
     FILE *write_files[1] = {stdout};
+    char buffer[BUFFER_SIZE];
     LOAD_INIT(load_files, 1);
     WRITE_INIT(write_files, 1);
     int i;
@@ -19,6 +20,13 @@ int main(int argc, const char **argv) {
         if (load_stop)
             break;
         for (i = 0; i <= load_max; i++) {
+            if (load_types[i] == BSV_INT) {
+                load_sizes[i] = sprintf(buffer, "%ld", CHAR_TO_INT(load_columns[i]));
+                load_columns[i] = buffer;
+            } else if (load_types[i] == BSV_FLOAT) {
+                load_sizes[i] = sprintf(buffer, "%lf", CHAR_TO_FLOAT(load_columns[i]));
+                load_columns[i] = buffer;
+            }
             WRITE(load_columns[i], load_sizes[i], 0);
             if (i != load_max)
                 WRITE(",", 1, 0);

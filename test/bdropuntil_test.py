@@ -2,88 +2,78 @@ import os
 import string
 import shell
 from hypothesis import given, settings
-from hypothesis.strategies import text, lists, composite, integers, randoms, sampled_from, floats
-import random
-from test_util import run, compile_buffer_sizes
-
-if os.environ.get('TEST_FACTOR'):
-    buffers = list(sorted(set([5, 8, 11, 17, 64, 256, 1024] + [random.randint(8, 1024) for _ in range(10)])))
-else:
-    buffers = [5, 8, 11, 17, 64]
+from hypothesis.strategies import text, lists, composite, integers, randoms, floats
+from test_util import run
 
 def setup_module():
     with shell.climb_git_root():
         shell.run('make clean', stream=True)
-        compile_buffer_sizes('csv', buffers)
-        compile_buffer_sizes('bsv', buffers)
-        compile_buffer_sizes('bdropuntil', buffers)
-        shell.run('make bsv csv bdropuntil', stream=True)
+        shell.run('make bsv csv bsort bdropuntil', stream=True)
 
 def teardown_module():
     with shell.climb_git_root():
         shell.run('make clean', stream=True)
 
-@composite
-def buffer_inputs(draw): # correct errors for very small buffers is a bit complicated
-    r = draw(randoms())
-    def partition(n, x):
-        res = []
-        ks = list(sorted({r.randint(1, max(1, len(x))) for _ in range(n)}))
-        ks = [0] + ks
-        ks[-1] = len(x)
-        for a, b in zip(ks, ks[1:]):
-            res.append(x[a:b])
-        return res
-    buffer = draw(sampled_from(buffers))
-    bytes_available = buffer - 2
-    max_columns = bytes_available // 2
-    num_columns = draw(integers(min_value=1, max_value=min(64, max_columns)))
-    bytes_available -= num_columns * 2
-    line = text(string.ascii_lowercase, min_size=0, max_size=bytes_available)
-    line = line.filter(lambda x: len(x) > 0)
-    line = line.map(lambda x: partition(num_columns, x))
-    lines = draw(lists(line, min_size=1))
-    first_column_values = [line[0] for line in lines]
-    for line in lines:
-        if line and r.random() > 0.8:
-            line[0] = r.choice(first_column_values)
-    lines = sorted(lines)
-    lines = '\n'.join([','.join(l)[:bytes_available + num_columns - 1] # swapping out line[0] sometimes causes oversized rows, so trim to max row size
-                       for l in lines if l]).strip() + '\n'
-    value = r.choice(first_column_values)
-    return buffer, value, lines
-
-with open('/usr/share/dict/words') as f:
-    words = f.read().splitlines()
+def partition(r, n, x):
+    res = []
+    ks = list(sorted({r.randint(1, max(1, len(x))) for _ in range(n)}))
+    ks = [0] + ks
+    ks[-1] = len(x)
+    for a, b in zip(ks, ks[1:]):
+        res.append(x[a:b])
+    return res
 
 @composite
 def inputs(draw):
     r = draw(randoms())
-    word = sampled_from(words)
-    num_columns = draw(integers(min_value=1, max_value=64))
-    line = lists(word, min_size=1, max_size=num_columns)
-    lines = draw(lists(line, min_size=1))
+    num_text_columns = draw(integers(min_value=1, max_value=4))
+    text_column = text(string.ascii_lowercase, min_size=1, max_size=8)
+    text_line = lists(text_column, min_size=num_text_columns, max_size=num_text_columns)
+    text_lines = draw(lists(text_line, min_size=1))
+    num_digit_columns = draw(integers(min_value=1, max_value=4))
+    digit_column = text(string.digits, min_size=1, max_size=8)
+    digit_line = lists(digit_column, min_size=num_digit_columns, max_size=num_digit_columns)
+    digit_lines = draw(lists(digit_line, min_size=len(text_lines), max_size=len(text_lines)))
+    if r.random() > 0.5:
+        lines = zip(text_lines, digit_lines)
+    else:
+        lines = zip(digit_lines, text_lines)
+    lines = [x + y for x, y in lines]
     first_column_values = [line[0] for line in lines]
     threshold = draw(floats(min_value=0, max_value=1))
     for line in lines:
         if line and r.random() > threshold:
             line[0] = r.choice(first_column_values)
-    lines = sorted(lines)
     csv = '\n'.join([','.join(l) for l in lines if l]).strip() + '\n'
-    value = r.choice(first_column_values + [r.choice(words) for _ in range(len(lines))]) # sometimes look for values that arent in the dataset
+    value = r.choice(first_column_values)
     return value, csv
+
+def parse(value):
+    if value.isdigit():
+        value = int(value)
+    return value
 
 def expected(value, csv):
     res = []
     found = False
-    for line in csv.splitlines():
+    value = parse(value)
+    lines = csv.splitlines()
+    lines = [l.split(',') for l in lines]
+    lines = [[parse(c) for c in cols] for cols in lines]
+    lines = sorted(lines)
+    for cols in lines:
+        line = ','.join(str(c) for c in cols)
         if found:
             res.append(line)
         else:
-            columns = line.split(',')
-            if columns and columns[0] >= value:
-                res.append(line)
-                found = True
+            if cols:
+                if {type(value), type(cols[0])} == {str, int}:
+                    if type(value) == int: # numeric is always less than string
+                        res.append(line)
+                        found = True
+                elif cols[0] >= value:
+                    res.append(line)
+                    found = True
     return '\n'.join(res) + '\n'
 
 @given(inputs())
@@ -91,31 +81,39 @@ def expected(value, csv):
 def test_props(args):
     value, csv = args
     result = expected(value, csv)
-    assert result == run(csv, f'bin/bsv | bin/bdropuntil "{value}" | bin/csv')
-
-@given(buffer_inputs())
-@settings(max_examples=100 * int(os.environ.get('TEST_FACTOR', 1)), deadline=os.environ.get("TEST_DEADLINE", 1000 * 60))
-def test_props_buffers(args):
-    buffer, value, csv = args
-    result = expected(value, csv)
-    assert result == run(csv, f'bin/bsv.{buffer} | bin/bdropuntil.{buffer} "{value}" | bin/csv.{buffer}')
+    assert result == run(csv, f'bin/bsv | bin/bsort | bin/bdropuntil "{value}" | bin/csv')
 
 def test_example1():
-    buffer, value, csv = 11, 'g', 'a\nb\nc\nd\ne\nf\ng\nh\n'
+    value, csv = 'g', 'a\nb\nc\nd\ne\nf\ng\nh\n'
     result = expected(value, csv)
-    assert result == run(csv, f'bin/bsv.{buffer} 2>/dev/null | bin/bdropuntil.{buffer} "{value}" | bin/csv.{buffer} 2>/dev/null')
+    assert result == run(csv, f'bin/bsv 2>/dev/null | bin/bsort | bin/bdropuntil "{value}" | bin/csv 2>/dev/null')
 
 def test_example2():
-    buffer, value, csv = 11, 'a', 'a\n'
+    value, csv = 'a', 'a\n'
     result = expected(value, csv)
-    assert result == run(csv, f'bin/bsv.{buffer} 2>/dev/null | bin/bdropuntil.{buffer} "{value}" | bin/csv.{buffer} 2>/dev/null')
+    assert result == run(csv, f'bin/bsv 2>/dev/null | bin/bsort | bin/bdropuntil "{value}" | bin/csv 2>/dev/null')
 
 def test_example3():
-    buffer, value, csv = 11, 'ga', 'a\nb\nc\nddd\neee\nf\nga\n'
+    value, csv = 'ga', 'a\nb\nc\nddd\neee\nf\nga\n'
     result = expected(value, csv)
-    assert result == run(csv, f'bin/bsv.{buffer} 2>/dev/null | bin/bdropuntil.{buffer} "{value}" | bin/csv.{buffer} 2>/dev/null')
+    assert result == run(csv, f'bin/bsv 2>/dev/null | bin/bsort | bin/bdropuntil "{value}" | bin/csv 2>/dev/null')
 
 def test_example4():
-    buffer, value, csv = 11, 'b', 'a\na\na\nb\n'
+    value, csv = 'b', 'a\na\na\nb\n'
     result = expected(value, csv)
-    assert result == run(csv, f'bin/bsv.{buffer} 2>/dev/null | bin/bdropuntil.{buffer} "{value}" | bin/csv.{buffer} 2>/dev/null')
+    assert result == run(csv, f'bin/bsv 2>/dev/null | bin/bsort | bin/bdropuntil "{value}" | bin/csv 2>/dev/null')
+
+def test_example5():
+    value, csv = '3', '5\n4\n3\n2\n1\n'
+    result = expected(value, csv)
+    assert result == run(csv, f'bin/bsv 2>/dev/null | bin/bsort | bin/bdropuntil "{value}" | bin/csv 2>/dev/null')
+
+def test_example6():
+    value, csv = '10000', '20,a\n10000,a\n'
+    result = expected(value, csv)
+    assert result == run(csv, f'bin/bsv 2>/dev/null | bin/bsort | bin/bdropuntil "{value}" | bin/csv 2>/dev/null')
+
+def test_example7():
+    value, csv = '1', '0,a\n1,a\n'
+    result = expected(value, csv)
+    assert result == run(csv, f'bin/bsv 2>/dev/null | bin/bsort | bin/bdropuntil "{value}" | bin/csv 2>/dev/null')
