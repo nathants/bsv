@@ -1,5 +1,5 @@
 .PHONY: all clean test
-CFLAGS=-Iutil -O3 -march=native -mtune=native
+CFLAGS=-Iutil -Ivendor -flto -O3 -march=native -mtune=native
 ALL=docs bbucket bcat bcounteach bcut bdedupe bdisjoint bdropuntil bpartition bsort bsplit bsum bsv btake btakeuntil _copy _csv csv _gen_csv xxh3
 
 all: $(ALL)
