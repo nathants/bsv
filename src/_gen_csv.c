@@ -13,12 +13,13 @@ int main(int argc, const char **argv) {
     if (argc < 2)
         showusage();
     int num_columns = atoi(argv[1]);
+    long long num_rows = atol(argv[2]);
     int add_int = 0;
     int add_float = 0;
-    if (argc > 2) {
-        if (strcmp("f", argv[2]) == 0)
+    if (argc > 3) {
+        if (strcmp("f", argv[3]) == 0)
             add_float = 1;
-        else if (strcmp("i", argv[2]) == 0)
+        else if (strcmp("i", argv[3]) == 0)
             add_int = 1;
     }
     time_t t;
@@ -36,7 +37,8 @@ int main(int argc, const char **argv) {
         words[i++] = word;
     num_words = i;
     srand((unsigned) time(&t));
-    while (1) {
+    i = 0;
+    while (i++ < num_rows) {
         add_delimiter = 0;
         for (j = 0; j< num_columns; j++) {
             if (add_delimiter)
