@@ -30,7 +30,7 @@ int main(int argc, const char **argv) {
         kv_push(row_t*, array, row);
     }
 
-    str_tim_sort(array.a, array.n);
+    str_quick_sort(array.a, array.n);
 
     for (i = 0; i < array.n; i++) {
         row = array.a[i];
