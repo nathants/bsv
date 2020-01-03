@@ -38,6 +38,7 @@ static int isdigits(const char *s, const int size) {
 
 int main(int argc, const char **argv) {
     HELP();
+    SIGPIPE_HANDLER();
 
     FILE *load_files[1] = {stdin};
     LOAD_INIT(load_files, 1);

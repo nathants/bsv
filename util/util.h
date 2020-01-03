@@ -6,6 +6,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
+#include <signal.h>
 
 typedef int bsv_int_t;
 typedef float bsv_float_t;
@@ -18,6 +19,12 @@ unsigned short _util_ushort;
 unsigned char _util_uchar;
 bsv_int_t _util_bsv_int;
 bsv_float_t _util_bsv_float;
+
+void _sigpipe_handler(int signum) {
+    exit(0);
+}
+
+#define SIGPIPE_HANDLER() signal(SIGPIPE, _sigpipe_handler)
 
 /* #define DEBUG(...) ; */
 #define DEBUG(...) fprintf(stderr, ##__VA_ARGS__)

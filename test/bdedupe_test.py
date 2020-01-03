@@ -1,17 +1,24 @@
 import os
 import string
 import shell
+from hypothesis.database import ExampleDatabase
 from hypothesis import given, settings
 from hypothesis.strategies import text, lists, composite, integers, randoms
-from test_util import run, rm_whitespace, rm_whitespace
+from test_util import run, rm_whitespace, rm_whitespace, clone_source
 
-def setup_module():
-    with shell.climb_git_root():
-        shell.run('make clean && make bsv csv bdedupe', stream=True)
+def setup_module(m):
+    m.tempdir = clone_source()
+    m.orig = os.getcwd()
+    m.path = os.environ['PATH']
+    os.chdir(m.tempdir)
+    os.environ['PATH'] = f'{os.getcwd()}/bin:/usr/bin:/usr/local/bin'
+    shell.run('make clean && make bsv csv bdedupe', stream=True)
 
-def teardown_module():
-    with shell.climb_git_root():
-        shell.run('make clean', stream=True)
+def teardown_module(m):
+    os.chdir(m.orig)
+    os.environ['PATH'] = m.path
+    assert m.tempdir.startswith('/tmp/')
+    shell.run('rm -rf', m.tempdir)
 
 @composite
 def inputs(draw):
@@ -36,11 +43,11 @@ def expected(csv):
     return '\n'.join(result) + '\n'
 
 @given(inputs())
-@settings(max_examples=100 * int(os.environ.get('TEST_FACTOR', 1)), deadline=os.environ.get("TEST_DEADLINE", 1000 * 60))
+@settings(database=ExampleDatabase(':memory:'), max_examples=100 * int(os.environ.get('TEST_FACTOR', 1)), deadline=os.environ.get("TEST_DEADLINE", 1000 * 60))
 def test_props(args):
     csv = args
     result = expected(csv)
-    assert result == run(csv, f'bin/bsv | bin/bdedupe | bin/csv')
+    assert result == run(csv, f'bsv | bdedupe | bin/csv')
 
 def test_basic():
     stdin = """
@@ -57,4 +64,4 @@ def test_basic():
     b
     a
     """
-    assert rm_whitespace(stdout) + '\n' == run(rm_whitespace(stdin), 'bin/bsv | bin/bdedupe | bin/csv')
+    assert rm_whitespace(stdout) + '\n' == run(rm_whitespace(stdin), 'bsv | bdedupe | bin/csv')

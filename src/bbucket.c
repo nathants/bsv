@@ -10,6 +10,7 @@
 
 int main(int argc, const char **argv) {
     HELP();
+    SIGPIPE_HANDLER();
     LOAD_DUMP_INIT();
     char hash_str[64];
     int mod;

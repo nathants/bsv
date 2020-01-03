@@ -2,17 +2,24 @@ import pytest
 import os
 import string
 import shell
+from hypothesis.database import ExampleDatabase
 from hypothesis import given, settings
 from hypothesis.strategies import text, lists, composite, integers
-from test_util import run, rm_whitespace, rm_whitespace, max_columns
+from test_util import run, rm_whitespace, rm_whitespace, max_columns, clone_source
 
-def setup_module():
-    with shell.climb_git_root():
-        shell.run('make clean && make bsv csv bcut', stream=True)
+def setup_module(m):
+    m.tempdir = clone_source()
+    m.orig = os.getcwd()
+    m.path = os.environ['PATH']
+    os.chdir(m.tempdir)
+    os.environ['PATH'] = f'{os.getcwd()}/bin:/usr/bin:/usr/local/bin'
+    shell.run('make clean && make bsv csv bcut', stream=True)
 
-def teardown_module():
-    with shell.climb_git_root():
-        shell.run('make clean', stream=True)
+def teardown_module(m):
+    os.chdir(m.orig)
+    os.environ['PATH'] = m.path
+    assert m.tempdir.startswith('/tmp/')
+    shell.run('rm -rf', m.tempdir)
 
 @composite
 def inputs(draw):
@@ -59,27 +66,27 @@ def expected(fields, csv):
     return '\n'.join(result) + '\n'
 
 @given(inputs())
-@settings(max_examples=100 * int(os.environ.get('TEST_FACTOR', 1)), deadline=os.environ.get("TEST_DEADLINE", 1000 * 60))
+@settings(database=ExampleDatabase(':memory:'), max_examples=100 * int(os.environ.get('TEST_FACTOR', 1)), deadline=os.environ.get("TEST_DEADLINE", 1000 * 60))
 def test_props(args):
     fields, csv = args
     result = expected(fields, csv)
     if result:
-        assert result == run(csv, f'bin/bsv | bin/bcut {fields} | bin/csv')
+        assert result == run(csv, f'bsv | bcut {fields} | bin/csv')
     else:
         with pytest.raises(AssertionError):
-            run(csv, f'bin/bsv | bin/bcut {fields} | bin/csv')
+            run(csv, f'bsv | bcut {fields} | bin/csv')
 
 @given(inputs_ascending_unique_fields())
-@settings(max_examples=100 * int(os.environ.get('TEST_FACTOR', 1)), deadline=os.environ.get("TEST_DEADLINE", 1000 * 60))
+@settings(database=ExampleDatabase(':memory:'), max_examples=100 * int(os.environ.get('TEST_FACTOR', 1)), deadline=os.environ.get("TEST_DEADLINE", 1000 * 60))
 def test_props_compatability(args):
     fields, csv = args
     result = expected(fields, csv)
     if result:
         assert result == run(csv, 'cut -d, -f' + fields)
-        assert result == run(csv, f'bin/bsv | bin/bcut {fields} | bin/csv')
+        assert result == run(csv, f'bsv | bcut {fields} | bin/csv')
     else:
         with pytest.raises(AssertionError):
-            run(csv, f'bin/bsv | bin/bcut {fields} | bin/csv')
+            run(csv, f'bsv | bcut {fields} | bin/csv')
 
 def test_compatability():
     stdin = """
@@ -92,18 +99,18 @@ def test_compatability():
     1,2
     x,y
     """
-    assert rm_whitespace(stdout) + '\n' == run(rm_whitespace(stdin), 'bin/bsv | bin/bcut 1,2 | bin/csv')
+    assert rm_whitespace(stdout) + '\n' == run(rm_whitespace(stdin), 'bsv | bcut 1,2 | bin/csv')
     assert rm_whitespace(stdout) + '\n' == run(rm_whitespace(stdin), 'cut -d, -f1,2')
 
 def test_single_char():
     stdin = "1\n2\n10\n20\n"
     stdout = "1\n2\n10\n20\n"
-    assert stdout == run(rm_whitespace(stdin), 'bin/bsv | bin/bcut 1 | bin/csv')
+    assert stdout == run(rm_whitespace(stdin), 'bsv | bcut 1 | bin/csv')
 
 def test_double_digits():
     stdin = "1,2,3,4,5,6,7,8,9,10\n"
     stdout = "10\n"
-    assert stdout == run(rm_whitespace(stdin), 'bin/bsv | bin/bcut 10 | bin/csv')
+    assert stdout == run(rm_whitespace(stdin), 'bsv | bcut 10 | bin/csv')
 
 def test_holes():
     stdin = """
@@ -116,7 +123,7 @@ def test_holes():
     ,3
     y,z
     """
-    assert rm_whitespace(stdout) + '\n' == run(rm_whitespace(stdin), 'bin/bsv | bin/bcut 2,3 | bin/csv')
+    assert rm_whitespace(stdout) + '\n' == run(rm_whitespace(stdin), 'bsv | bcut 2,3 | bin/csv')
 
 def test_repeats():
     stdin = """
@@ -129,7 +136,7 @@ def test_repeats():
     1,3,1,1
     a,c,a,a
     """
-    assert rm_whitespace(stdout) + '\n' == run(rm_whitespace(stdin), 'bin/bsv | bin/bcut 1,3,1,1 | bin/csv')
+    assert rm_whitespace(stdout) + '\n' == run(rm_whitespace(stdin), 'bsv | bcut 1,3,1,1 | bin/csv')
 
 def test_single_column():
     stdin = """
@@ -142,7 +149,7 @@ def test_single_column():
     1
     a
     """
-    assert rm_whitespace(stdout) + '\n' == run(rm_whitespace(stdin), 'bin/bsv | bin/bcut 1 | bin/csv')
+    assert rm_whitespace(stdout) + '\n' == run(rm_whitespace(stdin), 'bsv | bcut 1 | bin/csv')
     stdin = """
     a,b,c,d
     1,2,3
@@ -153,7 +160,7 @@ def test_single_column():
     1
     x
     """
-    assert rm_whitespace(stdout) + '\n' == run(rm_whitespace(stdin), 'bin/bsv | bin/bcut 1 | bin/csv')
+    assert rm_whitespace(stdout) + '\n' == run(rm_whitespace(stdin), 'bsv | bcut 1 | bin/csv')
     stdin = """
     a,b,c,d
     1,2,3
@@ -164,7 +171,7 @@ def test_single_column():
     2
     y
     """
-    assert rm_whitespace(stdout) + '\n' == run(rm_whitespace(stdin), 'bin/bsv | bin/bcut 2 | bin/csv')
+    assert rm_whitespace(stdout) + '\n' == run(rm_whitespace(stdin), 'bsv | bcut 2 | bin/csv')
 
 def test_forward():
     stdin = """
@@ -177,7 +184,7 @@ def test_forward():
     1,2
     x,y
     """
-    assert rm_whitespace(stdout) + '\n' == run(rm_whitespace(stdin), 'bin/bsv |  bin/bcut 1,2 | bin/csv')
+    assert rm_whitespace(stdout) + '\n' == run(rm_whitespace(stdin), 'bsv |  bcut 1,2 | bin/csv')
     stdin = """
     a,b,c,d
     1,2,3
@@ -188,7 +195,7 @@ def test_forward():
     1,3
     x,z
     """
-    assert rm_whitespace(stdout) + '\n' == run(rm_whitespace(stdin), 'bin/bsv | bin/bcut 1,3 | bin/csv')
+    assert rm_whitespace(stdout) + '\n' == run(rm_whitespace(stdin), 'bsv | bcut 1,3 | bin/csv')
     stdin = """
     x,y,z
     1,2,3
@@ -199,7 +206,7 @@ def test_forward():
     1,3
     a,c
     """
-    assert rm_whitespace(stdout) + '\n' == run(rm_whitespace(stdin), 'bin/bsv | bin/bcut 1,3 | bin/csv')
+    assert rm_whitespace(stdout) + '\n' == run(rm_whitespace(stdin), 'bsv | bcut 1,3 | bin/csv')
 
 def test_reverse():
     stdin = """
@@ -212,7 +219,7 @@ def test_reverse():
     2,1
     y,x
     """
-    assert rm_whitespace(stdout) + '\n' == run(rm_whitespace(stdin), 'bin/bsv | bin/bcut 2,1 | bin/csv')
+    assert rm_whitespace(stdout) + '\n' == run(rm_whitespace(stdin), 'bsv | bcut 2,1 | bin/csv')
     stdin = """
     a,b,c,d
     1,2,3
@@ -223,7 +230,7 @@ def test_reverse():
     3,1
     z,x
     """
-    assert rm_whitespace(stdout) + '\n' == run(rm_whitespace(stdin), 'bin/bsv | bin/bcut 3,1 | bin/csv')
+    assert rm_whitespace(stdout) + '\n' == run(rm_whitespace(stdin), 'bsv | bcut 3,1 | bin/csv')
     stdin = """
     x,y,z
     1,2,3
@@ -234,18 +241,18 @@ def test_reverse():
     3,1
     c,a
     """
-    assert rm_whitespace(stdout) + '\n' == run(rm_whitespace(stdin), 'bin/bsv | bin/bcut 3,1 | bin/csv')
+    assert rm_whitespace(stdout) + '\n' == run(rm_whitespace(stdin), 'bsv | bcut 3,1 | bin/csv')
 
 def test_fails_when_not_enough_columns():
     with shell.climb_git_root():
         stdin = 'a,b,c'
-        res = shell.run('bin/bsv | bin/bcut 4', stdin=stdin, warn=True)
+        res = shell.run('bsv | bcut 4', stdin=stdin, warn=True)
         assert 'fatal: line without 4 columns: a,b,c' == res['stderr']
         assert res['exitcode'] == 1
 
 def test_fails_when_non_positive_fields():
     with shell.climb_git_root():
         stdin = 'a,b,c'
-        res = shell.run('bin/bsv | bin/bcut 0', stdin=stdin, warn=True)
+        res = shell.run('bsv | bcut 0', stdin=stdin, warn=True)
         assert 'fatal: fields must be positive, got: 0' == res['stderr']
         assert res['exitcode'] == 1

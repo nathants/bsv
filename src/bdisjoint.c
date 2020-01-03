@@ -27,6 +27,7 @@
 
 int main(int argc, const char **argv) {
     HELP();
+    SIGPIPE_HANDLER();
     ROW_INIT();
     int x = 0;
     int i, j, hits, index, num_files = argc - 2, stop = 0;

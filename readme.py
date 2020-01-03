@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 import os
 os.chdir(os.path.dirname(__file__))
-co = lambda *a: __import__('subprocess').check_output(' '.join(map(str, a)), shell=True, executable='/bin/bash').decode('utf-8').strip()
+co = lambda *a: __import__('subprocess').check_output(' '.join(map(str, a)), shell=True, executable='/bash').decode('utf-8').strip()
 
 with open('readme.md') as f:
     xs = f.read().splitlines()

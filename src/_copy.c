@@ -1,6 +1,7 @@
 #include "util.h"
 
 int main(int argc, const char **argv) {
+    SIGPIPE_HANDLER();
     char *buff;
     int size = 1024*1024*5;
     buff = malloc(size);

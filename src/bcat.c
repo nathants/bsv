@@ -26,6 +26,7 @@ static int isdigits(const char *s) {
 
 int main(int argc, const char **argv) {
     HELP();
+    SIGPIPE_HANDLER();
     int prefix_mode = 0;
     int head = 0;
     int i, j;

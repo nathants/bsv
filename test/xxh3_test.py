@@ -1,12 +1,20 @@
 import shell
+import os
+from test_util import clone_source
 
-def setup_module():
-    with shell.climb_git_root():
-        shell.run('make clean && make xxh3', stream=True)
+def setup_module(m):
+    m.tempdir = clone_source()
+    m.orig = os.getcwd()
+    m.path = os.environ['PATH']
+    os.chdir(m.tempdir)
+    os.environ['PATH'] = f'{os.getcwd()}/bin:/usr/bin:/usr/local/bin'
+    shell.run('make clean && make xxh3', stream=True)
 
-def teardown_module():
-    with shell.climb_git_root():
-        shell.run('make clean', stream=True)
+def teardown_module(m):
+    os.chdir(m.orig)
+    os.environ['PATH'] = m.path
+    assert m.tempdir.startswith('/tmp/')
+    shell.run('rm -rf', m.tempdir)
 
 def test_hex():
     assert 'b5ca312e51d77d64' == shell.run('echo abc | xxh3')

@@ -3,24 +3,31 @@ import re
 import random
 import string
 import shell
+from hypothesis.database import ExampleDatabase
 from hypothesis import given, settings
 from hypothesis.strategies import text, lists, composite, integers, sampled_from
-from test_util import compile_buffer_sizes, run, rm_whitespace
+from test_util import compile_buffer_sizes, run, rm_whitespace, clone_source
 
 if os.environ.get('TEST_FACTOR'):
     buffers = list(sorted(set([5, 8, 11, 17, 64, 256, 1024] + [random.randint(8, 1024) for _ in range(10)])))
 else:
     buffers = [5, 8, 11, 17, 64]
 
-def setup_module():
-    with shell.climb_git_root():
-        shell.run('make clean', stream=True)
-        compile_buffer_sizes('_csv', buffers)
-        shell.run('make _csv')
+def setup_module(m):
+    m.tempdir = clone_source()
+    m.orig = os.getcwd()
+    m.path = os.environ['PATH']
+    os.chdir(m.tempdir)
+    os.environ['PATH'] = f'{os.getcwd()}/bin:/usr/bin:/usr/local/bin'
+    shell.run('make clean', stream=True)
+    compile_buffer_sizes('_csv', buffers)
+    shell.run('make _csv')
 
-def teardown_module():
-    with shell.climb_git_root():
-        shell.run('make clean', stream=True)
+def teardown_module(m):
+    os.chdir(m.orig)
+    os.environ['PATH'] = m.path
+    assert m.tempdir.startswith('/tmp/')
+    shell.run('rm -rf', m.tempdir)
 
 def typed(text):
     return '\n'.join([f'i={x}' if re.search(r'^\d+$', x) else
@@ -49,7 +56,7 @@ def expected(csv):
     return typed('\n'.join(res)) + '\n'
 
 @given(inputs())
-@settings(max_examples=100 * int(os.environ.get('TEST_FACTOR', 1)), deadline=os.environ.get("TEST_DEADLINE", 1000 * 60))
+@settings(database=ExampleDatabase(':memory:'), max_examples=100 * int(os.environ.get('TEST_FACTOR', 1)), deadline=os.environ.get("TEST_DEADLINE", 1000 * 60))
 def test_props(arg):
     cmd, csv = arg
     result = expected(csv)

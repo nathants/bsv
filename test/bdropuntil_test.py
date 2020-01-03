@@ -1,18 +1,24 @@
 import os
 import string
 import shell
+from hypothesis.database import ExampleDatabase
 from hypothesis import given, settings
 from hypothesis.strategies import text, lists, composite, integers, randoms, floats
-from test_util import run
+from test_util import run, clone_source
 
-def setup_module():
-    with shell.climb_git_root():
-        shell.run('make clean', stream=True)
-        shell.run('make bsv csv bsort bdropuntil', stream=True)
+def setup_module(m):
+    m.tempdir = clone_source()
+    m.orig = os.getcwd()
+    m.path = os.environ['PATH']
+    os.chdir(m.tempdir)
+    os.environ['PATH'] = f'{os.getcwd()}/bin:/usr/bin:/usr/local/bin'
+    shell.run('make clean && make bsv csv bsort bdropuntil', stream=True)
 
-def teardown_module():
-    with shell.climb_git_root():
-        shell.run('make clean', stream=True)
+def teardown_module(m):
+    os.chdir(m.orig)
+    os.environ['PATH'] = m.path
+    assert m.tempdir.startswith('/tmp/')
+    shell.run('rm -rf', m.tempdir)
 
 def partition(r, n, x):
     res = []
@@ -77,43 +83,43 @@ def expected(value, csv):
     return '\n'.join(res) + '\n'
 
 @given(inputs())
-@settings(max_examples=100 * int(os.environ.get('TEST_FACTOR', 1)), deadline=os.environ.get("TEST_DEADLINE", 1000 * 60))
+@settings(database=ExampleDatabase(':memory:'), max_examples=100 * int(os.environ.get('TEST_FACTOR', 1)), deadline=os.environ.get("TEST_DEADLINE", 1000 * 60))
 def test_props(args):
     value, csv = args
     result = expected(value, csv)
-    assert result == run(csv, f'bin/bsv | bin/bsort | bin/bdropuntil "{value}" | bin/csv')
+    assert result == run(csv, f'bsv | bsort | bdropuntil "{value}" | bin/csv')
 
 def test_example1():
     value, csv = 'g', 'a\nb\nc\nd\ne\nf\ng\nh\n'
     result = expected(value, csv)
-    assert result == run(csv, f'bin/bsv 2>/dev/null | bin/bsort | bin/bdropuntil "{value}" | bin/csv 2>/dev/null')
+    assert result == run(csv, f'bsv 2>/dev/null | bsort | bdropuntil "{value}" | bin/csv 2>/dev/null')
 
 def test_example2():
     value, csv = 'a', 'a\n'
     result = expected(value, csv)
-    assert result == run(csv, f'bin/bsv 2>/dev/null | bin/bsort | bin/bdropuntil "{value}" | bin/csv 2>/dev/null')
+    assert result == run(csv, f'bsv 2>/dev/null | bsort | bdropuntil "{value}" | bin/csv 2>/dev/null')
 
 def test_example3():
     value, csv = 'ga', 'a\nb\nc\nddd\neee\nf\nga\n'
     result = expected(value, csv)
-    assert result == run(csv, f'bin/bsv 2>/dev/null | bin/bsort | bin/bdropuntil "{value}" | bin/csv 2>/dev/null')
+    assert result == run(csv, f'bsv 2>/dev/null | bsort | bdropuntil "{value}" | bin/csv 2>/dev/null')
 
 def test_example4():
     value, csv = 'b', 'a\na\na\nb\n'
     result = expected(value, csv)
-    assert result == run(csv, f'bin/bsv 2>/dev/null | bin/bsort | bin/bdropuntil "{value}" | bin/csv 2>/dev/null')
+    assert result == run(csv, f'bsv 2>/dev/null | bsort | bdropuntil "{value}" | bin/csv 2>/dev/null')
 
 def test_example5():
     value, csv = '3', '5\n4\n3\n2\n1\n'
     result = expected(value, csv)
-    assert result == run(csv, f'bin/bsv 2>/dev/null | bin/bsort | bin/bdropuntil "{value}" | bin/csv 2>/dev/null')
+    assert result == run(csv, f'bsv 2>/dev/null | bsort | bdropuntil "{value}" | bin/csv 2>/dev/null')
 
 def test_example6():
     value, csv = '10000', '20,a\n10000,a\n'
     result = expected(value, csv)
-    assert result == run(csv, f'bin/bsv 2>/dev/null | bin/bsort | bin/bdropuntil "{value}" | bin/csv 2>/dev/null')
+    assert result == run(csv, f'bsv 2>/dev/null | bsort | bdropuntil "{value}" | bin/csv 2>/dev/null')
 
 def test_example7():
     value, csv = '1', '0,a\n1,a\n'
     result = expected(value, csv)
-    assert result == run(csv, f'bin/bsv 2>/dev/null | bin/bsort | bin/bdropuntil "{value}" | bin/csv 2>/dev/null')
+    assert result == run(csv, f'bsv 2>/dev/null | bsort | bdropuntil "{value}" | bin/csv 2>/dev/null')

@@ -24,6 +24,7 @@
 
 int main(int argc, const char **argv) {
     HELP();
+    SIGPIPE_HANDLER();
     LOAD_DUMP_INIT();
     LOAD_NEW(new);
     char *f;

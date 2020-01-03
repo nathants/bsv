@@ -3,14 +3,17 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "util.h"
 
 void showusage() {
-    fprintf(stderr, "\nusage: $ gen-csv NUM_COLUMNS\n");
+    fprintf(stderr, "\nusage: $ gen-csv NUM_COLUMNS NUM_ROWS\n");
     exit(1);
 }
 
+
 int main(int argc, const char **argv) {
-    if (argc < 2)
+    SIGPIPE_HANDLER();
+    if (argc < 3)
         showusage();
     int num_columns = atoi(argv[1]);
     long long num_rows = atol(argv[2]);

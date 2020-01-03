@@ -30,6 +30,7 @@
 
 int main(int argc, const char **argv) {
     HELP();
+    SIGPIPE_HANDLER();
     CSV_INIT();
     FILE *files[1] = {stdout};
     int csv_size;

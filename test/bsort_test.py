@@ -2,17 +2,24 @@ import pytest
 import os
 import string
 import shell
+from hypothesis.database import ExampleDatabase
 from hypothesis import given, settings
 from hypothesis.strategies import text, lists, composite, integers, randoms
-from test_util import run, rm_whitespace
+from test_util import run, rm_whitespace, clone_source
 
-def setup_module():
-    with shell.climb_git_root():
-        shell.run('make clean && make bsv csv bsort', stream=True)
+def setup_module(m):
+    m.tempdir = clone_source()
+    m.orig = os.getcwd()
+    m.path = os.environ['PATH']
+    os.chdir(m.tempdir)
+    os.environ['PATH'] = f'{os.getcwd()}/bin:/usr/bin:/usr/local/bin'
+    shell.run('make clean && make bsv csv bsort', stream=True)
 
-def teardown_module():
-    with shell.climb_git_root():
-        shell.run('make clean', stream=True)
+def teardown_module(m):
+    os.chdir(m.orig)
+    os.environ['PATH'] = m.path
+    assert m.tempdir.startswith('/tmp/')
+    shell.run('rm -rf', m.tempdir)
 
 @composite
 def inputs(draw):
@@ -29,19 +36,19 @@ def expected(csv):
     return '\n'.join(xs) + '\n'
 
 @given(inputs())
-@settings(max_examples=100 * int(os.environ.get('TEST_FACTOR', 1)), deadline=os.environ.get("TEST_DEADLINE", 1000 * 60))
+@settings(database=ExampleDatabase(':memory:'), max_examples=100 * int(os.environ.get('TEST_FACTOR', 1)), deadline=os.environ.get("TEST_DEADLINE", 1000 * 60))
 def test_props(csv):
     result = expected(csv)
     if result:
-        assert result == run(csv, f'bin/bsv | bin/bsort | bin/csv')
+        assert result == run(csv, f'bsv | bsort | bin/csv')
     else:
         with pytest.raises(AssertionError):
-            run(csv, f'bin/bsv | bin/bsort | bin/csv')
+            run(csv, f'bsv | bsort | bin/csv')
 
 @given(inputs())
-@settings(max_examples=100 * int(os.environ.get('TEST_FACTOR', 1)), deadline=os.environ.get("TEST_DEADLINE", 1000 * 60))
+@settings(database=ExampleDatabase(':memory:'), max_examples=100 * int(os.environ.get('TEST_FACTOR', 1)), deadline=os.environ.get("TEST_DEADLINE", 1000 * 60))
 def test_props_compatability(csv):
-    assert run(csv, f'LC_ALL=C sort') == run(csv, f'bin/bsv | bin/bsort | bin/csv')
+    assert run(csv, f'LC_ALL=C sort') == run(csv, f'bsv | bsort | bin/csv')
 
 def expected_numeric(csv):
     xs = csv.splitlines()
@@ -60,14 +67,14 @@ def inputs_numeric(draw):
     return csv
 
 @given(inputs_numeric())
-@settings(max_examples=100 * int(os.environ.get('TEST_FACTOR', 1)), deadline=os.environ.get("TEST_DEADLINE", 1000 * 60))
+@settings(database=ExampleDatabase(':memory:'), max_examples=100 * int(os.environ.get('TEST_FACTOR', 1)), deadline=os.environ.get("TEST_DEADLINE", 1000 * 60))
 def test_props_numeric(csv):
     result = expected_numeric(csv)
     if result:
-        assert result == run(csv, f'bin/bsv | bin/bsort | bin/csv')
+        assert result == run(csv, f'bsv | bsort | bin/csv')
     else:
         with pytest.raises(AssertionError):
-            run(csv, f'bin/bsv | bin/bsort | bin/csv')
+            run(csv, f'bsv | bsort | bin/csv')
 
 def expected_mixed(csv):
     xs = csv.splitlines()
@@ -94,14 +101,14 @@ def inputs_mixed(draw):
     return '\n'.join(','.join(x + y) for x, y in lines)
 
 @given(inputs_mixed())
-@settings(max_examples=100 * int(os.environ.get('TEST_FACTOR', 1)), deadline=os.environ.get("TEST_DEADLINE", 1000 * 60))
+@settings(database=ExampleDatabase(':memory:'), max_examples=100 * int(os.environ.get('TEST_FACTOR', 1)), deadline=os.environ.get("TEST_DEADLINE", 1000 * 60))
 def test_props_mixed(csv):
     result = expected_mixed(csv)
     if result:
-        assert result == run(csv, f'bin/bsv | bin/bsort | bin/csv')
+        assert result == run(csv, f'bsv | bsort | bin/csv')
     else:
         with pytest.raises(AssertionError):
-            run(csv, f'bin/bsv | bin/bsort | bin/csv')
+            run(csv, f'bsv | bsort | bin/csv')
 
 def test_compatability():
     stdin = """
@@ -114,4 +121,4 @@ def test_compatability():
     b
     c
     """
-    assert rm_whitespace(stdout) + '\n' == run(rm_whitespace(stdin), 'bin/bsv | bin/bsort | bin/csv')
+    assert rm_whitespace(stdout) + '\n' == run(rm_whitespace(stdin), 'bsv | bsort | bin/csv')

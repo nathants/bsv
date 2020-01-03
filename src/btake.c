@@ -7,6 +7,7 @@
 
 int main(int argc, const char **argv) {
     HELP();
+    SIGPIPE_HANDLER();
     LOAD_DUMP_INIT();
     CMP_INIT();
     PARSE_INIT();

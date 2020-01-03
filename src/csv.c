@@ -8,6 +8,7 @@
 
 int main(int argc, const char **argv) {
     HELP();
+    SIGPIPE_HANDLER();
     FILE *load_files[1] = {stdin};
     FILE *write_files[1] = {stdout};
     char buffer[BUFFER_SIZE];

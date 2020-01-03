@@ -3,26 +3,34 @@ import struct
 import os
 import string
 import random
+from hypothesis.database import ExampleDatabase
 from hypothesis import given, settings
 from hypothesis.strategies import text, lists, composite, integers, sampled_from, randoms
-from test_util import runb, run, rm_whitespace, rm_whitespace, compile_buffer_sizes
+from test_util import runb, run, rm_whitespace, rm_whitespace, compile_buffer_sizes, clone_source
 
 if os.environ.get('TEST_FACTOR'):
     buffers = list(sorted(set([12, 17, 64, 256, 1024] + [random.randint(8, 1024) for _ in range(10)])))
 else:
     buffers = [12, 17, 64]
 
-def setup_module():
-    with shell.climb_git_root():
-        shell.run('make clean', stream=True)
-        compile_buffer_sizes('csv', buffers)
-        compile_buffer_sizes('bsv', buffers)
-        shell.run('make csv')
-        shell.run('make bsv')
 
-def teardown_module():
-    with shell.climb_git_root():
-        shell.run('make clean', stream=True)
+def setup_module(m):
+    m.tempdir = clone_source()
+    m.orig = os.getcwd()
+    m.path = os.environ['PATH']
+    os.chdir(m.tempdir)
+    os.environ['PATH'] = f'{os.getcwd()}/bin:/usr/bin:/usr/local/bin'
+    shell.run('make clean', stream=True)
+    compile_buffer_sizes('csv', buffers)
+    compile_buffer_sizes('bsv', buffers)
+    shell.run('make csv')
+    shell.run('make bsv')
+
+def teardown_module(m):
+    os.chdir(m.orig)
+    os.environ['PATH'] = m.path
+    assert m.tempdir.startswith('/tmp/')
+    shell.run('rm -rf', m.tempdir)
 
 def partition(r, n, x):
     res = []
@@ -50,14 +58,14 @@ def expected(text):
     return '\n'.join(','.join('%d' % int(y) if y.isdigit() else y for y in x.split(',')) for x in text.splitlines())
 
 @given(inputs())
-@settings(max_examples=100 * int(os.environ.get('TEST_FACTOR', 1)), deadline=os.environ.get("TEST_DEADLINE", 1000 * 60))
+@settings(database=ExampleDatabase(':memory:'), max_examples=100 * int(os.environ.get('TEST_FACTOR', 1)), deadline=os.environ.get("TEST_DEADLINE", 1000 * 60))
 def test_props(arg):
     buffers, csv = arg
-    assert expected(csv) + '\n' == run(csv, f'bin/bsv.{buffers} | bin/csv.{buffers}')
+    assert expected(csv) + '\n' == run(csv, f'bsv.{buffers} | bin/csv.{buffers}')
 
 def test_example1():
     csv = ',\n'
-    val = runb(csv, 'bin/bsv')
+    val = runb(csv, 'bsv')
     bsv = b''.join([
         struct.pack('i', 8), # uint32 num bytes in this chunk,
         struct.pack('H', 1), # uint16 max, see load.h
@@ -67,14 +75,14 @@ def test_example1():
         struct.pack('H', 0), # uint16 sizes, see load.h
     ])
     assert bsv == val
-    assert csv == run(csv, f'bin/bsv | bin/csv')
+    assert csv == run(csv, f'bsv | bin/csv')
 
 def test_max_bytes():
     stdin = 'a' * (2**16 - 1)
-    assert len(stdin.strip()) == len(run(stdin, 'bin/bsv | bin/csv').strip())
+    assert len(stdin.strip()) == len(run(stdin, 'bsv | bin/csv').strip())
     stdin = 'a' * (2**16)
     with shell.climb_git_root():
-        res = shell.run('bin/bsv', stdin=stdin, warn=True)
+        res = shell.run('bsv', stdin=stdin, warn=True)
     assert 'fatal: cannot have columns with more than 2**16 bytes, column: 0, size: 65536, content: aaaaaaaaaa...' == res['stderr']
     assert res['exitcode'] == 1
 
@@ -82,7 +90,7 @@ def test_encoding():
     stdin = """
     a
     """
-    val = runb(rm_whitespace(stdin), 'bin/bsv')
+    val = runb(rm_whitespace(stdin), 'bsv')
     bsv = b''.join([
         # chunk header
         struct.pack('i', 6), # uint32 num bytes in this chunk,
@@ -93,12 +101,12 @@ def test_encoding():
         b'a',
     ])
     assert bsv == val
-    assert rm_whitespace(stdin) + '\n' == run(rm_whitespace(stdin), 'bin/bsv | bin/csv')
+    assert rm_whitespace(stdin) + '\n' == run(rm_whitespace(stdin), 'bsv | bin/csv')
 
     stdin = """
     a,bb,ccc
     """
-    val = runb(rm_whitespace(stdin), 'bin/bsv')
+    val = runb(rm_whitespace(stdin), 'bsv')
     bsv = b''.join([
         # chunk header
         struct.pack('i', 17), # uint32 num bytes in this chunk,
@@ -113,12 +121,12 @@ def test_encoding():
         b'abbccc',
     ])
     assert bsv == val
-    assert rm_whitespace(stdin) + '\n' == run(rm_whitespace(stdin), 'bin/bsv | bin/csv')
+    assert rm_whitespace(stdin) + '\n' == run(rm_whitespace(stdin), 'bsv | bin/csv')
 
     stdin = """
     a,12,1.500000
     """
-    val = runb(rm_whitespace(stdin), 'bin/bsv')
+    val = runb(rm_whitespace(stdin), 'bsv')
     bsv = b''.join([
         # chunk header
         struct.pack('i', 20), # uint32 num bytes in this chunk,
@@ -133,12 +141,12 @@ def test_encoding():
         b'a', struct.pack('i', 12), struct.pack('f', 1.5),
     ])
     assert bsv == val
-    assert rm_whitespace(stdin) + '\n' == run(rm_whitespace(stdin), 'bin/bsv | bin/csv')
+    assert rm_whitespace(stdin) + '\n' == run(rm_whitespace(stdin), 'bsv | bin/csv')
 
     stdin = """
     a
     """
-    val = run(rm_whitespace(stdin), 'bin/bsv')
+    val = run(rm_whitespace(stdin), 'bsv')
     val = bytes(val, 'utf-8')
     bsv = b''.join([
         # chunk header
@@ -150,7 +158,7 @@ def test_encoding():
         b'a',
     ])
     assert bsv == val
-    assert rm_whitespace(stdin) + '\n' == run(rm_whitespace(stdin), 'bin/bsv | bin/csv')
+    assert rm_whitespace(stdin) + '\n' == run(rm_whitespace(stdin), 'bsv | bin/csv')
 
     stdin = '\n'
-    assert rm_whitespace(stdin) + '\n' == run(rm_whitespace(stdin), 'bin/bsv | bin/csv')
+    assert rm_whitespace(stdin) + '\n' == run(rm_whitespace(stdin), 'bsv | bin/csv')

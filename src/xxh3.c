@@ -11,6 +11,7 @@
 
 int main(int argc, const char **argv) {
     HELP();
+    SIGPIPE_HANDLER();
     FILE *read_files[1] = {stdin};
     READ_INIT(read_files, 1);
     FILE *write_files[1] = {stdout};

@@ -19,6 +19,7 @@
 
 int main(int argc, const char **argv) {
     HELP();
+    SIGPIPE_HANDLER();
     unsigned long long val = 0;
     int offset;
     int i;

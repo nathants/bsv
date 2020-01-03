@@ -7,6 +7,7 @@
 
 int main(int argc, const char **argv) {
     HELP();
+    SIGPIPE_HANDLER();
     LOAD_DUMP_INIT();
     bsv_int_t val = 0;
 

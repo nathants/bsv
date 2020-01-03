@@ -1,18 +1,24 @@
 import os
 import shell
-from hypothesis import given, settings
 import string
-from hypothesis.strategies import lists, composite, integers, randoms, sampled_from, floats, text
-from test_util import run
+from hypothesis.database import ExampleDatabase
+from hypothesis import given, settings
+from hypothesis.strategies import lists, composite, integers, randoms, floats, text
+from test_util import run, clone_source
 
-def setup_module():
-    with shell.climb_git_root():
-        shell.run('make clean', stream=True)
-        shell.run('make bsv csv bsort btakeuntil', stream=True)
+def setup_module(m):
+    m.tempdir = clone_source()
+    m.orig = os.getcwd()
+    m.path = os.environ['PATH']
+    os.chdir(m.tempdir)
+    os.environ['PATH'] = f'{os.getcwd()}/bin:/usr/bin:/usr/local/bin'
+    shell.run('make clean && make bsv csv bsort btakeuntil', stream=True)
 
-def teardown_module():
-    with shell.climb_git_root():
-        shell.run('make clean', stream=True)
+def teardown_module(m):
+    os.chdir(m.orig)
+    os.environ['PATH'] = m.path
+    assert m.tempdir.startswith('/tmp/')
+    shell.run('rm -rf', m.tempdir)
 
 with open('/usr/share/dict/words') as f:
     words = f.read().splitlines()
@@ -64,8 +70,8 @@ def expected(value, csv):
     return '\n'.join(res) + '\n'
 
 @given(inputs())
-@settings(max_examples=100 * int(os.environ.get('TEST_FACTOR', 1)), deadline=os.environ.get("TEST_DEADLINE", 1000 * 60))
+@settings(database=ExampleDatabase(':memory:'), max_examples=100 * int(os.environ.get('TEST_FACTOR', 1)), deadline=os.environ.get("TEST_DEADLINE", 1000 * 60))
 def test_props(args):
     value, csv = args
     result = expected(value, csv)
-    assert result == run(csv, f'bin/bsv | bin/bsort | bin/btakeuntil "{value}" | bin/csv')
+    assert result == run(csv, f'bsv | bsort | btakeuntil "{value}" | bin/csv')

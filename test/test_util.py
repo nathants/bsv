@@ -1,15 +1,24 @@
 import hashlib
+import contextlib
 import shell
 import os
 
 with shell.climb_git_root():
     max_columns = int(shell.run('cat util/util.h | grep "define MAX_COLUMNS"').split()[-1])
 
+def clone_source():
+    with shell.climb_git_root():
+        orig = os.getcwd()
+        with shell.tempdir(cleanup=False):
+            shell.run(f"rsync -avhc {orig}/ . --exclude '.git' --exclude '.tox' --exclude '.backups' --exclude '__pycache__'")
+            shell.run('mkdir .git')
+            return os.getcwd()
+
 def run(stdin, *args):
     with shell.climb_git_root():
         tmp = os.environ.get('TMP_DIR', '/tmp').rstrip('/')
-        stdinpath = '%s/%s.stdin' % (tmp, hashlib.md5(__file__.encode('ascii')).hexdigest())
-        stdoutpath = '%s/%s.stdout' % (tmp, hashlib.md5(__file__.encode('ascii')).hexdigest())
+        stdinpath = 'stdin'
+        stdoutpath = 'stdout'
         with open(stdinpath, 'w') as f:
             f.write(stdin)
         shell.run(*(('set -o pipefail; cat', stdinpath, '|') + args + ('>', stdoutpath)), stream=True)
@@ -19,8 +28,8 @@ def run(stdin, *args):
 def runb(stdin, *args):
     with shell.climb_git_root():
         tmp = os.environ.get('TMP_DIR', '/tmp').rstrip('/')
-        stdinpath = '%s/%s.stdin' % (tmp, hashlib.md5(__file__.encode('ascii')).hexdigest())
-        stdoutpath = '%s/%s.stdout' % (tmp, hashlib.md5(__file__.encode('ascii')).hexdigest())
+        stdinpath = 'stdin'
+        stdoutpath = 'stdout'
         with open(stdinpath, 'w') as f:
             f.write(stdin)
         shell.run(*(('set -o pipefail; cat', stdinpath, '|') + args + ('>', stdoutpath)), stream=True)
