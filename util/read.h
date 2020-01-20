@@ -53,7 +53,7 @@
         read_bytes = size;                                                                                                          \
         ASSERT(r_bytes_left >= 0, "fatal: negative r_bytes_left: %d\n", r_bytes_left);                                              \
         if (r_bytes_left == 0) { /* ---------------------------------------------------- time to read the next chunk */             \
-            r_bytes = fread_unlocked(&r_chunk_size[i], 1, sizeof(int), r_files[i]); /* - read chunk header */                       \
+            r_bytes = fread_unlocked(&r_chunk_size[i], 1, sizeof(int), r_files[i]); /* - read chunk header to get size of chunk */  \
             if (r_bytes != sizeof(int)) { /* ------------------------------------------- EOF so there is no next chunk */           \
                 ASSERT(!ferror(r_files[i]), "fatal: couldnt read input\n");                                                         \
                 r_chunk_size[i] = r_offset[i] = read_bytes = 0;                                                                     \

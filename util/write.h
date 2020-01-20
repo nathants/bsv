@@ -28,13 +28,13 @@
             WRITE_FLUSH(i);                                                         \
     } while (0)
 
-#define WRITE_FLUSH(i)                                      \
-    do {                                                    \
-        if (w_offset[i]) {                                  \
-            FWRITE(&w_offset[i], sizeof(int), w_files[i]);  \
-            FWRITE(w_buffer[i], w_offset[i], w_files[i]);   \
-            w_offset[i] = 0;                                \
-        }                                                   \
+#define WRITE_FLUSH(i)                                                                                  \
+    do {                                                                                                \
+        if (w_offset[i]) {                                                                              \
+            FWRITE(&w_offset[i], sizeof(int), w_files[i]); /* write chunk header with size of chunk */  \
+            FWRITE(w_buffer[i], w_offset[i], w_files[i]);  /* write chunk */                            \
+            w_offset[i] = 0;                                                                            \
+        }                                                                                               \
     } while (0)
 
 #endif
