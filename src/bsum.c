@@ -3,7 +3,7 @@
 #define NUM_ARGS 1
 #define DESCRIPTION "integer sum numbers in the first column and output a single value\n\n"
 #define USAGE "... | bsum\n\n"
-#define EXAMPLE ">> echo '\n1\n2\n3\n4.1\n' | bsv | bsum | csv\n10\n\n"
+#define EXAMPLE ">> echo -e '1\n2\n3\n4.1\n' | bsv | bsum | csv\n10\n\n"
 
 int main(int argc, const char **argv) {
     HELP();
@@ -15,10 +15,15 @@ int main(int argc, const char **argv) {
         LOAD(0);
         if (load_stop)
             break;
-        if (load_types[0] == BSV_INT)
-            val += CHAR_TO_INT(load_columns[0]);
-        else if (load_types[0] == BSV_FLOAT)
-            val += CHAR_TO_FLOAT(load_columns[0]);
+        switch (load_types[0]) {
+            case BSV_INT:
+                val += CHAR_TO_INT(load_columns[0]);
+                break;
+            case BSV_FLOAT:
+                val += CHAR_TO_FLOAT(load_columns[0]);
+                break;
+            case BSV_CHAR:  ASSERT(0, "fatal: you cannot sum chars\n"); break;
+        }
     }
 
     load_max = 0;
