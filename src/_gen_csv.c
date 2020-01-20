@@ -32,6 +32,7 @@ int main(int argc, const char **argv) {
     char *word;
     char *buffer_ptr;
     FILE *dict = fopen("/usr/share/dict/words", "rb");
+    ASSERT(dict != NULL, "failed to open: /usr/share/dict/words\n")
     int num_read = fread(buffer, sizeof(char), sizeof(buffer), dict);
     if (!num_read) { fprintf(stderr, "error: didnt read any bytes\n"); exit(1); }
     buffer_ptr = buffer;
