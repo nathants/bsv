@@ -16,6 +16,11 @@ def teardown_module(m):
     assert m.tempdir.startswith('/tmp/')
     shell.run('rm -rf', m.tempdir)
 
+def test_numeric():
+    with shell.tempdir():
+        shell.run('echo a,1,2.0 | bsv > data.bsv')
+        assert 'a,1,2.000000' == shell.run('bcat data.bsv')
+
 def test_basic():
     with shell.tempdir():
         shell.run('for char in a a b b c c; do echo $char | bsv >> $char; done')

@@ -31,6 +31,7 @@ int main(int argc, const char **argv) {
     int head = 0;
     int i, j;
     int ran = 0;
+    char buffer[1024];
     unsigned long long line;
 
     while (1) {
@@ -72,6 +73,21 @@ int main(int argc, const char **argv) {
                 WRITE(":", 1, 0);
             }
             for (j = 0; j <= load_max; j++) {
+                switch (load_types[j]) {
+                    case BSV_INT:
+                        sprintf(buffer, "%d", CHAR_TO_INT(load_columns[j]));
+                        load_columns[j] = buffer;
+                        load_sizes[j] = strlen(buffer);
+                        break;
+                    case BSV_FLOAT:
+                        sprintf(buffer, "%f", CHAR_TO_FLOAT(load_columns[j]));
+                        load_columns[j] = buffer;
+                        load_sizes[j] = strlen(buffer);
+                        break;
+                    case BSV_CHAR:
+                        break;
+                }
+
                 WRITE(load_columns[j], load_sizes[j], 0);
                 if (j != load_max)
                     WRITE(",", 1, 0);
