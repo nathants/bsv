@@ -2,6 +2,7 @@
 #define UTIL_H
 
 #include <stdint.h>
+#include <limits.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -96,6 +97,7 @@ void _sigpipe_handler(int signum) {
                sizeof(short)          == 2 &&                                                           \
                sizeof(unsigned short) == 2,                                                             \
                "fatal: invariants are varying!\n");                                                     \
+        ASSERT(BUFFER_SIZE < INT_MAX, "fatal: buffer size must be less than INT_MAX\n");                \
     } while (0)
 
 #define NUMCMP(result, a, b)                    \
