@@ -21,12 +21,15 @@ int main(int argc, const char **argv) {
         if (load_stop)
             break;
         for (i = 0; i <= load_max; i++) {
-            if (load_types[i] == BSV_INT) {
-                load_sizes[i] = sprintf(buffer, "%ld", CHAR_TO_INT32(load_columns[i]));
-                load_columns[i] = buffer;
-            } else if (load_types[i] == BSV_FLOAT) {
-                load_sizes[i] = sprintf(buffer, "%lf", CHAR_TO_FLOAT(load_columns[i]));
-                load_columns[i] = buffer;
+            switch (load_types[i]) {
+                case BSV_INT:
+                    load_sizes[i] = sprintf(buffer, "%ld", CHAR_TO_INT32(load_columns[i]));
+                    load_columns[i] = buffer;
+                    break;
+                case BSV_FLOAT:
+                    load_sizes[i] = sprintf(buffer, "%lf", CHAR_TO_FLOAT(load_columns[i]));
+                    load_columns[i] = buffer;
+                    break;
             }
             WRITE(load_columns[i], load_sizes[i], 0);
             if (i != load_max)
