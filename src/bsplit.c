@@ -12,8 +12,8 @@ int main(int argc, const char **argv) {
     SIGPIPE_HANDLER();
     FILE *read_files[1] = {stdin};
     READ_INIT(read_files, 1);
-    int filename_set = 0;
-    int i = 0;
+    int32_t filename_set = 0;
+    int32_t i = 0;
     char hex[16];
     char filename[27];
     uint64_t hash;
@@ -28,7 +28,7 @@ int main(int argc, const char **argv) {
         if (filename_set == 0) {
             filename_set = 1;
             hash = XXH3_64bits(r_buffer[0], r_chunk_size[0]);
-            sprintf(hex, "%08X%08X", (uint32_t)(hash>>32), (uint32_t)hash);
+            sprintf(hex, "%08X%08X", (int32_t)(hash>>32), (int32_t)hash);
         }
 
         /* suffix in incrementing with 10 padded zeroes */
@@ -38,7 +38,7 @@ int main(int argc, const char **argv) {
         /* dump the chunk */
         FILE *f = fopen(filename, "wb");
         ASSERT(f, "fatal: failed to open: %s\n", filename);
-        FWRITE(&r_chunk_size[0], sizeof(int), f);
+        FWRITE(&r_chunk_size[0], sizeof(int32_t), f);
         FWRITE(r_buffer[0], r_chunk_size[0], f);
         ASSERT(fclose(f) != EOF, "fatal: failed to close files\n");
 

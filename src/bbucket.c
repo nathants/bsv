@@ -13,8 +13,8 @@ int main(int argc, const char **argv) {
     SIGPIPE_HANDLER();
     LOAD_DUMP_INIT();
     char hash_str[64];
-    int mod;
-    int num_buckets;
+    int32_t mod;
+    int32_t num_buckets;
     uint64_t hash;
 
     ASSERT(strlen(argv[1]) <= 8, "NUM_BUCKETS must be less than 1e8, got: %s\n", argv[1]);
@@ -30,8 +30,8 @@ int main(int argc, const char **argv) {
             mod = hash % num_buckets;
             if(mod < 0)
                 mod += num_buckets;
-            memmove(load_types + 1, load_types, (load_max + 1) * sizeof(short));
-            memmove(load_sizes + 1, load_sizes, (load_max + 1) * sizeof(int));
+            memmove(load_types + 1, load_types, (load_max + 1) * sizeof(int32_t));
+            memmove(load_sizes + 1, load_sizes, (load_max + 1) * sizeof(int32_t));
             memmove(load_columns + 1, load_columns, (load_max + 1) * sizeof(char *));
             load_types[0] = BSV_INT;
             load_sizes[0] = sizeof(bsv_int_t);

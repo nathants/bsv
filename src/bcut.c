@@ -29,11 +29,11 @@ int main(int argc, const char **argv) {
     LOAD_NEW(new);
     char *f;
     char *fs;
-    int i;
-    int add_delimeter;
-    int field;
-    int num_fields=0;
-    int field_nums[MAX_COLUMNS];
+    int32_t i;
+    int32_t add_delimeter;
+    int32_t field;
+    int32_t num_fields=0;
+    int32_t field_nums[MAX_COLUMNS];
 
     fs = argv[1];
     while ((f = strsep(&fs, ","))) {

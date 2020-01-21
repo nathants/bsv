@@ -28,7 +28,7 @@ static int isdigits(const char *s, const int size) {
         if (max > 0 || sizes[0]) {                                                                          \
             ASSERT(max, "error: line with only one columns: %s\n", columns[0]);                             \
             ASSERT(types[0] == BSV_INT, "error: first columns not a digit: %.*s\n", sizes[0], columns[0]);  \
-            file_num = CHAR_TO_INT(columns[0]);                                                             \
+            file_num = CHAR_TO_INT32(columns[0]);                                                             \
             ASSERT(file_num < num_buckets, "error: columns higher than num_buckets: %d\n", file_num);       \
             size -= sizes[0];                                                                               \
             max -= 1;                                                                                       \
@@ -46,9 +46,9 @@ int main(int argc, const char **argv) {
     char *prefix;
     char num_buckets_str[16];
     char path[1024];
-    int i, empty;
-    int file_num;
-    int num_buckets;
+    int32_t i, empty;
+    int32_t file_num;
+    int32_t num_buckets;
     FILE *file;
 
     if (strlen(argv[1]) > 8) { fprintf(stderr, "NUM_BUCKETS must be less than 1e8, got: %s\n", argv[1]); exit(1); }
@@ -59,7 +59,7 @@ int main(int argc, const char **argv) {
     FILE *files[num_buckets];
     sprintf(num_buckets_str, "%d", num_buckets) ;
     for (i = 0; i < num_buckets; i++) {
-        sprintf(path, "%s%0*d", prefix, (int)strlen(num_buckets_str), i);
+        sprintf(path, "%s%0*d", prefix, (int32_t)strlen(num_buckets_str), i);
         file = fopen(path, "ab");
         ASSERT(file, "fatal: failed to open: %s\n", path);
         files[i] = file;
@@ -80,7 +80,7 @@ int main(int argc, const char **argv) {
     }
 
     for (i = 0; i < num_buckets; i++) {
-        sprintf(path, "%s%0*d", prefix, (int)strlen(num_buckets_str), i);
+        sprintf(path, "%s%0*d", prefix, (int32_t)strlen(num_buckets_str), i);
         empty = empty_file(path);
         if (empty == 1) {
             ASSERT(remove(path) == 0, "fatal: failed to delete file: %s\n", path);

@@ -12,8 +12,8 @@ int main(int argc, const char **argv) {
     CMP_INIT();
     PARSE_INIT();
     PARSE(argv[1]);
-    int done_skipping = 0;
-    int matched = 0;
+    int32_t done_skipping = 0;
+    int32_t matched = 0;
 
     while (1) {
         LOAD(0);

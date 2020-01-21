@@ -14,15 +14,15 @@ int main(int argc, const char **argv) {
     char buffer[BUFFER_SIZE];
     LOAD_INIT(load_files, 1);
     WRITE_INIT(write_files, 1);
-    int i;
-    int ran = 0;
+    int32_t i;
+    int32_t ran = 0;
     while (1) {
         LOAD(0);
         if (load_stop)
             break;
         for (i = 0; i <= load_max; i++) {
             if (load_types[i] == BSV_INT) {
-                load_sizes[i] = sprintf(buffer, "%ld", CHAR_TO_INT(load_columns[i]));
+                load_sizes[i] = sprintf(buffer, "%ld", CHAR_TO_INT32(load_columns[i]));
                 load_columns[i] = buffer;
             } else if (load_types[i] == BSV_FLOAT) {
                 load_sizes[i] = sprintf(buffer, "%lf", CHAR_TO_FLOAT(load_columns[i]));

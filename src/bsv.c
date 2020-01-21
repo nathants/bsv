@@ -33,11 +33,11 @@ int main(int argc, const char **argv) {
     SIGPIPE_HANDLER();
     CSV_INIT();
     FILE *files[1] = {stdout};
-    int csv_size;
-    int csv_types[MAX_COLUMNS];
+    int32_t csv_size;
+    int32_t csv_types[MAX_COLUMNS];
     bsv_int_t csv_ints[MAX_COLUMNS];
     bsv_float_t csv_floats[MAX_COLUMNS];
-    int i;
+    int32_t i;
     char csv_char;
     DUMP_INIT(files, 1);
     while (1) {

@@ -27,12 +27,12 @@ static int isdigits(const char *s) {
 int main(int argc, const char **argv) {
     HELP();
     SIGPIPE_HANDLER();
-    int prefix_mode = 0;
-    int head = 0;
-    int i, j;
-    int ran = 0;
-    char buffer[1024];
-    unsigned long long line;
+    int32_t prefix_mode = 0;
+    int32_t head = 0;
+    int32_t i, j;
+    int32_t ran = 0;
+    uint8_t buffer[1024];
+    uint64_t line;
 
     while (1) {
         if (argc > 1 && strcmp(argv[1], "--prefix") == 0) {
@@ -59,7 +59,7 @@ int main(int argc, const char **argv) {
     FILE *write_files[1] = {stdout};
     WRITE_INIT(write_files, 1);
 
-    for (int i = 1; i < argc; i++) {
+    for (int32_t i = 1; i < argc; i++) {
         line = 0;
         while (1) {
             line++;
@@ -75,7 +75,7 @@ int main(int argc, const char **argv) {
             for (j = 0; j <= load_max; j++) {
                 switch (load_types[j]) {
                     case BSV_INT:
-                        sprintf(buffer, "%d", CHAR_TO_INT(load_columns[j]));
+                        sprintf(buffer, "%d", CHAR_TO_INT32(load_columns[j]));
                         load_columns[j] = buffer;
                         load_sizes[j] = strlen(buffer);
                         break;

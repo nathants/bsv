@@ -17,9 +17,9 @@ int main(int argc, const char **argv) {
     SIGPIPE_HANDLER();
     LOAD_DUMP_INIT();
     ROW_INIT();
-    int offset;
-    int i;
-    int j;
+    int32_t offset;
+    int32_t i;
+    int32_t j;
 
     kvec_t(row_t*) array;
 

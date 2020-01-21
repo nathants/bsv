@@ -15,10 +15,10 @@ int main(int argc, const char **argv) {
     SIGPIPE_HANDLER();
     if (argc < 3)
         showusage();
-    int num_columns = atoi(argv[1]);
+    int32_t num_columns = atoi(argv[1]);
     long long num_rows = atol(argv[2]);
-    int add_int = 0;
-    int add_float = 0;
+    int32_t add_int = 0;
+    int32_t add_float = 0;
     if (argc > 3) {
         if (strcmp("f", argv[3]) == 0)
             add_float = 1;
@@ -26,21 +26,21 @@ int main(int argc, const char **argv) {
             add_int = 1;
     }
     time_t t;
-    int i, j, num_words, add_delimiter;
+    int32_t i, j, num_words, add_delimiter;
     char *words[1024 * 128];
     char buffer[1024 * 1024];
     char *word;
     char *buffer_ptr;
     FILE *dict = fopen("/usr/share/dict/words", "rb");
     ASSERT(dict != NULL, "failed to open: /usr/share/dict/words\n")
-    int num_read = fread(buffer, sizeof(char), sizeof(buffer), dict);
+    int32_t num_read = fread(buffer, sizeof(char), sizeof(buffer), dict);
     if (!num_read) { fprintf(stderr, "error: didnt read any bytes\n"); exit(1); }
     buffer_ptr = buffer;
     i = 0;
     while ((word = strsep(&buffer_ptr, "\n")))
         words[i++] = word;
     num_words = i;
-    srand((unsigned) time(&t));
+    srand((int32_t) time(&t));
     i = 0;
     while (i++ < num_rows) {
         add_delimiter = 0;

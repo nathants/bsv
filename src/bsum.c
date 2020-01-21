@@ -17,7 +17,7 @@ int main(int argc, const char **argv) {
             break;
         switch (load_types[0]) {
             case BSV_INT:
-                val += CHAR_TO_INT(load_columns[0]);
+                val += CHAR_TO_INT32(load_columns[0]);
                 break;
             case BSV_FLOAT:
                 val += CHAR_TO_FLOAT(load_columns[0]);

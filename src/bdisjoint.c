@@ -29,9 +29,9 @@ int main(int argc, const char **argv) {
     HELP();
     SIGPIPE_HANDLER();
     ROW_INIT();
-    int x = 0;
-    int i, j, hits, index, num_files = argc - 2, stop = 0;
-    int hits_index[num_files];
+    int32_t x = 0;
+    int32_t i, j, hits, index, num_files = argc - 2, stop = 0;
+    int32_t hits_index[num_files];
     FILE *in_files[num_files], *out_files[num_files];
     char *suffix = argv[1], *in_path;
     char out_path[1024];
@@ -44,8 +44,8 @@ int main(int argc, const char **argv) {
     MALLOC(max_value, BUFFER_SIZE);
     for (i = 0; i < BUFFER_SIZE; i++)
         max_value[i] = 255;
-    int max_index = num_files;
-    int last_line_index = num_files + 1;
+    int32_t max_index = num_files;
+    int32_t last_line_index = num_files + 1;
 
     for (i = 0; i < num_files; i++) {
         in_path = argv[i + 2];
@@ -60,16 +60,16 @@ int main(int argc, const char **argv) {
     DUMP_INIT(out_files, num_files);
 
     row_t *rows[num_files + 2];
-    int load_stops[num_files];
-    int written[num_files];
+    int32_t load_stops[num_files];
+    int32_t written[num_files];
     for (i = 0; i < num_files; i++) {
         load_stops[i] = 0;
         written[i] = 0;
     }
 
 
-    int _sizes[1] = {0};
-    int _types[1] = {0};
+    int32_t _sizes[1] = {0};
+    int32_t _types[1] = {0};
     char **_columns;
     ROW(max_value, 0, BUFFER_SIZE, _types, _sizes);
     rows[max_index] = row;

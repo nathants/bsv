@@ -9,15 +9,15 @@
     char *read_buffer;                              \
     char *r_buffer[num_files];                      \
     char *r_last_buffer[num_files];                 \
-    int read_bytes;                                 \
-    int r_bytes_left;                               \
-    int r_bytes;                                    \
-    int r_offset[num_files];                        \
-    int r_chunk_size[num_files];                    \
-    int r_last_chunk_size[num_files];               \
-    int r_has_nexted = 0;                           \
+    int32_t read_bytes;                             \
+    int32_t r_bytes_left;                           \
+    int32_t r_bytes;                                \
+    int32_t r_offset[num_files];                    \
+    int32_t r_chunk_size[num_files];                \
+    int32_t r_last_chunk_size[num_files];           \
+    int32_t r_has_nexted = 0;                       \
     char *r_char;                                   \
-    int r_i;                                        \
+    int32_t r_i;                                    \
     for (r_i = 0; r_i < num_files; r_i++) {         \
         r_chunk_size[r_i] = BUFFER_SIZE;            \
         r_offset[r_i] = BUFFER_SIZE;                \
@@ -47,27 +47,27 @@
         r_chunk_size[i] += r_last_chunk_size[i];                                        \
     }
 
-#define READ(size, i)                                                                                                               \
-    do {                                                                                                                            \
-        r_bytes_left = r_chunk_size[i] - r_offset[i]; /* ------------------------------- bytes left in the current chunk */         \
-        read_bytes = size;                                                                                                          \
-        ASSERT(r_bytes_left >= 0, "fatal: negative r_bytes_left: %d\n", r_bytes_left);                                              \
-        if (r_bytes_left == 0) { /* ---------------------------------------------------- time to read the next chunk */             \
-            r_bytes = fread_unlocked(&r_chunk_size[i], 1, sizeof(int), r_files[i]); /* - read chunk header to get size of chunk */  \
-            if (r_bytes != sizeof(int)) { /* ------------------------------------------- EOF so there is no next chunk */           \
-                ASSERT(!ferror(r_files[i]), "fatal: couldnt read input\n");                                                         \
-                r_chunk_size[i] = r_offset[i] = read_bytes = 0;                                                                     \
-            } else {                                                                                                                \
-                FREAD(r_buffer[i], r_chunk_size[i], r_files[i]); /* -------------------- read the chunk body */                     \
-                r_offset[i] = 0; /* ---------------------------------------------------- start at the beggining of the new chunk */ \
-                r_bytes_left = r_chunk_size[i] - r_offset[i]; /* ----------------------- bytes left in the new chunk */             \
-                ASSERT(size <= r_bytes_left, "fatal: diskread, shouldnt happen, chunk sizes are known\n");                          \
-            }                                                                                                                       \
-        } else {                                                                                                                    \
-            ASSERT(size <= r_bytes_left, "fatal: ramread, shouldnt happen, chunk sizes are known\n");                               \
-        }                                                                                                                           \
-        read_buffer = r_buffer[i] + r_offset[i];                                                                                    \
-        r_offset[i] += read_bytes;                                                                                                  \
+#define READ(size, i)                                                                                                                   \
+    do {                                                                                                                                \
+        r_bytes_left = r_chunk_size[i] - r_offset[i]; /* ------------------------------- bytes left in the current chunk */             \
+        read_bytes = size;                                                                                                              \
+        ASSERT(r_bytes_left >= 0, "fatal: negative r_bytes_left: %d\n", r_bytes_left);                                                  \
+        if (r_bytes_left == 0) { /* ---------------------------------------------------- time to read the next chunk */                 \
+            r_bytes = fread_unlocked(&r_chunk_size[i], 1, sizeof(int32_t), r_files[i]); /* - read chunk header to get size of chunk */  \
+            if (r_bytes != sizeof(int32_t)) { /* ------------------------------------------- EOF so there is no next chunk */           \
+                ASSERT(!ferror(r_files[i]), "fatal: couldnt read input\n");                                                             \
+                r_chunk_size[i] = r_offset[i] = read_bytes = 0;                                                                         \
+            } else {                                                                                                                    \
+                FREAD(r_buffer[i], r_chunk_size[i], r_files[i]); /* -------------------- read the chunk body */                         \
+                r_offset[i] = 0; /* ---------------------------------------------------- start at the beggining of the new chunk */     \
+                r_bytes_left = r_chunk_size[i] - r_offset[i]; /* ----------------------- bytes left in the new chunk */                 \
+                ASSERT(size <= r_bytes_left, "fatal: diskread, shouldnt happen, chunk sizes are known\n");                              \
+            }                                                                                                                           \
+        } else {                                                                                                                        \
+            ASSERT(size <= r_bytes_left, "fatal: ramread, shouldnt happen, chunk sizes are known\n");                                   \
+        }                                                                                                                               \
+        read_buffer = r_buffer[i] + r_offset[i];                                                                                        \
+        r_offset[i] += read_bytes;                                                                                                      \
     } while (0)
 
 #endif

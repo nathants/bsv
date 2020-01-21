@@ -21,9 +21,9 @@ int main(int argc, const char **argv) {
     HELP();
     SIGPIPE_HANDLER();
     unsigned long long val = 0;
-    int offset;
-    int i;
-    char output[1024 * 1024];
+    int32_t offset;
+    int32_t i;
+    uint8_t output[1024 * 1024];
     LOAD_NEW(last);
     LOAD_DUMP_INIT();
 

@@ -7,23 +7,23 @@
 /* see bsv.c for example usage */
 
 #define CSV_INIT()                                                                          \
-    int c_escaped;                                                                          \
-    int c_break;                                                                            \
-    int c_i;                                                                                \
-    int c_handled = 0;                                                                      \
-    int c_update_columns = 0;                                                               \
-    int c_bytes_read = 0;                                                                   \
-    int c_char_index = BUFFER_SIZE;                                                         \
-    int c_offset = BUFFER_SIZE;                                                             \
+    int32_t c_escaped;                                                                          \
+    int32_t c_break;                                                                            \
+    int32_t c_i;                                                                                \
+    int32_t c_handled = 0;                                                                      \
+    int32_t c_update_columns = 0;                                                               \
+    int32_t c_bytes_read = 0;                                                                   \
+    int32_t c_char_index = BUFFER_SIZE;                                                         \
+    int32_t c_offset = BUFFER_SIZE;                                                             \
     char c_char;                                                                            \
     char *c_buffer;                                                                         \
     MALLOC(c_buffer, BUFFER_SIZE);                                                          \
     char *c_next_column[MAX_COLUMNS];                                                       \
-    int csv_stop = 0;                 /* stop immediately */                                \
-    int csv_max = 0;                  /* highest zero-based index into sizes and columns */ \
-    int csv_num_alphas[MAX_COLUMNS] = {0};                                                  \
-    int csv_num_dots[MAX_COLUMNS] = {0};                                                    \
-    int csv_sizes[MAX_COLUMNS] = {0}; /* array of the number of chars in each column */     \
+    int32_t csv_stop = 0;                 /* stop immediately */                                \
+    int32_t csv_max = 0;                  /* highest zero-based index into sizes and columns */ \
+    int32_t csv_num_alphas[MAX_COLUMNS] = {0};                                                  \
+    int32_t csv_num_dots[MAX_COLUMNS] = {0};                                                    \
+    int32_t csv_sizes[MAX_COLUMNS] = {0}; /* array of the number of chars in each column */     \
     char *csv_columns[MAX_COLUMNS];   /* array of columns as char-star */                   \
     csv_columns[0] = c_buffer;
 

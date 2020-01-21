@@ -5,17 +5,17 @@
 
 #define READ_INIT(files, num_files)             \
     FILE **r_files = files;                     \
-    int read_bytes;                             \
+    int32_t read_bytes;                         \
     char *read_buffer;                          \
     char *r_buffer[num_files];                  \
-    int r_bytes_left;                           \
-    int r_bytes_todo;                           \
-    int r_bytes = 0;                            \
-    int r_stop[num_files];                      \
-    int r_i;                                    \
+    int32_t r_bytes_left;                       \
+    int32_t r_bytes_todo;                       \
+    int32_t r_bytes = 0;                        \
+    int32_t r_stop[num_files];                  \
+    int32_t r_i;                                \
     for (r_i = 0; r_i < num_files; r_i++)       \
         r_stop[r_i] = 0;                        \
-    int r_offset[num_files];                    \
+    int32_t r_offset[num_files];                \
     for (r_i = 0; r_i < num_files; r_i++) {     \
         r_offset[r_i] = BUFFER_SIZE;            \
         MALLOC(r_buffer[r_i], BUFFER_SIZE);     \
