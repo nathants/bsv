@@ -2,7 +2,7 @@ import os
 import string
 import shell
 from hypothesis.database import ExampleDatabase
-from hypothesis import given, settings
+from hypothesis import given, settings, HealthCheck
 from hypothesis.strategies import text, lists, composite, integers
 from test_util import run, rm_whitespace, rm_whitespace, rm_whitespace, clone_source
 
@@ -41,7 +41,7 @@ def expected(buckets, csv):
     return '\n'.join(xs) + '\n'
 
 @given(inputs())
-@settings(database=ExampleDatabase(':memory:'), max_examples=100 * int(os.environ.get('TEST_FACTOR', 1)), deadline=os.environ.get("TEST_DEADLINE", 1000 * 60))
+@settings(database=ExampleDatabase(':memory:'), max_examples=100 * int(os.environ.get('TEST_FACTOR', 1)), deadline=os.environ.get("TEST_DEADLINE", 1000 * 60), suppress_health_check=HealthCheck.all())
 def test_props(args):
     buckets, csv = args
     result = expected(buckets, csv)
