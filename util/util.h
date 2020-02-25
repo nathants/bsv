@@ -9,8 +9,9 @@
 #include <ctype.h>
 #include <signal.h>
 
-typedef int32_t bsv_int_t;
-typedef float bsv_float_t;
+typedef int64_t bsv_int_t;
+typedef double bsv_float_t;
+
 enum types{BSV_CHAR = 0,
            BSV_INT = 1,
            BSV_FLOAT = 2};

@@ -13,7 +13,6 @@ if os.environ.get('TEST_FACTOR'):
 else:
     buffers = [12, 17, 64]
 
-
 def setup_module(m):
     m.tempdir = clone_source()
     m.orig = os.getcwd()
@@ -129,16 +128,16 @@ def test_encoding():
     val = runb(rm_whitespace(stdin), 'bsv')
     bsv = b''.join([
         # chunk header
-        struct.pack('i', 20), # uint32 num bytes in this chunk,
+        struct.pack('i', 28), # uint32 num bytes in this chunk,
         # chunk body
         struct.pack('H', 2), # uint16 max, see load.h
         struct.pack('B', 0), # uint8 types, see load.h
         struct.pack('B', 1), # uint8 types, see load.h
         struct.pack('B', 2), # uint8 types, see load.h
         struct.pack('H', 1), # uint16 sizes, see load.h
-        struct.pack('H', 4), # uint16 sizes, see load.h
-        struct.pack('H', 4), # uint16 sizes, see load.h
-        b'a', struct.pack('i', 12), struct.pack('f', 1.5),
+        struct.pack('H', 8), # uint16 sizes, see load.h
+        struct.pack('H', 8), # uint16 sizes, see load.h
+        b'a', struct.pack('q', 12), struct.pack('d', 1.5),
     ])
     assert bsv == val
     assert rm_whitespace(stdin) + '\n' == run(rm_whitespace(stdin), 'bsv | bin/csv')

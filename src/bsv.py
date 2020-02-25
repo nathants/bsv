@@ -8,11 +8,14 @@ BSV_FLOAT = 2
 uint16 = 'H'
 uint8 = 'B'
 int32 = 'i'
+int64 = 'q'
 float32 = 'f'
-bsv_int = int32
-bsv_float = float32
+float64 = 'd'
+bsv_int = int64
+bsv_float = float64
 sizeof = {int32: 4,
-          float32: 4,
+          int64: 8,
+          float64: 8,
           uint8: 1,
           uint16: 2}
 
