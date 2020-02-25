@@ -214,8 +214,7 @@ integer sum numbers in the first column and output a single value
 usage: `... | bsum`
 
 ```
->> echo '
-1
+>> echo -e '1
 2
 3
 4.1
