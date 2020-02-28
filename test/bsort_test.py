@@ -24,7 +24,7 @@ def teardown_module(m):
 @composite
 def inputs(draw):
     num_columns = draw(integers(min_value=1, max_value=64))
-    column = text(string.ascii_lowercase, min_size=1, max_size=64)
+    column = text(string.ascii_lowercase + ':/|', min_size=1, max_size=64)
     line = lists(column, min_size=num_columns, max_size=num_columns)
     lines = draw(lists(line))
     csv = '\n'.join([','.join(x) for x in lines]) + '\n'
