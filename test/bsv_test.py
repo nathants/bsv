@@ -76,6 +76,11 @@ def test_example1():
     assert bsv == val
     assert csv == run(csv, f'bsv | bin/csv')
 
+def test_numeric_first_column_is_illegal():
+    res = shell.run('echo 1 | bsv', warn=True)
+    assert 'warn: first column value is numeric, which will sort incorrectly. first column the only column is the sort key, and is interpreted as bytes' == res['stderr']
+    assert res['exitcode'] == 0
+
 def test_max_bytes():
     stdin = 'a' * (2**16 - 1)
     assert len(stdin.strip()) == len(run(stdin, 'bsv | bin/csv').strip())

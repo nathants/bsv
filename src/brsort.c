@@ -9,7 +9,7 @@
 
 #define SORT_NAME row
 #define SORT_TYPE row_t *
-#define SORT_CMP(x, y) -row_cmp(x, y)
+#define SORT_CMP(x, y) -row_cmp((x)->buffer, (y)->buffer, (x)->sizes[0], (y)->sizes[0])
 #include "sort.h"
 
 int main(int argc, const char **argv) {

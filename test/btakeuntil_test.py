@@ -29,16 +29,7 @@ def inputs(draw):
     num_text_columns = draw(integers(min_value=1, max_value=4))
     text_column = text(string.ascii_lowercase, min_size=1, max_size=8)
     text_line = lists(text_column, min_size=num_text_columns, max_size=num_text_columns)
-    text_lines = draw(lists(text_line, min_size=1))
-    num_digit_columns = draw(integers(min_value=1, max_value=4))
-    digit_column = text(string.digits, min_size=1, max_size=8)
-    digit_line = lists(digit_column, min_size=num_digit_columns, max_size=num_digit_columns)
-    digit_lines = draw(lists(digit_line, min_size=len(text_lines), max_size=len(text_lines)))
-    if r.random() > 0.5:
-        lines = zip(text_lines, digit_lines)
-    else:
-        lines = zip(digit_lines, text_lines)
-    lines = [x + y for x, y in lines]
+    lines = draw(lists(text_line, min_size=1))
     first_column_values = [line[0] for line in lines]
     threshold = draw(floats(min_value=0, max_value=1))
     for line in lines:
@@ -74,4 +65,4 @@ def expected(value, csv):
 def test_props(args):
     value, csv = args
     result = expected(value, csv)
-    assert result == run(csv, f'bsv | bsort | btakeuntil "{value}" | bin/csv')
+    assert set(result.splitlines()) == set(run(csv, f'bsv | bsort | btakeuntil "{value}" | bin/csv').splitlines()) # set because sort is not stable and is only for first column values

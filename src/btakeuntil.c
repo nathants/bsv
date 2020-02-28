@@ -9,18 +9,17 @@ int main(int argc, const char **argv) {
     HELP();
     SIGPIPE_HANDLER();
     LOAD_DUMP_INIT();
-    CMP_INIT();
-    PARSE_INIT();
-    PARSE(argv[1]);
-
+    char *val = argv[1];
+    uint32_t size = strlen(val);
+    int cmp;
     while (1) {
         LOAD(0);
         if (load_stop)
             break;
-        CMP(load_types[0], load_columns[0], load_sizes[0], parsed_type, parsed, parsed_size);
-        if (cmp >= 0)
+        if (row_cmp(load_columns[0], val, load_sizes[0], size) >= 0)
             break;
         DUMP(0, load_max, load_columns, load_types, load_sizes, load_size);
     }
     DUMP_FLUSH(0);
+
 }

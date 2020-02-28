@@ -35,16 +35,7 @@ def inputs(draw):
     num_text_columns = draw(integers(min_value=1, max_value=4))
     text_column = text(string.ascii_lowercase, min_size=1, max_size=8)
     text_line = lists(text_column, min_size=num_text_columns, max_size=num_text_columns)
-    text_lines = draw(lists(text_line, min_size=1))
-    num_digit_columns = draw(integers(min_value=1, max_value=4))
-    digit_column = text(string.digits, min_size=1, max_size=8)
-    digit_line = lists(digit_column, min_size=num_digit_columns, max_size=num_digit_columns)
-    digit_lines = draw(lists(digit_line, min_size=len(text_lines), max_size=len(text_lines)))
-    if r.random() > 0.5:
-        lines = zip(text_lines, digit_lines)
-    else:
-        lines = zip(digit_lines, text_lines)
-    lines = [x + y for x, y in lines]
+    lines = draw(lists(text_line, min_size=1))
     first_column_values = [line[0] for line in lines]
     threshold = draw(floats(min_value=0, max_value=1))
     for line in lines:
@@ -54,19 +45,12 @@ def inputs(draw):
     value = r.choice(first_column_values)
     return value, csv
 
-def parse(value):
-    if value.isdigit():
-        value = int(value)
-    return value
-
 def expected(value, csv):
     res = []
     found = False
-    value = parse(value)
     lines = csv.splitlines()
     lines = [l.split(',') for l in lines]
-    lines = [[parse(c) for c in cols] for cols in lines]
-    lines = sorted(lines)
+    lines = sorted(lines, key=lambda x: x[0])
     for cols in lines:
         line = ','.join(str(c) for c in cols)
         if found:
@@ -87,7 +71,7 @@ def expected(value, csv):
 def test_props(args):
     value, csv = args
     result = expected(value, csv)
-    assert result == run(csv, f'bsv | bsort | bdropuntil "{value}" | bin/csv')
+    assert set(result.splitlines()) == set(run(csv, f'bsv | bsort | bdropuntil "{value}" | bin/csv').splitlines()) # set because sort is not stable and is only for first column values
 
 def test_example1():
     value, csv = 'g', 'a\nb\nc\nd\ne\nf\ng\nh\n'
@@ -106,20 +90,5 @@ def test_example3():
 
 def test_example4():
     value, csv = 'b', 'a\na\na\nb\n'
-    result = expected(value, csv)
-    assert result == run(csv, f'bsv 2>/dev/null | bsort | bdropuntil "{value}" | bin/csv 2>/dev/null')
-
-def test_example5():
-    value, csv = '3', '5\n4\n3\n2\n1\n'
-    result = expected(value, csv)
-    assert result == run(csv, f'bsv 2>/dev/null | bsort | bdropuntil "{value}" | bin/csv 2>/dev/null')
-
-def test_example6():
-    value, csv = '10000', '20,a\n10000,a\n'
-    result = expected(value, csv)
-    assert result == run(csv, f'bsv 2>/dev/null | bsort | bdropuntil "{value}" | bin/csv 2>/dev/null')
-
-def test_example7():
-    value, csv = '1', '0,a\n1,a\n'
     result = expected(value, csv)
     assert result == run(csv, f'bsv 2>/dev/null | bsort | bdropuntil "{value}" | bin/csv 2>/dev/null')

@@ -9,11 +9,11 @@ int main(int argc, const char **argv) {
     HELP();
     SIGPIPE_HANDLER();
     LOAD_DUMP_INIT();
-    CMP_INIT();
-    PARSE_INIT();
-    PARSE(argv[1]);
+    char *val = argv[1];
+    uint32_t size = strlen(val);
     int32_t done_skipping = 0;
     int32_t matched = 0;
+    int32_t cmp;
 
     while (1) {
         LOAD(0);
@@ -28,7 +28,7 @@ int main(int argc, const char **argv) {
             if (matched) { /* -------------------------------------------- once a match is found dump every row */
                 DUMP(0, load_max, load_columns, load_types, load_sizes, load_size);
             } else { /* -------------------------------------------------- check for a match */
-                CMP(load_types[0], load_columns[0], load_sizes[0], parsed_type, parsed, parsed_size);
+                cmp = row_cmp(load_columns[0], val, load_sizes[0], size);
                 if (done_skipping) { /* ---------------------------------- since we are done skipping ahead by chunks, check every row for gte */
                     if (cmp >= 0) {
                         DUMP(0, load_max, load_columns, load_types, load_sizes, load_size);

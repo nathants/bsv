@@ -43,19 +43,4 @@ typedef struct row_s {
     free(_row->columns);                        \
     free(_row);
 
-static inline int32_t row_cmp(const row_t * restrict a, const row_t * restrict b) {
-    CMP_INIT();
-    for (int32_t i = 0; i <= MIN(a->max, b->max); i++) {
-        CMP(a->types[i], a->columns[i], a->sizes[i], b->types[i], b->columns[i], b->sizes[i]);
-        if (cmp != 0)
-            return cmp;
-    }
-    if (a->max > b->max)
-        return 1;
-    else if (a->max < b->max)
-        return -1;
-    else
-        return 0;
-}
-
 #endif

@@ -9,8 +9,11 @@
 
 #define SORT_NAME row
 #define SORT_TYPE row_t *
-#define SORT_CMP(x, y) row_cmp(x, y)
+/* #define SORT_CMP(x, y) strcmp((x)->buffer, (y)->buffer) */ // TODO can we go this fast?
+#define SORT_CMP(x, y) row_cmp((x)->buffer, (y)->buffer, (x)->sizes[0], (y)->sizes[0])
 #include "sort.h"
+
+// TODO can we go as fast as: LC_ALL=C sort
 
 int main(int argc, const char **argv) {
     HELP();
@@ -37,4 +40,5 @@ int main(int argc, const char **argv) {
     }
 
     DUMP_FLUSH(0);
+
 }

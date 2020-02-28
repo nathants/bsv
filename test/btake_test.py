@@ -3,7 +3,7 @@ import string
 import shell
 from hypothesis.database import ExampleDatabase
 from hypothesis import given, settings
-from hypothesis.strategies import lists, composite, integers, randoms, floats, text
+from hypothesis.strategies import lists, composite, integers, randoms, floats, text, sampled_from
 from test_util import run, clone_source
 
 def setup_module(m):
@@ -26,16 +26,7 @@ def inputs(draw):
     num_text_columns = draw(integers(min_value=1, max_value=4))
     text_column = text(string.ascii_lowercase, min_size=1, max_size=8)
     text_line = lists(text_column, min_size=num_text_columns, max_size=num_text_columns)
-    text_lines = draw(lists(text_line, min_size=1))
-    num_digit_columns = draw(integers(min_value=1, max_value=4))
-    digit_column = text(string.digits, min_size=1, max_size=8)
-    digit_line = lists(digit_column, min_size=num_digit_columns, max_size=num_digit_columns)
-    digit_lines = draw(lists(digit_line, min_size=len(text_lines), max_size=len(text_lines)))
-    if r.random() > 0.5:
-        lines = zip(text_lines, digit_lines)
-    else:
-        lines = zip(digit_lines, text_lines)
-    lines = [x + y for x, y in lines]
+    lines = draw(lists(text_line, min_size=1))
     first_column_values = [line[0] for line in lines]
     threshold = draw(floats(min_value=0, max_value=1))
     for line in lines:

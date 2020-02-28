@@ -102,95 +102,15 @@ void _sigpipe_handler(int signum) {
         ASSERT(BUFFER_SIZE < INT_MAX, "fatal: buffer size must be less than INT_MAX\n");            \
     } while (0)
 
-#define NUMCMP(result, a, b)                    \
-    result = 0;                                 \
-    if (a < b)                                  \
-        result = -1;                            \
-    else if (a > b)                             \
-        result = 1;
-
-#define PARSE_INIT()                            \
-    int32_t _parsed_i;                          \
-    int32_t _parsed_num_dots;                   \
-    int32_t _parsed_num_alphas;                 \
-    bsv_int_t _parsed_int;                      \
-    bsv_float_t _parsed_float;                  \
-    uint8_t *parsed;                            \
-    int32_t parsed_type;                        \
-    int32_t parsed_size;
-
-#define PARSE(val)                                                      \
-    do {                                                                \
-        _parsed_num_alphas = 0;                                         \
-        _parsed_num_dots = 0;                                           \
-        parsed_type = BSV_CHAR;                                         \
-        parsed = val;                                                   \
-        for (_parsed_i = 0; _parsed_i < strlen(parsed); _parsed_i++) {  \
-            if (parsed[_parsed_i] == '.')                               \
-                _parsed_num_dots++;                                     \
-            else if (!isdigit(parsed[_parsed_i]))                       \
-                _parsed_num_alphas++;                                   \
-        }                                                               \
-        parsed_size = strlen(parsed);                                   \
-        if (parsed_size > 0 && _parsed_num_alphas == 0) {               \
-            if (_parsed_num_dots == 0) {                                \
-                _parsed_int = atol(parsed);                             \
-                parsed = (uint8_t*)&_parsed_int;                        \
-                parsed_type = BSV_INT;                                  \
-                parsed_size = sizeof(bsv_int_t);                        \
-            } else if (_parsed_num_dots == 1) {                         \
-                _parsed_float = atof(parsed);                           \
-                parsed = (uint8_t*)&_parsed_float;                      \
-                parsed_type = BSV_FLOAT;                                \
-                parsed_size = sizeof(bsv_float_t);                      \
-            }                                                           \
-        }                                                               \
-    } while (0)
-
-#define CMP_INIT()                              \
-    uint32_t _util_i;                           \
-    uint8_t _a_char, _b_char;                   \
-    bsv_int_t _a_int, _b_int;                   \
-    bsv_float_t _a_float, _b_float;             \
-    int32_t _a_numeric, _b_numeric;             \
-    int32_t cmp;
-
-#define CMP(a_type, a_val, a_size, b_type, b_val, b_size)               \
-    do {                                                                \
-        _a_numeric = a_type == BSV_INT || a_type == BSV_FLOAT;          \
-        _b_numeric = b_type == BSV_INT || b_type == BSV_FLOAT;          \
-        if (_a_numeric && _b_numeric) {                                 \
-            if (a_type == BSV_INT && b_type == BSV_INT) {               \
-                _a_int = CHAR_TO_INT32(a_val);                          \
-                _b_int = CHAR_TO_INT32(b_val);                          \
-                NUMCMP(cmp, _a_int, _b_int);                            \
-            } else if (a_type == BSV_FLOAT && b_type == BSV_FLOAT) {    \
-                _a_float = CHAR_TO_FLOAT(a_val);                        \
-                _b_float = CHAR_TO_FLOAT(b_val);                        \
-                NUMCMP(cmp, _a_float, _b_float);                        \
-            } else if (a_type == BSV_FLOAT && b_type == BSV_INT) {      \
-                _a_float = CHAR_TO_FLOAT(a_val);                        \
-                _b_int = CHAR_TO_INT32(b_val);                          \
-                NUMCMP(cmp, _a_float, _b_int);                          \
-            } else if (a_type == BSV_INT && b_type == BSV_FLOAT) {      \
-                _a_int = CHAR_TO_INT32(a_val);                          \
-                _b_float = CHAR_TO_FLOAT(b_val);                        \
-                NUMCMP(cmp, _a_int, _b_float);                          \
-            } else                                                      \
-                ASSERT(0, "fatal: row_cmp, should never happen");       \
-        } else if (_a_numeric) {                                        \
-            cmp = -1;                                                   \
-        } else if (_b_numeric) {                                        \
-            cmp = 1;                                                    \
-        } else {                                                        \
-            _a_char = a_val[a_size];                                    \
-            a_val[a_size] = '\0';                                       \
-            _b_char = b_val[b_size];                                    \
-            b_val[b_size] = '\0';                                       \
-            cmp = strcmp(a_val, b_val);                                 \
-            a_val[a_size] = _a_char;                                    \
-            b_val[b_size] = _b_char;                                    \
-        }                                                               \
-    } while (0)
+// TODO can we go as fast as: LC_ALL=C sort and strcmp()
+static inline int row_cmp(char * a, char * b, int size_a, int size_b) {
+    int res = strncmp(a, b, MIN(size_a, size_b));
+    if (res != 0)
+        return res;
+    else if (size_a < size_b)
+        return -1;
+    else
+        return 1;
+}
 
 #endif

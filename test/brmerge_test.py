@@ -17,7 +17,7 @@ def setup_module(m):
     m.path = os.environ['PATH']
     os.chdir(m.tempdir)
     os.environ['PATH'] = f'{os.getcwd()}/bin:/usr/bin:/usr/local/bin'
-    shell.run('make clean && make bsv csv brsort brmerge', stream=True)
+    shell.run('make clean && make bsv csv brsort bcut brmerge', stream=True)
 
 def teardown_module(m):
     os.chdir(m.orig)
@@ -42,7 +42,7 @@ def expected(csvs):
     xs = []
     for csv in csvs:
         xs += csv.splitlines()
-    xs = sorted(xs, reverse=True)
+    xs = sorted([x.split(',')[0] for x in xs], reverse=True)
     return '\n'.join(xs) + '\n'
 
 @given(inputs())
@@ -56,5 +56,5 @@ def test_props(csvs):
                 path = f'file{i}.bsv'
                 shell.run(f'bsv > {path}', stdin=csv)
                 paths.append(path)
-            assert result.strip() == shell.run(f'brmerge', *paths, '| csv')
-            assert shell.run('cat', *paths, '| brsort | csv') == shell.run(f'brmerge', *paths, '| csv')
+            assert result.strip() == shell.run(f'brmerge', *paths, ' | bcut 1 | csv')
+            assert shell.run('cat', *paths, '| brsort | bcut 1 | csv') == shell.run(f'brmerge', *paths, ' | bcut 1 | csv')
