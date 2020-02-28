@@ -3,7 +3,7 @@
 #include "xxh3.h"
 
 #define NUM_ARGS 1
-#define DESCRIPTION "split a stream into a file per chunk\n\n"
+#define DESCRIPTION "split a stream into a file per chunk. files are named after the hash of the first chunk and then numbered\n\n"
 #define USAGE "... | bsplit \n\n"
 #define EXAMPLE ">> echo a,b,c | bsv | bsplit\nBF163BBADE92064C_0000000000\n"
 

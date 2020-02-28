@@ -15,9 +15,12 @@ cli utilites to combine into pipelines.
 - [bdedupe](#bdedupe) - dedupe identical contiguous lines
 - [bdisjoint](#bdisjoint) - given sorted files, create new files with deduped values not in multiple files
 - [bdropuntil](#bdropuntil) - drop until the first column is gte to VALUE
+- [bmerge](#bmerge) - merge sorted files
 - [bpartition](#bpartition) - split into multiple files by the first column value
+- [brmerge](#brmerge) - merge reverse sorted files
+- [brsort](#brsort) - reverse sort rows
 - [bsort](#bsort) - sort rows
-- [bsplit](#bsplit) - split a stream into a file per chunk
+- [bsplit](#bsplit) - split a stream into a file per chunk. files are named after the hash of the first chunk and then numbered
 - [bsum](#bsum) - integer sum numbers in the first column and output a single value
 - [bsv](#bsv) - convert csv to bsv
 - [btake](#btake) - take while the first column is VALUE
@@ -162,6 +165,30 @@ c
 d
 ```
 
+### [bmerge](https://github.com/nathants/bsv/blob/master/src/bmerge.c)
+
+merge sorted files
+
+usage: `bmerge FILE1 ... FILEN`
+
+```
+>> echo -e 'a
+c
+e
+' | bsv > a.bsv
+>> echo -e 'b
+d
+f
+' | bsv > b.bsv
+>> bmerge a.bsv b.bsv
+a
+b
+c
+d
+e
+f
+```
+
 ### [bpartition](https://github.com/nathants/bsv/blob/master/src/bpartition.c)
 
 split into multiple files by the first column value
@@ -179,11 +206,52 @@ prefix01
 prefix02
 ```
 
+### [brmerge](https://github.com/nathants/bsv/blob/master/src/brmerge.c)
+
+merge reverse sorted files
+
+usage: `brmerge FILE1 ... FILEN`
+
+```
+>> echo -e 'e
+c
+a
+' | bsv > a.bsv
+>> echo -e 'f
+d
+b
+' | bsv > b.bsv
+>> brmerge a.bsv b.bsv
+f
+e
+d
+c
+b
+a
+```
+
+### [brsort](https://github.com/nathants/bsv/blob/master/src/brsort.c)
+
+reverse sort rows
+
+usage: `... | brsort`
+
+```
+>> echo '
+a
+b
+c
+' | bsv | brsort | csv
+c
+b
+a
+```
+
 ### [bsort](https://github.com/nathants/bsv/blob/master/src/bsort.c)
 
 sort rows
 
-usage: `... | sort`
+usage: `... | bsort`
 
 ```
 >> echo '
@@ -198,7 +266,7 @@ c
 
 ### [bsplit](https://github.com/nathants/bsv/blob/master/src/bsplit.c)
 
-split a stream into a file per chunk
+split a stream into a file per chunk. files are named after the hash of the first chunk and then numbered
 
 usage: `... | bsplit`
 

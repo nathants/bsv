@@ -4,7 +4,7 @@
 
 #define NUM_ARGS 1
 #define DESCRIPTION "reverse sort rows\n\n"
-#define USAGE "... | sort\n\n"
+#define USAGE "... | brsort\n\n"
 #define EXAMPLE ">> echo '\na\nb\nc\n' | bsv | brsort | csv\nc\nb\na\n\n"
 
 #define SORT_NAME str

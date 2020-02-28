@@ -23,11 +23,14 @@ def teardown_module(m):
 
 @composite
 def inputs(draw):
-    num_columns = draw(integers(min_value=1, max_value=64))
+    r = draw(randoms())
+    num_columns = draw(integers(min_value=1, max_value=3))
     column = text(string.ascii_lowercase, min_size=1, max_size=64)
     line = lists(column, min_size=num_columns, max_size=num_columns)
     lines = draw(lists(line))
-    csv = '\n'.join([','.join(x) for x in lines]) + '\n'
+    lines = [','.join(x[:r.randint(0, len(x))]) for x in lines]
+    lines = [l for l in lines if l]
+    csv = '\n'.join(lines) + '\n'
     return csv
 
 def expected(csv):
@@ -110,6 +113,17 @@ def test_props_mixed(csv):
         with pytest.raises(AssertionError):
             run(csv, f'bsv | bsort | bin/csv')
 
+def test_basic():
+    stdin = """
+    a
+    a,a
+    """
+    stdout = """
+    a
+    a,a
+    """
+    assert rm_whitespace(stdout) + '\n' == run(rm_whitespace(stdin), 'bsv | bsort | bin/csv')
+
 def test_compatability():
     stdin = """
     c
@@ -120,5 +134,18 @@ def test_compatability():
     a
     b
     c
+    """
+    assert rm_whitespace(stdout) + '\n' == run(rm_whitespace(stdin), 'bsv | bsort | bin/csv')
+
+def test_compatability2():
+    stdin = """
+    c,c
+    b,b
+    a,a
+    """
+    stdout = """
+    a,a
+    b,b
+    c,c
     """
     assert rm_whitespace(stdout) + '\n' == run(rm_whitespace(stdin), 'bsv | bsort | bin/csv')

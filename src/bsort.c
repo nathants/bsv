@@ -4,10 +4,10 @@
 
 #define NUM_ARGS 1
 #define DESCRIPTION "sort rows\n\n"
-#define USAGE "... | sort\n\n"
+#define USAGE "... | bsort\n\n"
 #define EXAMPLE ">> echo '\nc\nb\na\n' | bsv | bsort | csv\na\nb\nc\n\n"
 
-#define SORT_NAME str
+#define SORT_NAME row
 #define SORT_TYPE row_t *
 #define SORT_CMP(x, y) row_cmp(x, y)
 #include "sort.h"
@@ -31,7 +31,7 @@ int main(int argc, const char **argv) {
         kv_push(row_t*, array, row);
     }
 
-    str_quick_sort(array.a, array.n);
+    row_quick_sort(array.a, array.n);
 
     for (i = 0; i < array.n; i++) {
         row = array.a[i];

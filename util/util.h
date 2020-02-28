@@ -148,6 +148,7 @@ void _sigpipe_handler(int signum) {
     } while (0)
 
 #define CMP_INIT()                              \
+    uint32_t _util_i;                           \
     uint8_t _a_char, _b_char;                   \
     bsv_int_t _a_int, _b_int;                   \
     bsv_float_t _a_float, _b_float;             \
