@@ -56,7 +56,7 @@ int main(int argc, const char **argv) {
         // pop the tail of the array, dump it, then load from the file it came from
         row = kv_pop(array);
         i = row->meta;
-        DUMP(0, row->max, row->columns, row->types, row->sizes, row->size - (row->max + 1));
+        DUMP(0, row->max, row->columns, row->types, row->sizes, row->size);
         ROW_FREE(row);
         LOAD(i);
 

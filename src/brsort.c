@@ -7,7 +7,7 @@
 #define USAGE "... | brsort\n\n"
 #define EXAMPLE ">> echo '\na\nb\nc\n' | bsv | brsort | csv\nc\nb\na\n\n"
 
-#define SORT_NAME str
+#define SORT_NAME row
 #define SORT_TYPE row_t *
 #define SORT_CMP(x, y) -row_cmp(x, y)
 #include "sort.h"
@@ -17,9 +17,7 @@ int main(int argc, const char **argv) {
     SIGPIPE_HANDLER();
     LOAD_DUMP_INIT();
     ROW_INIT();
-    int32_t offset;
     int32_t i;
-    int32_t j;
 
     kvec_t(row_t*) array;
 
@@ -31,11 +29,11 @@ int main(int argc, const char **argv) {
         kv_push(row_t*, array, row);
     }
 
-    str_quick_sort(array.a, array.n);
+    row_quick_sort(array.a, array.n);
 
     for (i = 0; i < array.n; i++) {
         row = array.a[i];
-        DUMP(0, row->max, row->columns, row->types, row->sizes, row->size - (row->max + 1));
+        DUMP(0, row->max, row->columns, row->types, row->sizes, row->size);
     }
 
     DUMP_FLUSH(0);

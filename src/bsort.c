@@ -17,9 +17,7 @@ int main(int argc, const char **argv) {
     SIGPIPE_HANDLER();
     LOAD_DUMP_INIT();
     ROW_INIT();
-    int32_t offset;
     int32_t i;
-    int32_t j;
 
     kvec_t(row_t*) array;
 
@@ -35,7 +33,7 @@ int main(int argc, const char **argv) {
 
     for (i = 0; i < array.n; i++) {
         row = array.a[i];
-        DUMP(0, row->max, row->columns, row->types, row->sizes, row->size - (row->max + 1));
+        DUMP(0, row->max, row->columns, row->types, row->sizes, row->size);
     }
 
     DUMP_FLUSH(0);
