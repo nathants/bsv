@@ -1,3 +1,7 @@
+// TODO this is unusable for many files because of constant sorting,
+// and coreutils sort has a decent merge already. possibly we cannot
+// do better than coreutils for merge?
+
 #include <ctype.h>
 #include "util.h"
 #include "row.h"
@@ -6,7 +10,7 @@
 #include "kvec.h"
 
 #define NUM_ARGS 0
-#define DESCRIPTION "merge sorted files\n\n"
+#define DESCRIPTION "DO NOT USE THIS, use bsv,csv,coreutils-sort\n\n"
 #define USAGE "bmerge FILE1 ... FILEN\n\n"
 #define EXAMPLE                                 \
     ">> echo -e 'a\nc\ne\n' | bsv > a.bsv\n"    \
@@ -47,11 +51,13 @@ int main(int argc, const char **argv) {
         kv_push(row_t*, array, row);
         row = array.a[array.n - 1];
     }
+
     row_quick_sort(array.a, array.n);
 
     // dump the lowest value in the array, the load the next row from
     // the file of that value and re-sort the array
     while (array.n) {
+
 
         // pop the tail of the array, dump it, then load from the file it came from
         row = kv_pop(array);
@@ -70,6 +76,7 @@ int main(int argc, const char **argv) {
             row->meta = i;
             kv_push(row_t*, array, row);
             row_quick_sort(array.a, array.n);
+
         }
     }
 

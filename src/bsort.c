@@ -3,7 +3,7 @@
 #include "kvec.h"
 
 #define NUM_ARGS 1
-#define DESCRIPTION "sort rows\n\n"
+#define DESCRIPTION "PROBABLY DO NOT USE THIS, use bsv,csv,coreutils-sort\n\n"
 #define USAGE "... | bsort\n\n"
 #define EXAMPLE ">> echo '\nc\nb\na\n' | bsv | bsort | csv\na\nb\nc\n\n"
 
