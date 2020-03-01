@@ -49,7 +49,7 @@ def test_props(csv):
 @given(inputs())
 @settings(database=ExampleDatabase(':memory:'), max_examples=100 * int(os.environ.get('TEST_FACTOR', 1)), deadline=os.environ.get("TEST_DEADLINE", 1000 * 60))
 def test_props_compatability(csv):
-    assert run(csv, f'LC_ALL=C sort -r -k1,1') == run(csv, f'bsv | brsort | bin/csv')
+    assert run(csv, f'LC_ALL=C sort -r -k1,1 | cut -d, -f1') == run(csv, f'bsv | brsort | bcut 1 | bin/csv')
 
 def test_compatability():
     stdin = """
