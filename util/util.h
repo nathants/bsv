@@ -9,6 +9,16 @@
 #include <ctype.h>
 #include <signal.h>
 
+#if defined(__clang__)
+size_t fread_unlocked(void *ptr, size_t size, size_t nmemb, FILE *f) {
+    return fread(ptr, size, nmemb, f);
+}
+
+size_t fwrite_unlocked(void *ptr, size_t size, size_t nmemb, FILE *f) {
+    return fwrite(ptr, size, nmemb, f);
+}
+#endif
+
 typedef int64_t bsv_int_t;
 typedef double bsv_float_t;
 
