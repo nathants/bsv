@@ -50,7 +50,7 @@
                 ASSERT(c_offset < BUFFER_SIZE, "fatal: line longer than BUFFER_SIZE\n");                                \
                 /* move the bytes to head of buffer, and update vars for new buffer positions */                        \
                 memmove(c_buffer, csv_columns[0], c_offset);                                                            \
-                c_escaped = c_buffer[c_offset - 1] == '\\' ;                                                            \
+                c_escaped = c_offset > 0 && c_buffer[c_offset - 1] == '\\' ;                                            \
                 csv_columns[0] = c_buffer;                                                                              \
                 for (c_i = 1; c_i <= csv_max; c_i++)                                                                    \
                     csv_columns[c_i] = csv_columns[c_i - 1] + csv_sizes[c_i - 1] + 1;                                   \
