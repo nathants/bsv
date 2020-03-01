@@ -2,60 +2,60 @@ import schema # pip install git+https://github.com/nathants/py-util git+https://
 import struct
 import io
 
-BSV_CHAR = 0
-BSV_INT = 1
-BSV_FLOAT = 2
-uint16 = 'H'
-uint8 = 'B'
-int32 = 'i'
-int64 = 'q'
-float32 = 'f'
-float64 = 'd'
-bsv_int = int64
-bsv_float = float64
-sizeof = {int32: 4,
-          int64: 8,
-          float64: 8,
-          uint8: 1,
-          uint16: 2}
+_BSV_CHAR = 0
+_BSV_INT = 1
+_BSV_FLOAT = 2
+_uint16 = 'H'
+_uint8 = 'B'
+_int32 = 'i'
+_int64 = 'q'
+_float32 = 'f'
+_float64 = 'd'
+_bsv_int = _int64
+_bsv_float = _float64
+_sizeof = {_int32: 4,
+           _int64: 8,
+           _float64: 8,
+           _uint8: 1,
+           _uint16: 2}
 
 @schema.check(yields=[(':or', bytes, int, float)])
 def load(f: io.IOBase) -> None:
     # read chunk header to get size of chunk
-    data = f.read(sizeof[int32])
-    if len(data) == sizeof[int32]:
+    data = f.read(_sizeof[_int32])
+    if len(data) == _sizeof[_int32]:
         # read chunk
-        chunk_size = struct.unpack(int32, data)[0]
+        chunk_size = struct.unpack(_int32, data)[0]
         buffer = f.read(chunk_size)
         assert len(buffer) == chunk_size, [len(buffer), chunk_size]
         buffer = io.BytesIO(buffer)
         while True:
             # maybe read max index
-            data = buffer.read(sizeof[uint16])
-            if len(data) != sizeof[uint16]:
+            data = buffer.read(_sizeof[_uint16])
+            if len(data) != _sizeof[_uint16]:
                 break
-            max = struct.unpack(uint16, data)[0]
+            max = struct.unpack(_uint16, data)[0]
             # read types
-            size = (max + 1) * sizeof[uint8]
+            size = (max + 1) * _sizeof[_uint8]
             data = buffer.read(size)
             assert len(data) == size, [len(data), size]
-            types = [struct.unpack(uint8, data[i * sizeof[uint8]:i * sizeof[uint8] + sizeof[uint8]])[0] for i in range(size // sizeof[uint8])]
+            types = [struct.unpack(_uint8, data[i * _sizeof[_uint8]:i * _sizeof[_uint8] + _sizeof[_uint8]])[0] for i in range(size // _sizeof[_uint8])]
             # read sizes
-            size = (max + 1) * sizeof[uint16]
+            size = (max + 1) * _sizeof[_uint16]
             data = buffer.read(size)
             assert len(data) == size
-            sizes = [struct.unpack(uint16, data[i * sizeof[uint16]:i * sizeof[uint16] + sizeof[uint16]])[0] for i in range(size // sizeof[uint16])]
+            sizes = [struct.unpack(_uint16, data[i * _sizeof[_uint16]:i * _sizeof[_uint16] + _sizeof[_uint16]])[0] for i in range(size // _sizeof[_uint16])]
             # read value bytes
             vals = []
             for type, size in zip(types, sizes):
                 data = buffer.read(size)
                 assert len(data) == size
-                if type == BSV_CHAR:
+                if type == _BSV_CHAR:
                     pass
-                elif type == BSV_INT:
-                    data = struct.unpack(bsv_int, data)[0]
-                elif type == BSV_FLOAT:
-                    data = struct.unpack(bsv_float, data)[0]
+                elif type == _BSV_INT:
+                    data = struct.unpack(_bsv_int, data)[0]
+                elif type == _BSV_FLOAT:
+                    data = struct.unpack(_bsv_float, data)[0]
                 else:
                     assert False
                 vals.append(data)
@@ -66,41 +66,41 @@ def dump(f: io.IOBase, xss: [[(':or', bytes, int, float)]]) -> None:
     buffer = io.BytesIO()
     for xs in xss:
         # write max index
-        assert sizeof[uint16] == buffer.write(struct.pack(uint16, len(xs) - 1))
+        assert _sizeof[_uint16] == buffer.write(struct.pack(_uint16, len(xs) - 1))
         # write types
         for x in xs:
             if isinstance(x, bytes):
-                x = BSV_CHAR
+                x = _BSV_CHAR
             elif isinstance(x, int):
-                x = BSV_INT
+                x = _BSV_INT
             elif isinstance(x, float):
-                x = BSV_FLOAT
+                x = _BSV_FLOAT
             else:
                 assert False
-            assert sizeof[uint8] == buffer.write(struct.pack(uint8, x))
+            assert _sizeof[_uint8] == buffer.write(struct.pack(_uint8, x))
         # write sizes
         for x in xs:
             if isinstance(x, bytes):
                 x = len(x)
             elif isinstance(x, int):
-                x = sizeof[bsv_int]
+                x = _sizeof[_bsv_int]
             elif isinstance(x, float):
-                x = sizeof[bsv_float]
+                x = _sizeof[_bsv_float]
             else:
                 assert False
-            assert sizeof[uint16] == buffer.write(struct.pack(uint16, x))
+            assert _sizeof[_uint16] == buffer.write(struct.pack(_uint16, x))
         # write vals
         for x in xs:
             if isinstance(x, bytes):
                 pass
             elif isinstance(x, int):
-                x = struct.pack(bsv_int, x)
+                x = struct.pack(_bsv_int, x)
             elif isinstance(x, float):
-                x = struct.pack(bsv_float, x)
+                x = struct.pack(_bsv_float, x)
             else:
                 assert False
             assert len(x) == buffer.write(x)
-    assert sizeof[int32] == f.write(struct.pack(int32, len(buffer.getvalue())))
+    assert _sizeof[_int32] == f.write(struct.pack(_int32, len(buffer.getvalue())))
     assert len(buffer.getvalue()) == f.write(buffer.getvalue())
 
 if __name__ == '__main__':
