@@ -64,7 +64,7 @@
                 while (c_char_index - c_offset != c_bytes_read) {                                                       \
                     c_char = c_buffer[c_char_index];                                                                    \
                     /* start next column */                                                                             \
-                    if (c_char == DELIMITER && !(c_escaped || c_buffer[c_char_index - 1] == '\\')) {                    \
+                    if (c_char == DELIMITER && !(c_escaped || (c_char_index > 0 && c_buffer[c_char_index - 1] == '\\'))) {  \
                         ASSERT(++csv_max < MAX_COLUMNS, "fatal: line with more than %d columns\n", MAX_COLUMNS);        \
                         csv_num_alphas[csv_max] = 0;                                                                    \
                         csv_num_dots[csv_max] = 0;                                                                      \
