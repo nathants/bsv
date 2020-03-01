@@ -27,7 +27,7 @@ def teardown_module(m):
 
 @composite
 def inputs(draw):
-    num_inputs = draw(integers(min_value=1, max_value=4))
+    num_inputs = 2
     csvs = []
     for _ in range(num_inputs):
         num_columns = draw(integers(min_value=1, max_value=2))

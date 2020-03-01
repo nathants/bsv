@@ -7,25 +7,24 @@
 
 #define NUM_ARGS 0
 #define DESCRIPTION "merge reverse sorted files\n\n"
-#define USAGE "brmerge FILE1 ... FILEN\n\n"
+#define USAGE "brmerge FILE1 FILE2\n\n"
 #define EXAMPLE                                 \
     ">> echo -e 'e\nc\na\n' | bsv > a.bsv\n"    \
     ">> echo -e 'f\nd\nb\n' | bsv > b.bsv\n"    \
     ">> brmerge a.bsv b.bsv\n"                  \
     "f\ne\nd\nc\nb\na\n"                        \
 
-#define SORT_NAME row
-#define SORT_TYPE row_t *
-#define SORT_CMP(x, y) row_cmp((x)->buffer, (y)->buffer, (x)->sizes[0], (y)->sizes[0])
-#include "sort.h"
-
 int main(int argc, const char **argv) {
     HELP();
     SIGPIPE_HANDLER();
     ROW_INIT();
     int32_t i;
+    row_t *a;
+    row_t *b;
+    int32_t cmp;
 
     FILE *files[argc - 1];
+    ASSERT(argc == 3, "fatal: merging two files is all that is supported");
     for (i = 1; i < argc; i++) {
         files[i - 1] = fopen(argv[i], "rb");
         ASSERT(files[i - 1], "fatal: failed to open: %s\n", argv[i])
@@ -47,11 +46,21 @@ int main(int argc, const char **argv) {
         kv_push(row_t*, array, row);
         row = array.a[array.n - 1];
     }
-    row_quick_sort(array.a, array.n);
 
     // dump the lowest value in the array, the load the next row from
     // the file of that value and re-sort the array
     while (array.n) {
+
+        // sort
+        if (array.n == 2) {
+            a = array.a[0];
+            b = array.a[1];
+            cmp = row_cmp(a->columns[0], b->columns[0], a->sizes[0], b->sizes[0]);
+            if (cmp > 0) {
+                array.a[0] = b;
+                array.a[1] = a;
+            }
+        }
 
         // pop the tail of the array, dump it, then load from the file it came from
         row = kv_pop(array);
@@ -69,7 +78,7 @@ int main(int argc, const char **argv) {
             ROW(load_columns[0], load_max, load_size, load_types, load_sizes);
             row->meta = i;
             kv_push(row_t*, array, row);
-            row_quick_sort(array.a, array.n);
+
         }
     }
 

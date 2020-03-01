@@ -15,7 +15,7 @@ cli utilites to combine into pipelines.
 - [bdedupe](#bdedupe) - dedupe identical contiguous lines
 - [bdisjoint](#bdisjoint) - given sorted files, create new files with deduped values not in multiple files
 - [bdropuntil](#bdropuntil) - drop until the first column is gte to VALUE
-- [bmerge](#bmerge) - DO NOT USE THIS, use bsv,csv,coreutils-sort
+- [bmerge](#bmerge) - merge sorted files
 - [bpartition](#bpartition) - split into multiple files by the first column value
 - [brmerge](#brmerge) - merge reverse sorted files
 - [brsort](#brsort) - reverse sort rows
@@ -167,9 +167,9 @@ d
 
 ### [bmerge](https://github.com/nathants/bsv/blob/master/src/bmerge.c)
 
-DO NOT USE THIS, use bsv,csv,coreutils-sort
+merge sorted files
 
-usage: `bmerge FILE1 ... FILEN`
+usage: `bmerge FILE1 FILE2`
 
 ```
 >> echo -e 'a
@@ -210,7 +210,7 @@ prefix02
 
 merge reverse sorted files
 
-usage: `brmerge FILE1 ... FILEN`
+usage: `brmerge FILE1 FILE2`
 
 ```
 >> echo -e 'e
@@ -271,8 +271,8 @@ split a stream into a file per chunk. files are named after the hash of the firs
 usage: `... | bsplit`
 
 ```
->> echo a,b,c | bsv | bsplit
-BF163BBADE92064C_0000000000
+>> echo -n a,b,c | bsv | bsplit
+1595793589_0000000000
 ```
 
 ### [bsum](https://github.com/nathants/bsv/blob/master/src/bsum.c)

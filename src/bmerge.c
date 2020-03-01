@@ -1,7 +1,3 @@
-// TODO this is unusable for many files because of constant sorting,
-// and coreutils sort has a decent merge already. possibly we cannot
-// do better than coreutils for merge?
-
 #include <ctype.h>
 #include "util.h"
 #include "row.h"
@@ -10,8 +6,8 @@
 #include "kvec.h"
 
 #define NUM_ARGS 0
-#define DESCRIPTION "DO NOT USE THIS, use bsv,csv,coreutils-sort\n\n"
-#define USAGE "bmerge FILE1 ... FILEN\n\n"
+#define DESCRIPTION "merge sorted files\n\n"
+#define USAGE "bmerge FILE1 FILE2\n\n"
 #define EXAMPLE                                 \
     ">> echo -e 'a\nc\ne\n' | bsv > a.bsv\n"    \
     ">> echo -e 'b\nd\nf\n' | bsv > b.bsv\n"    \
@@ -28,8 +24,12 @@ int main(int argc, const char **argv) {
     SIGPIPE_HANDLER();
     ROW_INIT();
     int32_t i;
+    row_t *a;
+    row_t *b;
+    int32_t cmp;
 
     FILE *files[argc - 1];
+    ASSERT(argc == 3, "fatal: merging two files is all that is supported");
     for (i = 1; i < argc; i++) {
         files[i - 1] = fopen(argv[i], "rb");
         ASSERT(files[i - 1], "fatal: failed to open: %s\n", argv[i])
@@ -52,12 +52,20 @@ int main(int argc, const char **argv) {
         row = array.a[array.n - 1];
     }
 
-    row_quick_sort(array.a, array.n);
-
     // dump the lowest value in the array, the load the next row from
     // the file of that value and re-sort the array
     while (array.n) {
 
+        // sort
+        if (array.n == 2) {
+            a = array.a[0];
+            b = array.a[1];
+            cmp = row_cmp(a->columns[0], b->columns[0], a->sizes[0], b->sizes[0]);
+            if (cmp < 0) {
+                array.a[0] = b;
+                array.a[1] = a;
+            }
+        }
 
         // pop the tail of the array, dump it, then load from the file it came from
         row = kv_pop(array);
@@ -75,7 +83,6 @@ int main(int argc, const char **argv) {
             ROW(load_columns[0], load_max, load_size, load_types, load_sizes);
             row->meta = i;
             kv_push(row_t*, array, row);
-            row_quick_sort(array.a, array.n);
 
         }
     }
