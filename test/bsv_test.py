@@ -18,7 +18,7 @@ def setup_module(m):
     m.orig = os.getcwd()
     m.path = os.environ['PATH']
     os.chdir(m.tempdir)
-    os.environ['PATH'] = f'{os.getcwd()}/bin:/usr/bin:/usr/local/bin'
+    os.environ['PATH'] = f'{os.getcwd()}/bin:/usr/bin:/usr/local/bin:/sbin:/usr/sbin:/bin'
     shell.run('make clean', stream=True)
     compile_buffer_sizes('csv', buffers)
     compile_buffer_sizes('bsv', buffers)
@@ -28,7 +28,7 @@ def setup_module(m):
 def teardown_module(m):
     os.chdir(m.orig)
     os.environ['PATH'] = m.path
-    assert m.tempdir.startswith('/tmp/')
+    assert m.tempdir.startswith('/tmp/') or m.tempdir.startswith('/private/var/folders/')
     shell.run('rm -rf', m.tempdir)
 
 def partition(r, n, x):

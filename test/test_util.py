@@ -1,5 +1,3 @@
-import hashlib
-import contextlib
 import shell
 import os
 
@@ -16,7 +14,6 @@ def clone_source():
 
 def run(stdin, *args):
     with shell.climb_git_root():
-        tmp = os.environ.get('TMP_DIR', '/tmp').rstrip('/')
         stdinpath = 'stdin'
         stdoutpath = 'stdout'
         with open(stdinpath, 'w') as f:
@@ -27,7 +24,6 @@ def run(stdin, *args):
 
 def runb(stdin, *args):
     with shell.climb_git_root():
-        tmp = os.environ.get('TMP_DIR', '/tmp').rstrip('/')
         stdinpath = 'stdin'
         stdoutpath = 'stdout'
         with open(stdinpath, 'w') as f:
@@ -47,7 +43,7 @@ def compile_buffer_sizes(name, buffers):
         shell.run('cp -f util/util.h util/util.h.bak')
         try:
             for i in buffers:
-                shell.run(f'cat util/util.h.bak | sed -r "s/#define BUFFER_SIZE.*/#define BUFFER_SIZE {i}/" > util/util.h')
+                shell.run(f'cat util/util.h.bak | sed -E "s/#define BUFFER_SIZE.*/#define BUFFER_SIZE {i}/" > util/util.h')
                 print('compile:', name, i, shell.run('cat util/util.h | grep "define BUFFER_SIZE"'), flush=True)
                 shell.run('make', name)
                 shell.run(f'mv -f bin/{name} bin/{name}.{i}')
