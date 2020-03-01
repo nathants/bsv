@@ -54,6 +54,15 @@ def test_props(args):
         assert stdout == shell.run(f'bsv | bpartition {num_buckets} prefix', stdin=csv, echo=True)
         assert result == shell.run(f'bcat --prefix prefix*')
 
+def test_fail1():
+    args = (254, '0,a\n')
+    num_buckets, csv = args
+    result = expected(num_buckets, csv)
+    with shell.tempdir():
+        stdout = '\n'.join(sorted({l.split(':')[0] for l in result.splitlines()}))
+        assert stdout == shell.run(f'bsv | bpartition {num_buckets} prefix', stdin=csv, echo=True)
+        assert result == shell.run(f'bcat --prefix prefix*')
+
 def test_basic():
     with shell.tempdir():
         stdin = """

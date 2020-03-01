@@ -42,4 +42,4 @@ def test_props(args):
     with shell.tempdir():
         shell.run(f'_gen_csv 1 8 {lines} | bsv.{buffer} > data.bsv', echo=True)
         shell.run(f'cat data.bsv | bsplit.{buffer} > filenames')
-        assert shell.run(f'cat data.bsv | csv.{buffer} | xxh3') == shell.run(f'cat $(cat filenames) | csv.{buffer} | xxh3')
+        assert shell.run(f'cat data.bsv | csv.{buffer} | xxh3') == shell.run(f'cat -- $(cat -- filenames) | csv.{buffer} | xxh3')

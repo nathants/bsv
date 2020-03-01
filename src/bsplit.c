@@ -1,3 +1,4 @@
+#include "stdlib.h"
 #include "util.h"
 #include "read.h"
 #include "xxh3.h"
@@ -5,7 +6,7 @@
 #define NUM_ARGS 1
 #define DESCRIPTION "split a stream into a file per chunk. files are named after the hash of the first chunk and then numbered\n\n"
 #define USAGE "... | bsplit \n\n"
-#define EXAMPLE ">> echo a,b,c | bsv | bsplit\nBF163BBADE92064C_0000000000\n"
+#define EXAMPLE ">> echo -n a,b,c | bsv | bsplit\n1595793589_0000000000\n"
 
 int main(int argc, const char **argv) {
     HELP();
@@ -20,6 +21,7 @@ int main(int argc, const char **argv) {
 
     while (1) {
         /* read the next chunk */
+
         READ(0, 0);
         if (!r_chunk_size[0])
             break;
@@ -28,7 +30,7 @@ int main(int argc, const char **argv) {
         if (filename_set == 0) {
             filename_set = 1;
             hash = XXH3_64bits(r_buffer[0], r_chunk_size[0]);
-            sprintf(hex, "%08X%08X", (int32_t)(hash>>32), (int32_t)hash);
+            sprintf(hex, "%d", abs(hash));
         }
 
         /* suffix in incrementing with 10 padded zeroes */
@@ -49,6 +51,5 @@ int main(int argc, const char **argv) {
         READ(r_chunk_size[0], 0);
 
     }
-
 
 }

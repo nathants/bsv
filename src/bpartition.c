@@ -1,3 +1,4 @@
+#include <errno.h>
 #include <sys/stat.h>
 #include <ctype.h>
 #include "load.h"
@@ -61,7 +62,7 @@ int main(int argc, const char **argv) {
     for (i = 0; i < num_buckets; i++) {
         sprintf(path, "%s%0*d", prefix, (int32_t)strlen(num_buckets_str), i);
         file = fopen(path, "ab");
-        ASSERT(file, "fatal: failed to open: %s\n", path);
+        ASSERT(file, "fatal: failed to open: %s %d\n", path, errno);
         files[i] = file;
     }
 
