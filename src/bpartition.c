@@ -29,7 +29,7 @@ static int isdigits(const char *s, const int size) {
         if (max > 0 || sizes[0]) {                                                                          \
             ASSERT(max, "error: line with only one columns: %s\n", columns[0]);                             \
             ASSERT(types[0] == BSV_INT, "error: first columns not a digit: %.*s\n", sizes[0], columns[0]);  \
-            file_num = CHAR_TO_INT32(columns[0]);                                                             \
+            file_num = CHAR_TO_INT(columns[0]);                                                             \
             ASSERT(file_num < num_buckets, "error: columns higher than num_buckets: %d\n", file_num);       \
             size -= sizes[0];                                                                               \
             max -= 1;                                                                                       \

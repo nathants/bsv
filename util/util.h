@@ -86,7 +86,7 @@ void _sigpipe_handler(int signum) {
 
 #define UINT16_TO_INT32(src) (memcpy(&_util_uint16, src, 2), (int32_t)_util_uint16)
 
-#define CHAR_TO_INT32(src) (memcpy(&_util_bsv_int, src, sizeof(bsv_int_t)), _util_bsv_int)
+#define CHAR_TO_INT(src) (memcpy(&_util_bsv_int, src, sizeof(bsv_int_t)), _util_bsv_int)
 
 #define CHAR_TO_FLOAT(src) (memcpy(&_util_bsv_float, src, sizeof(bsv_float_t)), _util_bsv_float)
 
