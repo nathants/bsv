@@ -51,7 +51,7 @@ int main(int argc, const char **argv) {
             for (i = 0; i <= csv_max; i++)
                 csv_size += csv_sizes[i];
             if (csv_types[0] != BSV_CHAR)
-                DEBUG("warn: first column value is numeric, which will sort incorrectly. first column the only column is the sort key, and is interpreted as bytes\n");
+                DEBUG("warn: first column value is numeric, which will sort incorrectly. first column is the sort key, and is interpreted as bytes\n");
             DUMP(0, csv_max, csv_columns, csv_types, csv_sizes, csv_size);
         }
     }
