@@ -1,6 +1,6 @@
 .PHONY: all clean test
 CFLAGS=-Iutil -Ivendor -flto -O3 -march=native -mtune=native
-ALL=docs bbucket bcat bcounteach bcut bdedupe bdisjoint bdropuntil bmerge bpartition brmerge brsort bsort bsplit bsum bsv btake btakeuntil _copy _csv csv _gen_csv xxh3
+ALL=docs bbucket bcat bcounteach bcountrows bcut bdedupe bdisjoint bdropuntil bmerge bpartition brmerge brsort bsort bsplit bsum bsv btake btakeuntil _copy _csv csv _gen_csv xxh3
 
 all: $(ALL)
 
@@ -24,6 +24,9 @@ bcat: setup
 
 bcounteach: setup
 	gcc $(CFLAGS) src/bcounteach.c -o bin/bcounteach
+
+bcountrows: setup
+	gcc $(CFLAGS) src/bcountrows.c -o bin/bcountrows
 
 bcut: setup
 	gcc $(CFLAGS) src/bcut.c -o bin/bcut
