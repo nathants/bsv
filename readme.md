@@ -11,6 +11,7 @@ cli utilites to combine into pipelines.
 - [bbucket](#bbucket) - prefix each row with a consistent hash of the first column
 - [bcat](#bcat) - cat some bsv file to csv
 - [bcounteach](#bcounteach) - count and collapse each contiguous identical row
+- [bcountrows](#bcountrows) - count rows
 - [bcut](#bcut) - select some columns
 - [bdedupe](#bdedupe) - dedupe identical contiguous lines
 - [bdisjoint](#bdisjoint) - given sorted files, create new files with deduped values not in multiple files
@@ -79,6 +80,21 @@ a
 a,2
 b,3
 a,1
+```
+
+### [bcountrows](https://github.com/nathants/bsv/blob/master/src/bcountrows.c)
+
+count rows
+
+usage: `... | bcountrows`
+
+```
+>> echo -e '1
+2
+3
+4.1
+' | bsv | bcountrows | csv
+4
 ```
 
 ### [bcut](https://github.com/nathants/bsv/blob/master/src/bcut.c)
