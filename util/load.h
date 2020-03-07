@@ -9,15 +9,15 @@
     int32_t name##_size;                    /* total number of chars in all columns */              \
     int32_t name##_sizes[MAX_COLUMNS];      /* array of the number of chars in each column */       \
     int32_t name##_types[MAX_COLUMNS];      /* array of types as int, see util.h */                 \
-    uint8_t * name##_columns[MAX_COLUMNS]; /* array of columns as uint8_t-star */                   \
+    uint8_t * name##_columns[MAX_COLUMNS];  /* array of columns as uint8_t pointer */               \
     uint8_t * name##_buffer;                                                                        \
     MALLOC(name##_buffer, BUFFER_SIZE);
 
 #define LOAD_INIT(files, num_files)             \
     READ_INIT(files, num_files);                \
-    int32_t l_i;                               \
-    int32_t l_bytes;                           \
-    int32_t l_offset;                          \
+    int32_t l_i;                                \
+    int32_t l_bytes;                            \
+    int32_t l_offset;                           \
     LOAD_NEW(load);
 
 #define _READ_ASSERT(size, i)                                                                           \
@@ -26,7 +26,7 @@
 
 #define LOAD(i)                                                                                         \
     do {                                                                                                \
-        READ(sizeof(uint16_t), i); /* read size of row */                                               \
+        READ(sizeof(uint16_t), i);                                                                      \
         if (read_bytes == sizeof(uint16_t)) {                                                           \
             load_stop = 0;                                                                              \
             load_max = UINT16_TO_INT32(read_buffer);                                                    \
@@ -37,16 +37,16 @@
             load_size = 0;                                                                              \
             for (l_i = 0; l_i <= load_max; l_i++) {                                                     \
                 load_sizes[l_i] = UINT16_TO_INT32(read_buffer + l_i * sizeof(uint16_t));                \
-                load_columns[l_i] = load_buffer + load_size;                                            \
                 load_size += load_sizes[l_i];                                                           \
             }                                                                                           \
             _READ_ASSERT(load_size, i);                                                                 \
-            memcpy(load_buffer, read_buffer, load_size);                                                \
-        } else if (read_bytes == 0) {                                                                   \
+            load_columns[0] = read_buffer;                                                              \
+            for (l_i = 0; l_i <= load_max - 1; l_i++)                                                   \
+                load_columns[l_i + 1] = load_columns[l_i] + load_sizes[l_i];                            \
+        } else if (read_bytes == 0)                                                                     \
             load_stop = 1;                                                                              \
-        } else {                                                                                        \
+        else                                                                                            \
             ASSERT(0, "fatal: load.h read size of row got bad num bytes, this should never happen\n");  \
-        }                                                                                               \
     } while(0)
 
 #endif
