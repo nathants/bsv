@@ -14,7 +14,6 @@ cli utilites to combine into pipelines.
 - [bcountrows](#bcountrows) - count rows
 - [bcut](#bcut) - select some columns
 - [bdedupe](#bdedupe) - dedupe identical contiguous lines
-- [bdisjoint](#bdisjoint) - given sorted files, create new files with deduped values not in multiple files
 - [bdropuntil](#bdropuntil) - drop until the first column is gte to VALUE
 - [bmerge](#bmerge) - merge sorted files
 - [bpartition](#bpartition) - split into multiple files by the first column value
@@ -126,42 +125,6 @@ a
 a
 b
 a
-```
-
-### [bdisjoint](https://github.com/nathants/bsv/blob/master/src/bdisjoint.c)
-
-given sorted files, create new files with deduped values not in multiple files
-
-usage: `... | bdisjoint SUFFIX FILE1 ... FILEN`
-
-```
->> echo '
-1
-2
-' | bsv > a
-
->> echo '
-2
-3
-4
-' | bsv > b
-
->> echo '
-4
-5
-5
-' | bsv > c
-
->> bdisjoint out a b c
-
->> csv < a.out
-1
-
->> csv < b.out
-3
-
->> csv < c.out
-5
 ```
 
 ### [bdropuntil](https://github.com/nathants/bsv/blob/master/src/bdropuntil.c)
