@@ -45,6 +45,10 @@ void _sigpipe_handler(int signum) {
 
 #define MAX(x, y) ((x > y) ? x : y)
 
+// NOTE: you probably never want to change BUFFER_SIZE. this value
+// must be equal for data at rest and tools processing that data. ie
+// if you want to change it, you have to convert your data to bsv
+// again.
 #define BUFFER_SIZE 1024 * 1024 * 5
 
 #define MAX_COLUMNS 65535
