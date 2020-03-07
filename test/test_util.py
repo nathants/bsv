@@ -26,8 +26,12 @@ def runb(stdin, *args):
     with shell.climb_git_root():
         stdinpath = 'stdin'
         stdoutpath = 'stdout'
-        with open(stdinpath, 'w') as f:
-            f.write(stdin)
+        if isinstance(stdin, str):
+            with open(stdinpath, 'w') as f:
+                f.write(stdin)
+        else:
+            with open(stdinpath, 'wb') as f:
+                f.write(stdin)
         shell.run(*(('set -o pipefail; cat', stdinpath, '|') + args + ('>', stdoutpath)), stream=True)
         with open(stdoutpath, 'rb') as f:
             return f.read()

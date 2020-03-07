@@ -1,3 +1,5 @@
+import bsv
+import io
 import shell
 import struct
 import os
@@ -60,7 +62,27 @@ def expected(text):
 @settings(database=ExampleDatabase(':memory:'), max_examples=100 * int(os.environ.get('TEST_FACTOR', 1)), deadline=os.environ.get("TEST_DEADLINE", 1000 * 60))
 def test_props(arg):
     buffers, csv = arg
-    assert expected(csv) + '\n' == run(csv, f'bsv.{buffers} | bin/csv.{buffers}')
+    assert expected(csv) + '\n' == run(csv, f'bsv.{buffers} | csv.{buffers}')
+
+@given(inputs())
+@settings(database=ExampleDatabase(':memory:'), max_examples=100 * int(os.environ.get('TEST_FACTOR', 1)), deadline=os.environ.get("TEST_DEADLINE", 1000 * 60))
+def test_props_python_write(arg):
+    buffers, csv = arg
+    csv[:1024 * 1024 * 5] # slice to buffer size which is max python write supports
+    bytes_io = io.BytesIO()
+    data = [row.split(b',') for row in csv.encode('utf-8').split(b'\n')]
+    bsv.dump(bytes_io, data)
+    assert expected(csv) == runb(bytes_io.getvalue(), 'csv').decode('utf-8').rstrip()
+
+@given(inputs())
+@settings(database=ExampleDatabase(':memory:'), max_examples=100 * int(os.environ.get('TEST_FACTOR', 1)), deadline=os.environ.get("TEST_DEADLINE", 1000 * 60))
+def test_props_python_read(arg):
+    buffers, csv = arg
+    assert expected(csv) + '\n' == '\n'.join(','.join(v.decode('utf-8')
+                                                      if isinstance(v, bytes)
+                                                      else str(v)
+                                                      for v in row)
+                                             for row in bsv.load(io.BytesIO(runb(csv, f'bsv.{buffers}')))) + '\n'
 
 def test_example1():
     csv = ',\n'
@@ -74,16 +96,16 @@ def test_example1():
         struct.pack('H', 0), # uint16 sizes, see load.h
     ])
     assert bsv == val
-    assert csv == run(csv, f'bsv | bin/csv')
+    assert csv == run(csv, f'bsv | csv')
 
 def test_numeric_first_column_is_illegal():
     res = shell.run('echo 1 | bsv', warn=True)
-    assert 'warn: first column value is numeric, which will sort incorrectly. first column the only column is the sort key, and is interpreted as bytes' == res['stderr']
+    assert 'warn: first column value is numeric, which will sort incorrectly. first column is the sort key, and is interpreted as bytes' == res['stderr']
     assert res['exitcode'] == 0
 
 def test_max_bytes():
     stdin = 'a' * (2**16 - 1)
-    assert len(stdin.strip()) == len(run(stdin, 'bsv | bin/csv').strip())
+    assert len(stdin.strip()) == len(run(stdin, 'bsv | csv').strip())
     stdin = 'a' * (2**16)
     with shell.climb_git_root():
         res = shell.run('bsv', stdin=stdin, warn=True)
@@ -105,7 +127,7 @@ def test_encoding():
         b'a',
     ])
     assert bsv == val
-    assert rm_whitespace(stdin) + '\n' == run(rm_whitespace(stdin), 'bsv | bin/csv')
+    assert rm_whitespace(stdin) + '\n' == run(rm_whitespace(stdin), 'bsv | csv')
 
     stdin = """
     a,bb,ccc
@@ -125,7 +147,7 @@ def test_encoding():
         b'abbccc',
     ])
     assert bsv == val
-    assert rm_whitespace(stdin) + '\n' == run(rm_whitespace(stdin), 'bsv | bin/csv')
+    assert rm_whitespace(stdin) + '\n' == run(rm_whitespace(stdin), 'bsv | csv')
 
     stdin = """
     a,12,1.500000
@@ -145,7 +167,7 @@ def test_encoding():
         b'a', struct.pack('q', 12), struct.pack('d', 1.5),
     ])
     assert bsv == val
-    assert rm_whitespace(stdin) + '\n' == run(rm_whitespace(stdin), 'bsv | bin/csv')
+    assert rm_whitespace(stdin) + '\n' == run(rm_whitespace(stdin), 'bsv | csv')
 
     stdin = """
     a
@@ -162,7 +184,7 @@ def test_encoding():
         b'a',
     ])
     assert bsv == val
-    assert rm_whitespace(stdin) + '\n' == run(rm_whitespace(stdin), 'bsv | bin/csv')
+    assert rm_whitespace(stdin) + '\n' == run(rm_whitespace(stdin), 'bsv | csv')
 
     stdin = '\n'
-    assert rm_whitespace(stdin) + '\n' == run(rm_whitespace(stdin), 'bsv | bin/csv')
+    assert rm_whitespace(stdin) + '\n' == run(rm_whitespace(stdin), 'bsv | csv')
