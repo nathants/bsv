@@ -24,26 +24,29 @@
     READ(size, i);                                                                                      \
     ASSERT(read_bytes == size, "didnt read enough, only got: %d, expected: %d\n", read_bytes, size);
 
-#define LOAD(i)                                                                             \
-    do {                                                                                    \
-        READ(sizeof(uint16_t), i);                                                          \
-        load_stop = 1;                                                                      \
-        if (read_bytes == sizeof(uint16_t)) {                                               \
-            load_stop = 0;                                                                  \
-            load_max = UINT16_TO_INT32(read_buffer);                                        \
-            _READ_ASSERT((load_max + 1) * sizeof(uint8_t), i);                              \
-            for (l_i = 0; l_i <= load_max; l_i++)                                           \
-                load_types[l_i] = UINT8_TO_INT32(read_buffer + l_i * sizeof(uint8_t));      \
-            _READ_ASSERT((load_max + 1) * sizeof(uint16_t), i);                             \
-            load_size = 0;                                                                  \
-            for (l_i = 0; l_i <= load_max; l_i++) {                                         \
-                load_sizes[l_i] = UINT16_TO_INT32(read_buffer + l_i * sizeof(uint16_t));    \
-                load_columns[l_i] = load_buffer + load_size;                                \
-                load_size += load_sizes[l_i];                                               \
-            }                                                                               \
-            _READ_ASSERT(load_size, i);                                                     \
-            memcpy(load_buffer, read_buffer, load_size);                                    \
-        }                                                                                   \
+#define LOAD(i)                                                                                         \
+    do {                                                                                                \
+        READ(sizeof(uint16_t), i); /* read size of row */                                               \
+        if (read_bytes == sizeof(uint16_t)) {                                                           \
+            load_stop = 0;                                                                              \
+            load_max = UINT16_TO_INT32(read_buffer);                                                    \
+            _READ_ASSERT((load_max + 1) * sizeof(uint8_t), i);                                          \
+            for (l_i = 0; l_i <= load_max; l_i++)                                                       \
+                load_types[l_i] = UINT8_TO_INT32(read_buffer + l_i * sizeof(uint8_t));                  \
+            _READ_ASSERT((load_max + 1) * sizeof(uint16_t), i);                                         \
+            load_size = 0;                                                                              \
+            for (l_i = 0; l_i <= load_max; l_i++) {                                                     \
+                load_sizes[l_i] = UINT16_TO_INT32(read_buffer + l_i * sizeof(uint16_t));                \
+                load_columns[l_i] = load_buffer + load_size;                                            \
+                load_size += load_sizes[l_i];                                                           \
+            }                                                                                           \
+            _READ_ASSERT(load_size, i);                                                                 \
+            memcpy(load_buffer, read_buffer, load_size);                                                \
+        } else if (read_bytes == 0) {                                                                   \
+            load_stop = 1;                                                                              \
+        } else {                                                                                        \
+            ASSERT(0, "fatal: load.h read size of row got bad num bytes, this should never happen\n");  \
+        }                                                                                               \
     } while(0)
 
 #endif
