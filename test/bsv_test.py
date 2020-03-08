@@ -88,7 +88,7 @@ def test_example1():
     csv = ',\n'
     val = runb(csv, 'bsv')
     bsv = b''.join([
-        struct.pack('i', 8), # uint32 num bytes in this chunk,
+        struct.pack('i', 8), # uint32 num bytes in this chunk, chunks contain 1 or more rows
         struct.pack('H', 1), # uint16 max, see load.h
         struct.pack('B', 0), # uint8 types, see load.h
         struct.pack('B', 0), # uint8 types, see load.h
@@ -119,7 +119,7 @@ def test_encoding():
     val = runb(rm_whitespace(stdin), 'bsv')
     bsv = b''.join([
         # chunk header
-        struct.pack('i', 6), # uint32 num bytes in this chunk,
+        struct.pack('i', 6), # uint32 num bytes in this chunk, chunks contain 1 or more rows
         # chunk body
         struct.pack('H', 0), # uint16 max, see load.h
         struct.pack('B', 0), # uint8 types, see load.h
@@ -135,7 +135,7 @@ def test_encoding():
     val = runb(rm_whitespace(stdin), 'bsv')
     bsv = b''.join([
         # chunk header
-        struct.pack('i', 17), # uint32 num bytes in this chunk,
+        struct.pack('i', 17), # uint32 num bytes in this chunk, chunks contain 1 or more rows
         # chunk body
         struct.pack('H', 2), # uint16 max, see load.h
         struct.pack('B', 0), # uint8 types, see load.h
@@ -155,7 +155,7 @@ def test_encoding():
     val = runb(rm_whitespace(stdin), 'bsv')
     bsv = b''.join([
         # chunk header
-        struct.pack('i', 28), # uint32 num bytes in this chunk,
+        struct.pack('i', 28), # uint32 num bytes in this chunk, chunks contain 1 or more rows
         # chunk body
         struct.pack('H', 2), # uint16 max, see load.h
         struct.pack('B', 0), # uint8 types, see load.h
@@ -176,7 +176,7 @@ def test_encoding():
     val = bytes(val, 'utf-8')
     bsv = b''.join([
         # chunk header
-        struct.pack('i', 6), # uint32 num bytes in this chunk,
+        struct.pack('i', 6), # uint32 num bytes in this chunk, chunks contain 1 or more rows
         # chunk body
         struct.pack('H', 0), # uint16 max, see load.h
         struct.pack('B', 0), # uint8 types, see load.h

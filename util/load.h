@@ -4,12 +4,12 @@
 #include "read.h"
 
 #define LOAD_NEW(name)                                                                              \
-    int32_t name##_stop;                    /* stop immediately */                                  \
-    int32_t name##_max;                     /* highest zero-based index into sizes and columns */   \
-    int32_t name##_size;                    /* total number of chars in all columns */              \
-    int32_t name##_sizes[MAX_COLUMNS];      /* array of the number of chars in each column */       \
-    int32_t name##_types[MAX_COLUMNS];      /* array of types as int, see util.h */                 \
-    uint8_t * name##_columns[MAX_COLUMNS];  /* array of columns as uint8_t pointer */
+    int32_t name##_stop; /* -------------------- stop immediately */                                \
+    int32_t name##_max; /* -------------------- highest zero-based index into sizes and columns */  \
+    int32_t name##_size; /* -------------------- total number of chars in all columns */            \
+    int32_t name##_sizes[MAX_COLUMNS]; /* ----- array of the number of chars in each column */      \
+    int32_t name##_types[MAX_COLUMNS]; /* ------ array of types as int, see util.h */               \
+    uint8_t * name##_columns[MAX_COLUMNS];  /* - array of columns as uint8_t pointer */
 
 #define LOAD_INIT(files, num_files)             \
     READ_INIT(files, num_files);                \

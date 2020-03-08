@@ -28,13 +28,13 @@
             WRITE_FLUSH(i);                                                         \
     } while (0)
 
-#define WRITE_FLUSH(i)                                                                                      \
-    do {                                                                                                    \
-        if (w_offset[i]) {                                                                                  \
-            FWRITE(&w_offset[i], sizeof(int32_t), w_files[i]); /* write chunk header with size of chunk */  \
-            FWRITE(w_buffer[i], w_offset[i], w_files[i]);  /* write chunk */                                \
-            w_offset[i] = 0;                                                                                \
-        }                                                                                                   \
+#define WRITE_FLUSH(i)                                                                                                  \
+    do {                                                                                                                \
+        if (w_offset[i]) { /* ------------------------------------- flush with an empty buffer is a nop */              \
+            FWRITE(&w_offset[i], sizeof(int32_t), w_files[i]); /* - write chunk header with size of chunk */            \
+            FWRITE(w_buffer[i], w_offset[i], w_files[i]);  /* ----- write chunk */                                      \
+            w_offset[i] = 0; /* ----------------------------------- reset the buffer to prepare for the next write */   \
+        }                                                                                                               \
     } while (0)
 
 #endif
