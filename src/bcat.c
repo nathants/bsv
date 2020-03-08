@@ -75,12 +75,12 @@ int main(int argc, const char **argv) {
             for (j = 0; j <= load_max; j++) {
                 switch (load_types[j]) {
                     case BSV_INT:
-                        sprintf(buffer, "%d", CHAR_TO_INT(load_columns[j]));
+                        sprintf(buffer, "%d", BYTES_TO_INT(load_columns[j]));
                         load_columns[j] = buffer;
                         load_sizes[j] = strlen(buffer);
                         break;
                     case BSV_FLOAT:
-                        sprintf(buffer, "%f", CHAR_TO_FLOAT(load_columns[j]));
+                        sprintf(buffer, "%f", BYTES_TO_FLOAT(load_columns[j]));
                         load_columns[j] = buffer;
                         load_sizes[j] = strlen(buffer);
                         break;

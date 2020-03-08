@@ -23,11 +23,11 @@ int main(int argc, const char **argv) {
         for (i = 0; i <= load_max; i++) {
             switch (load_types[i]) {
                 case BSV_INT:
-                    load_sizes[i] = sprintf(buffer, "%ld", CHAR_TO_INT(load_columns[i]));
+                    load_sizes[i] = sprintf(buffer, "%ld", BYTES_TO_INT(load_columns[i]));
                     load_columns[i] = buffer;
                     break;
                 case BSV_FLOAT:
-                    load_sizes[i] = sprintf(buffer, "%lf", CHAR_TO_FLOAT(load_columns[i]));
+                    load_sizes[i] = sprintf(buffer, "%lf", BYTES_TO_FLOAT(load_columns[i]));
                     load_columns[i] = buffer;
                     break;
             }

@@ -16,7 +16,7 @@
                     size * sizeof(uint8_t), i);                                                                                                                                         \
         WRITE(INT32_TO_UINT16(max), sizeof(uint16_t), i);                                                                                                                               \
         for (d_i = 0; d_i <= max; d_i++)                                                                                                                                                \
-            WRITE(INT_TO_UINT8(types[d_i]), sizeof(uint8_t), i);                                                                                                                        \
+            WRITE(INT32_TO_UINT8(types[d_i]), sizeof(uint8_t), i);                                                                                                                        \
         for (d_i = 0; d_i <= max; d_i++) {                                                                                                                                              \
             ASSERT(sizes[d_i] <= MAX_COLUMNS, "fatal: cannot have columns with more than 2**16 bytes, column: %d, size: %d, content: %.*s...\n", d_i, sizes[d_i], 10, columns[d_i]);    \
             WRITE(INT32_TO_UINT16(sizes[d_i]), sizeof(uint16_t), i);                                                                                                                    \
