@@ -1,6 +1,7 @@
 #include "load_dump.h"
 #include "row.h"
 #include "kvec.h"
+#include "simd.h"
 
 #define NUM_ARGS 1
 #define DESCRIPTION "reverse sort rows\n\n"
@@ -9,7 +10,7 @@
 
 #define SORT_NAME row
 #define SORT_TYPE row_t *
-#define SORT_CMP(x, y) -row_cmp((x)->buffer, (y)->buffer, (x)->sizes[0], (y)->sizes[0])
+#define SORT_CMP(x, y) -simd_strcmp((x)->columns[0], (y)->columns[0])
 #include "sort.h"
 
 int main(int argc, const char **argv) {

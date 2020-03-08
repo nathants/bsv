@@ -1,6 +1,7 @@
 #include "load_dump.h"
 #include "row.h"
 #include "kvec.h"
+#include "simd.h"
 
 #define NUM_ARGS 1
 #define DESCRIPTION "PROBABLY DO NOT USE THIS, use bsv,csv,coreutils-sort\n\n"
@@ -9,8 +10,7 @@
 
 #define SORT_NAME row
 #define SORT_TYPE row_t *
-/* #define SORT_CMP(x, y) strcmp((x)->buffer, (y)->buffer) */ // TODO can we go this fast?
-#define SORT_CMP(x, y) row_cmp((x)->buffer, (y)->buffer, (x)->sizes[0], (y)->sizes[0])
+#define SORT_CMP(x, y) simd_strcmp((x)->columns[0], (y)->columns[0])
 #include "sort.h"
 
 // TODO can we go as fast as: LC_ALL=C sort

@@ -45,22 +45,15 @@ void _sigpipe_handler(int signum) {
 
 #define MAX(x, y) ((x > y) ? x : y)
 
+#define MAX_COLUMNS 65535
+
 // NOTE: you probably never want to change BUFFER_SIZE. this value
 // must be equal for data at rest and tools processing that data. ie
 // if you want to change it, you have to convert your data to bsv
 // again.
 #define BUFFER_SIZE 1024 * 1024 * 5
 
-#define MAX_COLUMNS 65535
-
 #define DELIMITER ','
-
-#define EQUAL(x, y) (                                                           \
-        x##_size == y##_size &&                                                 \
-        x##_max == y##_max &&                                                   \
-        memcmp(x##_types, y##_types, (x##_max + 1) * sizeof(uint16_t)) == 0 &&  \
-        memcmp(x##_sizes, y##_sizes, (x##_max + 1) * sizeof(int32_t)) == 0 &&   \
-        memcmp(x##_columns[0], y##_columns[0], x##_size) == 0)
 
 #define ASSERT(cond, ...) if (!(cond)) { fprintf(stderr, ##__VA_ARGS__); exit(1); }
 
@@ -85,7 +78,6 @@ void _sigpipe_handler(int signum) {
     }
 
 // TODO would it be more performant to use casts instead of memcpy? more complex?
-
 #define INT32_TO_UINT16(src) (_util_uint16 = (uint16_t)src, &_util_uint16)
 #define UINT16_TO_INT32(src) (memcpy(&_util_uint16, src, 2), (int32_t)_util_uint16)
 #define BYTES_TO_INT(src)    (memcpy(&_util_bsv_int, src, sizeof(bsv_int_t)), _util_bsv_int)
@@ -110,16 +102,5 @@ void _sigpipe_handler(int signum) {
                "fatal: invariants are varying!\n");                                                 \
         ASSERT(BUFFER_SIZE < INT_MAX, "fatal: buffer size must be less than INT_MAX\n");            \
     } while (0)
-
-// TODO can we go as fast as: LC_ALL=C sort and strcmp()
-static inline int row_cmp(char * a, char * b, int size_a, int size_b) {
-    int res = strncmp(a, b, MIN(size_a, size_b));
-    if (res != 0)
-        return res;
-    else if (size_a < size_b)
-        return -1;
-    else
-        return 1;
-}
 
 #endif
