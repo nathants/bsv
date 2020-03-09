@@ -88,43 +88,50 @@ def test_example1():
     csv = ',\n'
     val = runb(csv, 'bsv')
     bsv = b''.join([
-        struct.pack('i', 8), # uint32 num bytes in this chunk, chunks contain 1 or more rows
+        struct.pack('i', 8 + 2), # uint32 num bytes in this chunk, chunks contain 1 or more rows
         struct.pack('H', 1), # uint16 max, see load.h
         struct.pack('B', 0), # uint8 types, see load.h
         struct.pack('B', 0), # uint8 types, see load.h
         struct.pack('H', 0), # uint16 sizes, see load.h
         struct.pack('H', 0), # uint16 sizes, see load.h
+        b'\0\0',
     ])
     assert bsv == val
     assert csv == run(csv, f'bsv | csv')
 
-def test_numeric_first_column_is_illegal():
+def test_numeric_first_column_is_possibly_unwise():
     res = shell.run('echo 1 | bsv', warn=True)
     assert 'warn: first column value is numeric, which will sort incorrectly. first column is the sort key, and is interpreted as bytes' == res['stderr']
     assert res['exitcode'] == 0
 
 def test_max_bytes():
-    stdin = 'a' * (2**16 - 1)
+    stdin = 'a' * (2**16 - 2)
     assert len(stdin.strip()) == len(run(stdin, 'bsv | csv').strip())
     stdin = 'a' * (2**16)
     with shell.climb_git_root():
         res = shell.run('bsv', stdin=stdin, warn=True)
-    assert 'fatal: cannot have columns with more than 2**16 bytes, column: 0, size: 65536, content: aaaaaaaaaa...' == res['stderr']
+    assert 'fatal: cannot have columns with more than 2**16 - 1 bytes, column: 0, size: 65536, content: aaaaaaaaaa...' == res['stderr']
     assert res['exitcode'] == 1
 
 def test_encoding():
+    stdin = '\n'
+    val = runb(stdin, 'bsv')
+    bsv = b''
+    assert bsv == val
+    assert stdin == run(stdin, 'bsv | csv')
+
     stdin = """
     a
     """
     val = runb(rm_whitespace(stdin), 'bsv')
     bsv = b''.join([
         # chunk header
-        struct.pack('i', 6), # uint32 num bytes in this chunk, chunks contain 1 or more rows
+        struct.pack('i', 6 + 1), # uint32 num bytes in this chunk, chunks contain 1 or more rows
         # chunk body
         struct.pack('H', 0), # uint16 max, see load.h
         struct.pack('B', 0), # uint8 types, see load.h
         struct.pack('H', 1), # uint16 sizes, see load.h
-        b'a',
+        b'a\0'
     ])
     assert bsv == val
     assert rm_whitespace(stdin) + '\n' == run(rm_whitespace(stdin), 'bsv | csv')
@@ -135,7 +142,7 @@ def test_encoding():
     val = runb(rm_whitespace(stdin), 'bsv')
     bsv = b''.join([
         # chunk header
-        struct.pack('i', 17), # uint32 num bytes in this chunk, chunks contain 1 or more rows
+        struct.pack('i', 17 + 3), # uint32 num bytes in this chunk, chunks contain 1 or more rows
         # chunk body
         struct.pack('H', 2), # uint16 max, see load.h
         struct.pack('B', 0), # uint8 types, see load.h
@@ -144,7 +151,7 @@ def test_encoding():
         struct.pack('H', 1), # uint16 sizes, see load.h
         struct.pack('H', 2), # uint16 sizes, see load.h
         struct.pack('H', 3), # uint16 sizes, see load.h
-        b'abbccc',
+        b'a\0bb\0ccc\0',
     ])
     assert bsv == val
     assert rm_whitespace(stdin) + '\n' == run(rm_whitespace(stdin), 'bsv | csv')
@@ -155,7 +162,7 @@ def test_encoding():
     val = runb(rm_whitespace(stdin), 'bsv')
     bsv = b''.join([
         # chunk header
-        struct.pack('i', 28), # uint32 num bytes in this chunk, chunks contain 1 or more rows
+        struct.pack('i', 28 + 3), # uint32 num bytes in this chunk, chunks contain 1 or more rows
         # chunk body
         struct.pack('H', 2), # uint16 max, see load.h
         struct.pack('B', 0), # uint8 types, see load.h
@@ -164,7 +171,7 @@ def test_encoding():
         struct.pack('H', 1), # uint16 sizes, see load.h
         struct.pack('H', 8), # uint16 sizes, see load.h
         struct.pack('H', 8), # uint16 sizes, see load.h
-        b'a', struct.pack('q', 12), struct.pack('d', 1.5),
+        b'a\0', struct.pack('q', 12) + b'\0', struct.pack('d', 1.5) + b'\0',
     ])
     assert bsv == val
     assert rm_whitespace(stdin) + '\n' == run(rm_whitespace(stdin), 'bsv | csv')
@@ -176,12 +183,12 @@ def test_encoding():
     val = bytes(val, 'utf-8')
     bsv = b''.join([
         # chunk header
-        struct.pack('i', 6), # uint32 num bytes in this chunk, chunks contain 1 or more rows
+        struct.pack('i', 6 + 1), # uint32 num bytes in this chunk, chunks contain 1 or more rows
         # chunk body
         struct.pack('H', 0), # uint16 max, see load.h
         struct.pack('B', 0), # uint8 types, see load.h
         struct.pack('H', 1), # uint16 sizes, see load.h
-        b'a',
+        b'a\0',
     ])
     assert bsv == val
     assert rm_whitespace(stdin) + '\n' == run(rm_whitespace(stdin), 'bsv | csv')

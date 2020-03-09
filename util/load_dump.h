@@ -6,8 +6,8 @@
 
 #define LOAD_DUMP_INIT()                        \
     FILE *load_files[1] = {stdin};              \
-    FILE *dump_files[1] = {stdout};             \
     LOAD_INIT(load_files, 1);                   \
+    FILE *dump_files[1] = {stdout};             \
     DUMP_INIT(dump_files, 1);
 
 #endif

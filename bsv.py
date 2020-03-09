@@ -53,6 +53,7 @@ def load(f: io.IOBase) -> Generator[Union[bytes, int, float], None, None]:
                 vals = []
                 for type, size in zip(types, sizes):
                     data = buffer.read(size)
+                    assert buffer.read(1) == b'\0'
                     assert len(data) == size
                     if type == _BSV_CHAR:
                         pass
@@ -105,6 +106,7 @@ def dump(f: io.IOBase, xss: List[List[Union[bytes, int, float]]]) -> None:
             else:
                 assert False
             assert len(x) == buffer.write(x)
+            assert 1 == buffer.write(b'\0')
     assert _sizeof[_int32] == f.write(struct.pack(_int32, len(buffer.getvalue())))
     assert len(buffer.getvalue()) < _buffer_size, f'you cant dump more than {_buffer_size} bytes at a time'
     assert len(buffer.getvalue()) == f.write(buffer.getvalue())
