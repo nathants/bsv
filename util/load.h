@@ -27,14 +27,14 @@
         READ(sizeof(uint16_t), i);                                                                      \
         if (read_bytes == sizeof(uint16_t)) {                                                           \
             load_stop = 0;                                                                              \
-            load_max = UINT16_TO_INT32(read_buffer);                                                    \
+            load_max = BYTES_UINT16_TO_INT32(read_buffer);                                                    \
             _READ_ASSERT((load_max + 1) * sizeof(uint8_t), i);                                          \
             for (l_i = 0; l_i <= load_max; l_i++)                                                       \
-                load_types[l_i] = UINT8_TO_INT32(read_buffer + l_i * sizeof(uint8_t));                  \
+                load_types[l_i] = BYTES_UINT8_TO_INT32(read_buffer + l_i * sizeof(uint8_t));                  \
             _READ_ASSERT((load_max + 1) * sizeof(uint16_t), i);                                         \
             load_size = 0;                                                                              \
             for (l_i = 0; l_i <= load_max; l_i++) {                                                     \
-                load_sizes[l_i] = UINT16_TO_INT32(read_buffer + l_i * sizeof(uint16_t));                \
+                load_sizes[l_i] = BYTES_UINT16_TO_INT32(read_buffer + l_i * sizeof(uint16_t));                \
                 load_size += load_sizes[l_i];                                                           \
             }                                                                                           \
             _READ_ASSERT(load_size, i);                                                                 \
