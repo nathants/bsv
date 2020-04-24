@@ -61,6 +61,10 @@ void _sigpipe_handler(int signum) {
     dst = malloc(size);                         \
     ASSERT(dst != NULL, "fatal: failed to allocate memory\n");
 
+#define REALLOC(dst, size)                                       \
+    dst = realloc(dst, size);                                    \
+    ASSERT(dst != NULL, "fatal: failed to reallocate memory\n");
+
 #define FWRITE(buffer, size, file)                                                                          \
     _util_int32 = fwrite_unlocked(buffer, 1, size, file);                                                   \
     ASSERT(size == _util_int32, "fatal: failed to write output, expected %d got %d\n", size, _util_int32)
