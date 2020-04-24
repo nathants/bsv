@@ -25,7 +25,7 @@
         }                                                                                                                                                                                       \
         for (d_i = 0; d_i <= max; d_i++) {                                                                                                                                                      \
             WRITE(columns[d_i], sizes[d_i], i); /* ---------------------- write buffer */                                                                                                       \
-            WRITE("\0", 1, i); /* --------------------------------------- add a \0 after every column to make strcmp easier */                                                                  \
+            WRITE((d_i == max) ? "\0" : ",", 1, i); /* ---------------------------------------- add a , after every column and a \0 at row end to make strcmp easier */                         \
         }                                                                                                                                                                                       \
     } while(0)
 
