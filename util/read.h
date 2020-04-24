@@ -57,7 +57,7 @@
             if (r_bytes == sizeof(int32_t)) { /* -------------------------------------------- EOF so there is no next chunk */              \
                 FREAD(r_buffer[i], r_chunk_size[i], r_files[i]); /* ------------------------- read the chunk body */                        \
                 r_offset[i] = 0; /* --------------------------------------------------------- start at the beggining of the new chunk */    \
-                r_bytes_left = r_chunk_size[i] - r_offset[i]; /* ---------------------------- bytes left in the new chunk */                \
+                r_bytes_left = r_chunk_size[i]; /* ------------------------------------------ bytes left in the new chunk */                \
                 ASSERT(size <= r_bytes_left, "fatal: diskread, shouldnt happen, chunk sizes are known\n");                                  \
             } else if (r_bytes == 0) {                                                                                                      \
                 ASSERT(!ferror(r_files[i]), "fatal: couldnt read input\n");                                                                 \
