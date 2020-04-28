@@ -3,6 +3,20 @@
 
 #include <immintrin.h>
 
+#if defined(__clang__)
+
+static inline int simd_strcmp(const char* s1, const char* s2) {
+    int val = strcmp(s1, s2);
+    if (val > 0)
+        return 1;
+    else if (val < 0)
+        return -1;
+    else
+        return 0;
+}
+
+#else
+
 static inline int simd_strcmp(const char* s1, const char* s2) {
     // from: https://github.com/WojciechMula/simd-string/blob/e9f739c4b4eb953e18ccd284740f2761bf78c723/strcmp.cpp
     /* Copyright (c) 2006-2015, Wojciech Muła */
@@ -27,9 +41,6 @@ static inline int simd_strcmp(const char* s1, const char* s2) {
     /* NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS */
     /* SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. */
 
-    /* if (s1 == s2) { */
-        /* return 0; */
-    /* } */
     __m128i* ptr1 = (__m128i*)((char*)(s1));
     __m128i* ptr2 = (__m128i*)((char*)(s2));
     for (/**/; /**/; ptr1++, ptr2++) {
@@ -59,5 +70,7 @@ static inline int simd_strcmp(const char* s1, const char* s2) {
     }
     return 0;
 }
+
+#endif
 
 #endif
