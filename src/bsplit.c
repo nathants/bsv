@@ -1,4 +1,3 @@
-#include "stdlib.h"
 #include "util.h"
 #include "read.h"
 #include "xxh3.h"
@@ -20,8 +19,11 @@ int main(int argc, const char **argv) {
     uint64_t hash;
     FILE *f;
     int32_t chunks_per_file = 1;
+
+#if !defined(__clang__) // bsplit with no args sefaults on mac, wut?
     if (argc == 2)
         chunks_per_file = atoi(argv[1]);
+#endif
 
     while (1) {
         /* read the next chunk */
@@ -34,7 +36,7 @@ int main(int argc, const char **argv) {
         if (filename_set == 0) {
             filename_set = 1;
             hash = XXH3_64bits(r_buffer[0], r_chunk_size[0]);
-            sprintf(hex, "%d", abs(hash));
+            sprintf(hex, "%llu", hash);
         }
 
         if (!f) {
