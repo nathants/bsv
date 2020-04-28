@@ -14,8 +14,6 @@
 #define LOAD_INIT(files, num_files)             \
     READ_INIT(files, num_files);                \
     int32_t l_i;                                \
-    int32_t l_bytes;                            \
-    int32_t l_offset;                           \
     LOAD_NEW(load);
 
 #define _READ_ASSERT(size, i)                                                                           \

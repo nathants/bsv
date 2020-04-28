@@ -14,7 +14,7 @@
         WRITE_START(sizeof(uint16_t) + /* ------------------------------- max, the max zero based index into columns data */                                                                    \
                     ((max + 1) * sizeof(uint8_t)) +  /* ----------------- types */                                                                                                              \
                     ((max + 1) * sizeof(uint16_t)) + /* ----------------- sizes */                                                                                                              \
-                    ((max + 1) * sizeof(uint8_t)) + /* ------------------ \0 to after every column */                                                                                           \
+                    ((max + 1) * sizeof(uint8_t)) + /* ------------------ \0 after every column */                                                                                              \
                     size * sizeof(uint8_t), i); /* ---------------------- buffer */                                                                                                             \
         WRITE(INT32_TO_UINT16(max), sizeof(uint16_t), i); /* ------------ write max */                                                                                                          \
         for (d_i = 0; d_i <= max; d_i++)                                                                                                                                                        \
@@ -25,7 +25,7 @@
         }                                                                                                                                                                                       \
         for (d_i = 0; d_i <= max; d_i++) {                                                                                                                                                      \
             WRITE(columns[d_i], sizes[d_i], i); /* ---------------------- write buffer */                                                                                                       \
-            WRITE((d_i == max) ? "\0" : ",", 1, i); /* ---------------------------------------- add a , after every column and a \0 at row end to make strcmp easier */                         \
+            WRITE("\0", 1, i); /* --------------------------------------- add a \0 after every column to make strcmp easier */                                                                  \
         }                                                                                                                                                                                       \
     } while(0)
 
