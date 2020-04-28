@@ -3,7 +3,7 @@
 
 #include <immintrin.h>
 
-int simd_strcmp(const char* s1, const char* s2) {
+static inline int simd_strcmp(const char* s1, const char* s2) {
     // from: https://github.com/WojciechMula/simd-string/blob/e9f739c4b4eb953e18ccd284740f2761bf78c723/strcmp.cpp
     /* Copyright (c) 2006-2015, Wojciech Muła */
     /* All rights reserved. */
