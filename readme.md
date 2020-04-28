@@ -20,7 +20,7 @@ cli utilites to combine into pipelines.
 - [brmerge](#brmerge) - merge reverse sorted files
 - [brsort](#brsort) - reverse timsort rows by strcmp the first column
 - [bsort](#bsort) - timsort rows by strcmp the first column
-- [bsplit](#bsplit) - split a stream into a file per chunk. files are named after the hash of the first chunk and then numbered
+- [bsplit](#bsplit) - split a stream into multiple files. files are named after the hash of the first chunk and then numbered
 - [bsum](#bsum) - integer sum numbers in the first column and output a single value
 - [bsv](#bsv) - convert csv to bsv
 - [btake](#btake) - take while the first column is VALUE
@@ -245,9 +245,9 @@ c
 
 ### [bsplit](https://github.com/nathants/bsv/blob/master/src/bsplit.c)
 
-split a stream into a file per chunk. files are named after the hash of the first chunk and then numbered
+split a stream into multiple files. files are named after the hash of the first chunk and then numbered
 
-usage: `... | bsplit`
+usage: `... | bsplit [chunks_per_file=1]`
 
 ```
 >> echo -n a,b,c | bsv | bsplit
