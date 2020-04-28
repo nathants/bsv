@@ -1,4 +1,3 @@
-import bsv
 import io
 import shell
 import struct
@@ -64,25 +63,30 @@ def test_props(arg):
     buffers, csv = arg
     assert expected(csv) + '\n' == run(csv, f'bsv.{buffers} | csv.{buffers}')
 
-@given(inputs())
-@settings(database=ExampleDatabase(':memory:'), max_examples=100 * int(os.environ.get('TEST_FACTOR', 1)), deadline=os.environ.get("TEST_DEADLINE", 1000 * 60))
-def test_props_python_write(arg):
-    buffers, csv = arg
-    csv[:1024 * 1024 * 5] # slice to buffer size which is max python write supports
-    bytes_io = io.BytesIO()
-    data = [row.split(b',') for row in csv.encode('utf-8').split(b'\n')]
-    bsv.dump(bytes_io, data)
-    assert expected(csv) == runb(bytes_io.getvalue(), 'csv').decode('utf-8').rstrip()
+try:
+    import bsv
+except ImportError:
+    pass # not working on mac via tox
+else:
+    @given(inputs())
+    @settings(database=ExampleDatabase(':memory:'), max_examples=100 * int(os.environ.get('TEST_FACTOR', 1)), deadline=os.environ.get("TEST_DEADLINE", 1000 * 60))
+    def test_props_python_write(arg):
+        buffers, csv = arg
+        csv[:1024 * 1024 * 5] # slice to buffer size which is max python write supports
+        bytes_io = io.BytesIO()
+        data = [row.split(b',') for row in csv.encode('utf-8').split(b'\n')]
+        bsv.dump(bytes_io, data)
+        assert expected(csv) == runb(bytes_io.getvalue(), 'csv').decode('utf-8').rstrip()
 
-@given(inputs())
-@settings(database=ExampleDatabase(':memory:'), max_examples=100 * int(os.environ.get('TEST_FACTOR', 1)), deadline=os.environ.get("TEST_DEADLINE", 1000 * 60))
-def test_props_python_read(arg):
-    buffers, csv = arg
-    assert expected(csv) + '\n' == '\n'.join(','.join(v.decode('utf-8')
-                                                      if isinstance(v, bytes)
-                                                      else str(v)
-                                                      for v in row)
-                                             for row in bsv.load(io.BytesIO(runb(csv, f'bsv.{buffers}')))) + '\n'
+    @given(inputs())
+    @settings(database=ExampleDatabase(':memory:'), max_examples=100 * int(os.environ.get('TEST_FACTOR', 1)), deadline=os.environ.get("TEST_DEADLINE", 1000 * 60))
+    def test_props_python_read(arg):
+        buffers, csv = arg
+        assert expected(csv) + '\n' == '\n'.join(','.join(v.decode('utf-8')
+                                                          if isinstance(v, bytes)
+                                                          else str(v)
+                                                          for v in row)
+                                                 for row in bsv.load(io.BytesIO(runb(csv, f'bsv.{buffers}')))) + '\n'
 
 def test_example1():
     csv = ',\n'
