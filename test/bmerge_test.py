@@ -1,4 +1,3 @@
-
 import pytest
 import os
 import string
@@ -37,17 +36,11 @@ def test_basic():
         e,e
         f,f
         """
-        assert rm_whitespace(unindent(stdout)) == shell.run(f'bmerge a.bsv b.bsv | csv')
-
-def test_basic2():
-    with shell.tempdir():
-        shell.run('echo -e "a\n" | bsv > a.bsv')
-        shell.run('echo -e "a,a\n" | bsv > b.bsv')
-        assert shell.run('cat a.bsv b.bsv | bsort | csv') == shell.run(f'bmerge a.bsv b.bsv | csv')
+        assert rm_whitespace(unindent(stdout)) == shell.run(f'bmerge a.bsv b.bsv | csv', stream=True)
 
 @composite
 def inputs(draw):
-    num_inputs = 2
+    num_inputs = draw(integers(min_value=1, max_value=8))
     csvs = []
     for _ in range(num_inputs):
         num_columns = draw(integers(min_value=1, max_value=2))
@@ -76,5 +69,23 @@ def test_props(csvs):
                 path = f'file{i}.bsv'
                 shell.run(f'bsv > {path}', stdin=csv)
                 paths.append(path)
-            assert result.strip() == shell.run(f'bmerge', *paths, '| bcut 1 | csv')
+            assert result.strip() == shell.run(f'bmerge', *paths, '| bcut 1 | csv', echo=True)
             assert shell.run('cat', *paths, '| bsort | bcut 1 | csv') == shell.run(f'bmerge', *paths, '| bcut 1 | csv')
+
+@given(inputs())
+@settings(database=ExampleDatabase(':memory:'), max_examples=100 * int(os.environ.get('TEST_FACTOR', 1)), deadline=os.environ.get("TEST_DEADLINE", 1000 * 60))
+def test_props_compatability(csvs):
+    result = expected(csvs)
+    if result.strip():
+        with shell.tempdir():
+            bsv_paths = []
+            for i, csv in enumerate(csvs):
+                path = f'file{i}.bsv'
+                shell.run(f'bsv > {path}', stdin=csv)
+                bsv_paths.append(path)
+            csv_paths = []
+            for i, csv in enumerate(csvs):
+                path = f'file{i}.csv'
+                shell.run(f'cat - > {path}', stdin=csv)
+                csv_paths.append(path)
+            assert shell.run(f'LC_ALL=C sort -m -k1,1', *csv_paths, ' | cut -d, -f1') == shell.run(f'bmerge', *bsv_paths, ' | bcut 1 | csv', echo=True)

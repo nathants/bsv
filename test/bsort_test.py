@@ -41,15 +41,15 @@ def expected(csv):
 def test_props(csv):
     result = expected(csv)
     if result:
-        assert result == run(csv, f'bsv | bsort | bcut 1 | bin/csv')
+        assert result == run(csv, f'bsv | bsort | bcut 1 | csv')
     else:
         with pytest.raises(AssertionError):
-            run(csv, f'bsv | bsort | bin/csv')
+            run(csv, f'bsv | bsort | csv')
 
 @given(inputs())
 @settings(database=ExampleDatabase(':memory:'), max_examples=100 * int(os.environ.get('TEST_FACTOR', 1)), deadline=os.environ.get("TEST_DEADLINE", 1000 * 60))
 def test_props_compatability(csv):
-    assert run(csv, f'LC_ALL=C sort -k1,1 | cut -d, -f1') == run(csv, f'bsv | bsort | bcut 1 | bin/csv')
+    assert run(csv, f'LC_ALL=C sort -k1,1 | cut -d, -f1') == run(csv, f'bsv | bsort | bcut 1 | csv')
 
 def test_basic2():
     stdin = """
@@ -60,7 +60,7 @@ def test_basic2():
     a,b
     aa,a
     """
-    assert rm_whitespace(stdout) + '\n' == run(rm_whitespace(stdin), 'bsv | bsort | bin/csv')
+    assert rm_whitespace(stdout) + '\n' == run(rm_whitespace(stdin), 'bsv | bsort | csv')
 
 def test_basic():
     stdin = """
@@ -71,7 +71,7 @@ def test_basic():
     a
     aa
     """
-    assert rm_whitespace(stdout) + '\n' == run(rm_whitespace(stdin), 'bsv | bsort | bin/csv')
+    assert rm_whitespace(stdout) + '\n' == run(rm_whitespace(stdin), 'bsv | bsort | csv')
 
 def test_compatability():
     stdin = """
@@ -84,7 +84,7 @@ def test_compatability():
     b
     c
     """
-    assert rm_whitespace(stdout) + '\n' == run(rm_whitespace(stdin), 'bsv | bsort | bin/csv')
+    assert rm_whitespace(stdout) + '\n' == run(rm_whitespace(stdin), 'bsv | bsort | csv')
 
 def test_compatability2():
     stdin = """
@@ -97,4 +97,4 @@ def test_compatability2():
     b,b
     c,c
     """
-    assert rm_whitespace(stdout) + '\n' == run(rm_whitespace(stdin), 'bsv | bsort | bin/csv')
+    assert rm_whitespace(stdout) + '\n' == run(rm_whitespace(stdin), 'bsv | bsort | csv')

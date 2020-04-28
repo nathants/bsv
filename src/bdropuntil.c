@@ -1,4 +1,5 @@
 #include "load_dump.h"
+#include "simd.h"
 
 #define NUM_ARGS 2
 #define DESCRIPTION "drop until the first column is gte to VALUE\n\n"
@@ -10,7 +11,6 @@ int main(int argc, const char **argv) {
     SIGPIPE_HANDLER();
     LOAD_DUMP_INIT();
     char *val = argv[1];
-    uint32_t size = strlen(val);
     int32_t done_skipping = 0;
     int32_t matched = 0;
     int32_t cmp;
@@ -28,7 +28,7 @@ int main(int argc, const char **argv) {
             if (matched) { /* -------------------------------------------- once a match is found dump every row */
                 DUMP(0, load_max, load_columns, load_types, load_sizes, load_size);
             } else { /* -------------------------------------------------- check for a match */
-                cmp = row_cmp(load_columns[0], val, load_sizes[0], size);
+                cmp = simd_strcmp(load_columns[0], val);
                 if (done_skipping) { /* ---------------------------------- since we are done skipping ahead by chunks, check every row for gte */
                     if (cmp >= 0) {
                         DUMP(0, load_max, load_columns, load_types, load_sizes, load_size);

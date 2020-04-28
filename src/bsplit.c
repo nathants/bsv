@@ -3,9 +3,9 @@
 #include "read.h"
 #include "xxh3.h"
 
-#define NUM_ARGS 1
-#define DESCRIPTION "split a stream into a file per chunk. files are named after the hash of the first chunk and then numbered\n\n"
-#define USAGE "... | bsplit \n\n"
+#define NUM_ARGS 0
+#define DESCRIPTION "split a stream into multiple files. files are named after the hash of the first chunk and then numbered\n\n"
+#define USAGE "... | bsplit [chunks_per_file=1] \n\n"
 #define EXAMPLE ">> echo -n a,b,c | bsv | bsplit\n1595793589_0000000000\n"
 
 int main(int argc, const char **argv) {
@@ -14,10 +14,14 @@ int main(int argc, const char **argv) {
     FILE *read_files[1] = {stdin};
     READ_INIT(read_files, 1);
     int32_t filename_set = 0;
-    int32_t i = 0;
+    int32_t i = 0, j = 0;
     char hex[16];
     char filename[27];
     uint64_t hash;
+    FILE *f;
+    int32_t chunks_per_file = 1;
+    if (argc == 2)
+        chunks_per_file = atoi(argv[1]);
 
     while (1) {
         /* read the next chunk */
@@ -33,23 +37,28 @@ int main(int argc, const char **argv) {
             sprintf(hex, "%d", abs(hash));
         }
 
-        /* suffix in incrementing with 10 padded zeroes */
-        memset(filename, 0, sizeof(filename));
-        sprintf(filename, "%s_%010d", hex, i++);
+        if (!f) {
+            memset(filename, 0, sizeof(filename));
+            sprintf(filename, "%s_%010d", hex, i++);
+            f = fopen(filename, "wb");
+            ASSERT(f, "fatal: failed to open: %s\n", filename);
+            fprintf(stdout, "%s\n", filename);
+        }
 
-        /* dump the chunk */
-        FILE *f = fopen(filename, "wb");
-        ASSERT(f, "fatal: failed to open: %s\n", filename);
         FWRITE(&r_chunk_size[0], sizeof(int32_t), f);
         FWRITE(r_buffer[0], r_chunk_size[0], f);
-        ASSERT(fclose(f) != EOF, "fatal: failed to close files\n");
-
-        /* echo the dumped filename */
-        fprintf(stdout, "%s\n", filename);
 
         /* phony read to consume the rest of this chunk */
         READ(r_chunk_size[0], 0);
 
+        if (++j % chunks_per_file == 0) {
+            ASSERT(fclose(f) != EOF, "fatal: failed to close files\n");
+            f = NULL;
+        }
+
     }
+
+    if (f)
+        ASSERT(fclose(f) != EOF, "fatal: failed to close files\n");
 
 }

@@ -10,16 +10,16 @@ cli utilites to combine into pipelines.
 
 - [bbucket](#bbucket) - prefix each row with a consistent hash of the first column
 - [bcat](#bcat) - cat some bsv file to csv
-- [bcounteach](#bcounteach) - count and collapse each contiguous identical row
+- [bcounteach](#bcounteach) - count and collapse each contiguous identical row by strcmp the first column
 - [bcountrows](#bcountrows) - count rows
 - [bcut](#bcut) - select some columns
-- [bdedupe](#bdedupe) - dedupe identical contiguous lines
+- [bdedupe](#bdedupe) - dedupe identical contiguous rows by strcmp the first column
 - [bdropuntil](#bdropuntil) - drop until the first column is gte to VALUE
 - [bmerge](#bmerge) - merge sorted files
 - [bpartition](#bpartition) - split into multiple files by the first column value
 - [brmerge](#brmerge) - merge reverse sorted files
-- [brsort](#brsort) - reverse sort rows
-- [bsort](#bsort) - PROBABLY DO NOT USE THIS, use bsv,csv,coreutils-sort
+- [brsort](#brsort) - reverse timsort rows by strcmp the first column
+- [bsort](#bsort) - timsort rows by strcmp the first column
 - [bsplit](#bsplit) - split a stream into a file per chunk. files are named after the hash of the first chunk and then numbered
 - [bsum](#bsum) - integer sum numbers in the first column and output a single value
 - [bsv](#bsv) - convert csv to bsv
@@ -64,7 +64,7 @@ usage: `bcat [--prefix] [--head NUM] FILE1 ... FILEN`
 
 ### [bcounteach](https://github.com/nathants/bsv/blob/master/src/bcounteach.c)
 
-count and collapse each contiguous identical row
+count and collapse each contiguous identical row by strcmp the first column
 
 usage: `... | bcounteach`
 
@@ -109,7 +109,7 @@ c,c,c,b,b,a
 
 ### [bdedupe](https://github.com/nathants/bsv/blob/master/src/bdedupe.c)
 
-dedupe identical contiguous lines
+dedupe identical contiguous rows by strcmp the first column
 
 usage: `... | bdedupe`
 
@@ -148,7 +148,7 @@ d
 
 merge sorted files
 
-usage: `bmerge FILE1 FILE2`
+usage: `bmerge FILE1 ... FILEN`
 
 ```
 >> echo -e 'a
@@ -189,7 +189,7 @@ prefix02
 
 merge reverse sorted files
 
-usage: `brmerge FILE1 FILE2`
+usage: `brmerge FILE1 ... FILEN`
 
 ```
 >> echo -e 'e
@@ -211,9 +211,9 @@ a
 
 ### [brsort](https://github.com/nathants/bsv/blob/master/src/brsort.c)
 
-reverse sort rows
+reverse timsort rows by strcmp the first column
 
-usage: `... | brsort`
+usage: `... | bsort`
 
 ```
 >> echo '
@@ -228,7 +228,7 @@ a
 
 ### [bsort](https://github.com/nathants/bsv/blob/master/src/bsort.c)
 
-PROBABLY DO NOT USE THIS, use bsv,csv,coreutils-sort
+timsort rows by strcmp the first column
 
 usage: `... | bsort`
 

@@ -32,14 +32,17 @@ def teardown_module(m):
 @composite
 def inputs(draw):
     buffer = draw(sampled_from(buffers))
-    lines = draw(integers(min_value=buffer, max_value=1024 * 1024))
-    return buffer, lines
+    lines = draw(integers(min_value=buffer, max_value=1024))
+    chunks_per_file = draw(integers(min_value=0, max_value=64))
+    return buffer, lines, chunks_per_file
 
 @given(inputs())
 @settings(database=ExampleDatabase(':memory:'), max_examples=100 * int(os.environ.get('TEST_FACTOR', 1)), deadline=os.environ.get("TEST_DEADLINE", 1000 * 60))
 def test_props(args):
-    buffer, lines = args
+    buffer, lines, chunks_per_file = args
+    if not chunks_per_file:
+        chunks_per_file = ''
     with shell.tempdir():
-        shell.run(f'_gen_csv 1 8 {lines} | bsv.{buffer} > data.bsv', echo=True)
-        shell.run(f'cat data.bsv | bsplit.{buffer} > filenames')
-        assert shell.run(f'cat data.bsv | csv.{buffer} | xxh3') == shell.run(f'cat -- $(cat -- filenames) | csv.{buffer} | xxh3')
+        shell.run(f'_gen_csv 2 {lines} | bsv.{buffer} > data.bsv', echo=True)
+        shell.run(f'cat data.bsv | bsplit.{buffer} {chunks_per_file} > filenames')
+        assert shell.run(f'cat data.bsv | csv.{buffer} | xxh3') == shell.run(f'cat filenames | while read path; do cat $path; done | csv.{buffer} | xxh3')

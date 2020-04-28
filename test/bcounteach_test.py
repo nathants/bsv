@@ -23,7 +23,7 @@ def teardown_module(m):
 @composite
 def inputs(draw):
     random = draw(randoms())
-    num_columns = draw(integers(min_value=1, max_value=64))
+    num_columns = draw(integers(min_value=1, max_value=4))
     max_repeats = draw(integers(min_value=1, max_value=3))
     column = text(string.ascii_lowercase, min_size=1, max_size=64)
     line = lists(column, min_size=num_columns, max_size=num_columns)
@@ -36,6 +36,7 @@ def inputs(draw):
 
 def expected(csv):
     lines = csv.splitlines()
+    lines = [x.split(',')[0] for x in lines]
     result = []
     count = 0
     last = None

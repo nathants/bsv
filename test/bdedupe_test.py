@@ -23,7 +23,7 @@ def teardown_module(m):
 @composite
 def inputs(draw):
     random = draw(randoms())
-    num_columns = draw(integers(min_value=1, max_value=64))
+    num_columns = draw(integers(min_value=1, max_value=8))
     max_repeats = draw(integers(min_value=1, max_value=3))
     column = text(string.ascii_lowercase, min_size=1, max_size=64)
     line = lists(column, min_size=num_columns, max_size=num_columns)
@@ -38,7 +38,7 @@ def expected(csv):
     lines = csv.splitlines()
     result = []
     for line in lines:
-        if not result or result[-1] != line:
+        if not result or result[-1].split(',')[0] != line.split(',')[0]:
             result.append(line)
     return '\n'.join(result) + '\n'
 
@@ -47,7 +47,7 @@ def expected(csv):
 def test_props(args):
     csv = args
     result = expected(csv)
-    assert result == run(csv, f'bsv | bdedupe | bin/csv')
+    assert result == run(csv, f'bsv | bdedupe | csv')
 
 def test_basic():
     stdin = """
@@ -64,4 +64,4 @@ def test_basic():
     b
     a
     """
-    assert rm_whitespace(stdout) + '\n' == run(rm_whitespace(stdin), 'bsv | bdedupe | bin/csv')
+    assert rm_whitespace(stdout) + '\n' == run(rm_whitespace(stdin), 'bsv | bdedupe | csv')

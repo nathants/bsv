@@ -1,4 +1,5 @@
 #include "load_dump.h"
+#include "simd.h"
 
 #define NUM_ARGS 2
 #define DESCRIPTION "take until the first column is gte to VALUE\n\n"
@@ -10,13 +11,12 @@ int main(int argc, const char **argv) {
     SIGPIPE_HANDLER();
     LOAD_DUMP_INIT();
     char *val = argv[1];
-    uint32_t size = strlen(val);
     int cmp;
     while (1) {
         LOAD(0);
         if (load_stop)
             break;
-        if (row_cmp(load_columns[0], val, load_sizes[0], size) >= 0)
+        if (simd_strcmp(load_columns[0], val) >= 0)
             break;
         DUMP(0, load_max, load_columns, load_types, load_sizes, load_size);
     }
