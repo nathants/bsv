@@ -6,8 +6,8 @@
 #define READ_INIT(files, num_files)             \
     FILE **r_files = files;                     \
     int32_t read_bytes;                         \
-    char *read_buffer;                          \
-    char *r_buffer[num_files];                  \
+    uint8_t *read_buffer;                       \
+    uint8_t *r_buffer[num_files];               \
     int32_t r_bytes_left;                       \
     int32_t r_bytes_todo;                       \
     int32_t r_bytes = 0;                        \

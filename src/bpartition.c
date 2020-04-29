@@ -44,9 +44,9 @@ int main(int argc, const char **argv) {
     FILE *load_files[1] = {stdin};
     LOAD_INIT(load_files, 1);
 
-    char *prefix;
-    char num_buckets_str[16];
-    char path[1024];
+    uint8_t *prefix;
+    uint8_t num_buckets_str[16];
+    uint8_t path[1024];
     int32_t i, empty;
     int32_t file_num;
     int32_t num_buckets;

@@ -12,7 +12,7 @@
     READ_INIT(files, num_files);                \
     int32_t l_i;                                \
     int32_t l_header_size;                      \
-    char *l_header;                             \
+    uint8_t *l_header;                          \
     LOAD_NEW(load);
 
 #define _READ_ASSERT(size, i)                                                                           \

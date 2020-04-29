@@ -14,8 +14,8 @@ int main(int argc, const char **argv) {
     READ_INIT(read_files, 1);
     int32_t filename_set = 0;
     int32_t i = 0, j = 0;
-    char hex[16];
-    char filename[27];
+    uint8_t hex[16];
+    uint8_t filename[27];
     uint64_t hash;
     FILE *f;
     int32_t chunks_per_file = 1;

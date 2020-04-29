@@ -83,11 +83,11 @@ void _sigpipe_handler(int signum) {
 
 // TODO would it be more performant to use casts instead of memcpy? more complex?
 #define INT32_TO_UINT16(src) (_util_uint16 = (uint16_t)src, &_util_uint16)
-#define BYTES_UINT16_TO_INT32(src) (memcpy(&_util_uint16, src, 2), (int32_t)_util_uint16)
+#define BYTES_UINT16_TO_INT32(src) (memcpy(&_util_uint16, src, sizeof(uint16_t)), (int32_t)_util_uint16)
 #define BYTES_TO_INT(src)    (memcpy(&_util_bsv_int, src, sizeof(bsv_int_t)), _util_bsv_int)
 #define BYTES_TO_FLOAT(src)  (memcpy(&_util_bsv_float, src, sizeof(bsv_float_t)), _util_bsv_float)
 #define INT32_TO_UINT8(src)  (_util_uint8 = (uint8_t)src, &_util_uint8)
-#define BYTES_UINT8_TO_INT32(src)  (memcpy(&_util_uint8, src, 1), (int32_t)_util_uint8)
+#define BYTES_UINT8_TO_INT32(src)  (memcpy(&_util_uint8, src, sizeof(uint8_t)), (int32_t)_util_uint8)
 
 #define INVARIANTS()                                                                                \
     do {                                                                                            \

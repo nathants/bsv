@@ -5,7 +5,7 @@
 
 #define WRITE_INIT(files, num_files)                \
     FILE **w_files = files;                         \
-    char *w_buffer[num_files];                      \
+    uint8_t *w_buffer[num_files];                   \
     int32_t w_offset[num_files];                    \
     for (int32_t w_i = 0; w_i < num_files; w_i++) { \
         w_offset[w_i] = 0;                          \

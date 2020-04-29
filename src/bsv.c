@@ -16,13 +16,13 @@
                 csv_types[i] = BSV_INT;                             \
                 csv_ints[i] = (bsv_int_t)atol(csv_columns[i]);      \
                 csv_sizes[i] = sizeof(bsv_int_t);                   \
-                csv_columns[i] = (char*)(csv_ints + i);             \
+                csv_columns[i] = (uint8_t*)(csv_ints + i);          \
             }                                                       \
             else if (csv_num_dots[i] == 1 && csv_sizes[i] > 1) {    \
                 csv_types[i] = BSV_FLOAT;                           \
                 csv_floats[i] = (bsv_float_t)atof(csv_columns[i]);  \
                 csv_sizes[i] = sizeof(bsv_float_t);                 \
-                csv_columns[i] = (char*)(csv_floats + i);           \
+                csv_columns[i] = (uint8_t*)(csv_floats + i);        \
             }                                                       \
             csv_columns[i][csv_sizes[i]] = csv_char;                \
         }                                                           \
@@ -38,7 +38,7 @@ int main(int argc, const char **argv) {
     bsv_int_t csv_ints[MAX_COLUMNS];
     bsv_float_t csv_floats[MAX_COLUMNS];
     int32_t i;
-    char csv_char;
+    uint8_t csv_char;
     DUMP_INIT(files, 1);
     while (1) {
         CSV_READ_LINE(stdin);

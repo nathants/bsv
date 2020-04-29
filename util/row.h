@@ -5,9 +5,9 @@ typedef struct row_s {
     #ifdef ROW_META
         int32_t meta;
     #endif
-    char *header;
+    uint8_t *header;
     int32_t header_size;
-    char *buffer;
+    uint8_t *buffer;
     int32_t buffer_size;
 } row_t;
 

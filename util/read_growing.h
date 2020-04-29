@@ -3,20 +3,20 @@
 
 #include "util.h"
 
-#define READ_INIT(files, num_files)                 \
-    INVARIANTS();                                   \
-    FILE **r_files = files;                         \
-    char *read_buffer;                              \
-    char *r_buffer[num_files];                      \
-    int32_t read_bytes;                             \
-    int32_t r_bytes_left;                           \
-    int32_t r_bytes;                                \
-    int32_t r_offset[num_files];                    \
-    int32_t r_chunk_size[num_files];                \
-    int32_t r_i;                                    \
-    for (r_i = 0; r_i < num_files; r_i++) {         \
-        r_chunk_size[r_i] = BUFFER_SIZE;            \
-        r_offset[r_i] = BUFFER_SIZE;                \
+#define READ_INIT(files, num_files)             \
+    INVARIANTS();                               \
+    FILE **r_files = files;                     \
+    uint8_t *read_buffer;                       \
+    uint8_t *r_buffer[num_files];               \
+    int32_t read_bytes;                         \
+    int32_t r_bytes_left;                       \
+    int32_t r_bytes;                            \
+    int32_t r_offset[num_files];                \
+    int32_t r_chunk_size[num_files];            \
+    int32_t r_i;                                \
+    for (r_i = 0; r_i < num_files; r_i++) {     \
+        r_chunk_size[r_i] = BUFFER_SIZE;        \
+        r_offset[r_i] = BUFFER_SIZE;            \
     }
 
 #define READ(size, i)                                                                                                                       \

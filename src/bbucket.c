@@ -12,7 +12,7 @@ int main(int argc, const char **argv) {
     HELP();
     SIGPIPE_HANDLER();
     LOAD_DUMP_INIT();
-    char hash_str[64];
+    uint8_t hash_str[64];
     bsv_int_t mod;
     bsv_int_t num_buckets;
     uint64_t hash;
@@ -32,10 +32,10 @@ int main(int argc, const char **argv) {
                 mod += num_buckets;
             memmove(load_types + 1, load_types, (load_max + 1) * sizeof(bsv_int_t));
             memmove(load_sizes + 1, load_sizes, (load_max + 1) * sizeof(bsv_int_t));
-            memmove(load_columns + 1, load_columns, (load_max + 1) * sizeof(char *));
+            memmove(load_columns + 1, load_columns, (load_max + 1) * sizeof(uint8_t *));
             load_types[0] = BSV_INT;
             load_sizes[0] = sizeof(bsv_int_t);
-            load_columns[0] = (char*)&mod;
+            load_columns[0] = (uint8_t*)&mod;
             DUMP(0, load_max + 1, load_columns, load_types, load_sizes, load_size);
         }
     }

@@ -9,7 +9,7 @@ int main(int argc, const char **argv) {
     HELP();
     SIGPIPE_HANDLER();
     LOAD_DUMP_INIT();
-    char *val = argv[1];
+    uint8_t *val = argv[1];
     uint32_t size = strlen(val);
 
     while (1) {
