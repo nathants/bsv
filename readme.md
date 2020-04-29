@@ -1,10 +1,20 @@
 ## why
 
-it should be possible to process data faster than sequential io, and sequential io is fast now.
+it should be possible to process data at speeds approaching that of sequential io.
+
+sequential io is fast. cpu is the bottleneck. sequential only data access is the play.
 
 ## what
 
-cli utilites to combine into pipelines.
+cli utilities to combine into pipelines.
+
+## testing methodology
+
+[quickcheck](https://hypothesis.readthedocs.io/en/latest/) style [testing](https://github.com/nathants/bsv/blob/master/test) with python implementations of every utility to verify correct behavior for arbitrary inputs and varying utility buffer sizes.
+
+## experiments
+
+[performance](https://github.com/nathants/bsv/blob/master/experiments/readme.md) experiments with alternate implementations and approaches.
 
 ## utilities
 
@@ -54,7 +64,7 @@ cat some bsv file to csv
 usage: `bcat [--prefix] [--head NUM] FILE1 ... FILEN`
 
 ```
->> for char in a a b b c c; do 
+>> for char in a a b b c c; do
      echo $char | bsv >> /tmp/$char
    done
 
