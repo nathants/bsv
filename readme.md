@@ -10,6 +10,7 @@ cli utilites to combine into pipelines.
 
 - [bbucket](#bbucket) - prefix each row with a consistent hash of the first column
 - [bcat](#bcat) - cat some bsv file to csv
+- [bcopy](#bcopy) - pass through data, to benchmark load/dump performance
 - [bcounteach](#bcounteach) - count and collapse each contiguous identical row by strcmp the first column
 - [bcountrows](#bcountrows) - count rows
 - [bcut](#bcut) - select some columns
@@ -23,6 +24,7 @@ cli utilites to combine into pipelines.
 - [bsplit](#bsplit) - split a stream into multiple files. files are named after the hash of the first chunk and then numbered
 - [bsum](#bsum) - integer sum numbers in the first column and output a single value
 - [bsv](#bsv) - convert csv to bsv
+- [bsv_plain](#bsv_plain) - convert csv to bsv, numerics remain ascii for faster parsing
 - [btake](#btake) - take while the first column is VALUE
 - [btakeuntil](#btakeuntil) - take until the first column is gte to VALUE
 - [csv](#csv) - convert bsv to csv
@@ -60,6 +62,17 @@ usage: `bcat [--prefix] [--head NUM] FILE1 ... FILEN`
 /tmp/a:a
 /tmp/b:b
 /tmp/c:c
+```
+
+### [bcopy](https://github.com/nathants/bsv/blob/master/src/bcopy.c)
+
+pass through data, to benchmark load/dump performance
+
+usage: `... | bcopy`
+
+```
+>> echo a,b,c | bsv | bcopy | csv
+a,b,c
 ```
 
 ### [bcounteach](https://github.com/nathants/bsv/blob/master/src/bcounteach.c)
@@ -272,6 +285,17 @@ usage: `... | bsum`
 ### [bsv](https://github.com/nathants/bsv/blob/master/src/bsv.c)
 
 convert csv to bsv
+
+usage: `... | bsv`
+
+```
+>> echo a,b,c | bsv | bcut 3,2,1 | csv
+c,b,a
+```
+
+### [bsv_plain](https://github.com/nathants/bsv/blob/master/src/bsv_plain.c)
+
+convert csv to bsv, numerics remain ascii for faster parsing
 
 usage: `... | bsv`
 

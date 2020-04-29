@@ -34,3 +34,5 @@ brmerge
 dist/
 build/
 bcountrows
+bsv_plain
+bcopy
