@@ -14,7 +14,7 @@ a row oriented data format designed for time efficiency and cli utilities to com
 
 ## testing methodology
 
-[quickcheck](https://hypothesis.readthedocs.io/en/latest/) style [testing](https://github.com/nathants/bsv/blob/master/test) with python implementations of every utility to verify correct behavior for arbitrary inputs and varying utility buffer sizes.
+[quickcheck](https://hypothesis.readthedocs.io/en/latest/) style [testing](https://github.com/nathants/bsv/blob/master/test) with python implementations of every utility to verify correct behavior for arbitrary inputs and varying buffer sizes.
 
 ## experiments
 
