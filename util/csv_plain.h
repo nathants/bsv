@@ -7,7 +7,6 @@
 /* see bsv.c for example usage */
 
 #define CSV_INIT()                                                                              \
-    int32_t c_escaped;                                                                          \
     int32_t c_break;                                                                            \
     int32_t c_i;                                                                                \
     int32_t c_handled = 0;                                                                      \
@@ -46,7 +45,6 @@
                 ASSERT(c_offset < BUFFER_SIZE, "fatal: line longer than BUFFER_SIZE\n");                                    \
                 /* move the bytes to head of buffer, and update vars for new buffer positions */                            \
                 memmove(c_buffer, csv_columns[0], c_offset);                                                                \
-                c_escaped = c_offset > 0 && c_buffer[c_offset - 1] == '\\' ;                                                \
                 csv_columns[0] = c_buffer;                                                                                  \
                 for (c_i = 1; c_i <= csv_max; c_i++)                                                                        \
                     csv_columns[c_i] = csv_columns[c_i - 1] + csv_sizes[c_i - 1] + 1;                                       \
@@ -60,7 +58,7 @@
                 while (c_char_index - c_offset != c_bytes_read) {                                                           \
                     c_char = c_buffer[c_char_index];                                                                        \
                     /* start next column */                                                                                 \
-                    if (c_char == DELIMITER && !(c_escaped || (c_char_index > 0 && c_buffer[c_char_index - 1] == '\\'))) {  \
+                    if (c_char == DELIMITER) {                                                                              \
                         ASSERT(++csv_max < MAX_COLUMNS, "fatal: line with more than %d columns\n", MAX_COLUMNS);            \
                         csv_sizes[csv_max] = 0;                                                                             \
                         csv_columns[csv_max] = c_buffer + c_char_index + 1;                                                 \

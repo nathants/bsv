@@ -62,20 +62,6 @@ def test_props(arg):
     result = expected(csv)
     assert result == run(csv, cmd)
 
-def test_escapes():
-    stdin = """
-    a,b,c\,d\,e\n
-    f,g\,h\\n\,i\n
-    """
-    stdout = """
-    a
-    b
-    c\,d\,e
-    f
-    g\,h\\n\,i
-    """
-    assert typed(rm_whitespace(stdout)) == run(rm_whitespace(stdin), 'bin/_csv.64').strip()
-
 def test_types():
     stdin = """
     a
