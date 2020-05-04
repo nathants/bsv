@@ -32,18 +32,19 @@ sys     0m0.680s
 
 ##### convert it to bsv
 ```
->> time bsv_plain <data.csv >data.bsv
-real    0m6.864s
-user    0m5.801s
-sys     0m1.058s
+>> bsv_plain <data.csv >data.bsv
+>> time bsv_plain <data.csv >/dev/null
+real    0m5.115s
+user    0m4.893s
+sys     0m0.220s
 ```
 
 ##### parsing numerics with `bsv` currently has some extra overhead, so we use `bsv_plain` since we have no numeric data
 ```
 >> time bsv <data.csv >/dev/null
-real    0m9.839s
-user    0m9.606s
-sys     0m0.230s
+real    0m8.101s
+user    0m7.898s
+sys     0m0.200s
 ```
 
 ##### see how well the data compresses
@@ -193,6 +194,14 @@ sys     0m0.251s
 real    0m2.018s
 user    0m1.522s
 sys     0m0.509s
+```
+
+##### live parsing csv adds even more, ideally parse once, and keep all large data as bsv
+```
+time bsv_plain < data.csv | bcut 3,7 | csv >/dev/null
+real    0m7.898s
+user    0m6.484s
+sys     0m1.470s
 ```
 
 ##### the only random access that should ever be happening is sort, again coreutils is a good baseline
