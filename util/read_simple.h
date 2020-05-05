@@ -4,6 +4,8 @@
 #include "util.h"
 
 #define READ_INIT(files, num_files)             \
+    INVARIANTS();                               \
+    INCREASE_PIPE_SIZES();                      \
     FILE **r_files = files;                     \
     int32_t read_bytes;                         \
     uint8_t *read_buffer;                       \

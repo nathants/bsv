@@ -5,6 +5,7 @@
 
 #define READ_INIT(files, num_files)                 \
     INVARIANTS();                                   \
+    INCREASE_PIPE_SIZES();                          \
     FILE **r_files = files;                         \
     uint8_t *read_buffer;                           \
     uint8_t *r_buffer[num_files];                   \

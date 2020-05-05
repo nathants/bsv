@@ -1,8 +1,8 @@
 #ifndef CSV_H
 #define CSV_H
 
-#include <ctype.h>
 #include "util.h"
+#include <ctype.h>
 
 /* see bsv.c for example usage */
 

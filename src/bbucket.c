@@ -1,5 +1,5 @@
-#include "xxh3.h"
 #include "load_dump.h"
+#include "xxh3.h"
 
 #define SEED 0
 

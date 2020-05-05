@@ -1,8 +1,8 @@
+#include "load.h"
+#include "dump.h"
 #include <errno.h>
 #include <sys/stat.h>
 #include <ctype.h>
-#include "load.h"
-#include "dump.h"
 
 #define NUM_ARGS 3
 #define DESCRIPTION "split into multiple files by the first column value\n\n"

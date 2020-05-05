@@ -6,7 +6,7 @@ sequential io is fast. cpu is the bottleneck. sequential only data access is the
 
 ## what
 
-a row oriented data format designed for time efficiency and cli utilities to combine into pipelines.
+a row oriented [data](https://github.com/nathants/bsv/blob/master/util/load.h) [format](https://github.com/nathants/bsv/blob/master/util/dump.h) designed for time efficiency and cli utilities to combine into pipelines.
 
 [util/](https://github.com/nathants/bsv/blob/master/util) is shared code.
 

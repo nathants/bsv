@@ -1,13 +1,13 @@
-#include <ctype.h>
 #include "util.h"
 #include "load.h"
 #include "write_simple.h"
+#include <ctype.h>
 
 #define NUM_ARGS 0
 #define DESCRIPTION "cat some bsv file to csv\n\n"
 #define USAGE "bcat [--prefix] [--head NUM] FILE1 ... FILEN\n\n"
 #define EXAMPLE                                     \
-    ">> for char in a a b b c c; do \n"             \
+    ">> for char in a a b b c c; do\n"              \
     "     echo $char | bsv >> /tmp/$char\n"         \
     "   done\n"                                     \
     "\n>> bcat --head 1 --prefix /tmp/{a,b,c}\n"    \

@@ -5,6 +5,7 @@
 
 #define WRITE_INIT(files, num_files)                                            \
     INVARIANTS();                                                               \
+    INCREASE_PIPE_SIZES();                                                      \
     FILE **w_files = files;                                                     \
     uint8_t *w_buffer[num_files];                                               \
     int32_t w_offset[num_files];                                                \

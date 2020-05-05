@@ -22,6 +22,11 @@ cd /tmp
 >> export PATH=$PATH:~/repos/bsv/bin
 ```
 
+##### increase max pipe size to 5MB
+```
+>> sudo sysctl fs.pipe-max-size=5242880
+```
+
 ##### make some csv
 ```
 >> time _gen_csv 8 25000000 >data.csv
@@ -39,7 +44,7 @@ user    0m4.893s
 sys     0m0.220s
 ```
 
-##### parsing numerics with `bsv` currently has some extra overhead, so we use `bsv_plain` since we have no numeric data
+##### parsing numerics with `bsv` currently has some extra overhead, so we use `bsv_plain` for text data
 ```
 >> time bsv <data.csv >/dev/null
 real    0m8.101s
@@ -188,20 +193,12 @@ user    0m0.875s
 sys     0m0.251s
 ```
 
-##### bcut going back to csv adds some overhead, aggregating before going back to csv is ideal
-```
->> time bcut 3,7 <data.bsv | csv >/dev/null
-real    0m2.018s
-user    0m1.522s
-sys     0m0.509s
-```
-
-##### live parsing csv adds even more, ideally parse once, and keep all large data as bsv
+##### conversions to and from csv have a cost, best to minimze them
 ```
 time bsv_plain < data.csv | bcut 3,7 | csv >/dev/null
-real    0m7.898s
-user    0m6.484s
-sys     0m1.470s
+real    0m5.863s
+user    0m6.717s
+sys     0m2.177s
 ```
 
 ##### the only random access that should ever be happening is sort, again coreutils is a good baseline

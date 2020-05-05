@@ -1,6 +1,12 @@
 #ifndef UTIL_H
 #define UTIL_H
 
+#if ! defined(__clang__)
+#define _GNU_SOURCE
+#include <fcntl.h>
+#endif
+
+#include <unistd.h>
 #include <stdint.h>
 #include <limits.h>
 #include <stdio.h>
@@ -106,5 +112,23 @@ void _sigpipe_handler(int signum) {
                "fatal: invariants are varying!\n");                                                 \
         ASSERT(BUFFER_SIZE < INT_MAX, "fatal: buffer size must be less than INT_MAX\n");            \
     } while (0)
+
+#endif
+
+#if defined(__clang__)
+
+#define INCREASE_PIPE_SIZES()
+
+#else
+
+// don't forget to increase system pipe size above the default: sudo sysctl fs.pipe-max-size=5242880
+#define DEFAULT_PIPE_SIZE 1024 * 1024
+#define INCREASE_PIPE_SIZE(fd)                                                                  \
+    if (-1 == fcntl(fd, F_SETPIPE_SZ, BUFFER_SIZE))                                             \
+        fcntl(fd, F_SETPIPE_SZ, DEFAULT_PIPE_SIZE);
+
+#define INCREASE_PIPE_SIZES()                   \
+    INCREASE_PIPE_SIZE(0);                      \
+    INCREASE_PIPE_SIZE(1);
 
 #endif
