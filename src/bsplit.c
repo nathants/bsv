@@ -20,10 +20,12 @@ int main(int argc, const char **argv) {
     FILE *f;
     int32_t chunks_per_file = 1;
 
-#if !defined(__clang__) // bsplit with no args sefaults on mac, wut?
+#if defined(__clang__)
+    ASSERT(0, "fatal: this isnt working on macos yet\n");
+#endif
+
     if (argc == 2)
         chunks_per_file = atoi(argv[1]);
-#endif
 
     while (1) {
         /* read the next chunk */
