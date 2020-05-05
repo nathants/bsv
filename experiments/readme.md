@@ -276,3 +276,25 @@ real    0m1.361s
 user    0m0.911s
 sys     0m0.450s
 ```
+
+##### if you have sorted data, you can drop rows before a given value efficiently
+
+```
+>> bsort <data.bsv > data.bsv.sorted
+
+>> token=$(csv < data.bsv.sorted | tail -n+23000000 | head -n1 | cut -d, -f1)
+
+>> time grep "^$token," < data.csv | wc -l
+24933
+
+real    0m1.063s
+user    0m0.891s
+sys     0m0.189s
+
+>> time bdropuntil $token < data.bsv.sorted | btake $token | bcountrows | csv
+24933
+
+real    0m0.246s
+user    0m0.035s
+sys     0m0.225s
+```
