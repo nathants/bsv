@@ -12,7 +12,7 @@
     do {                                                                        \
         if (array##_size == array##_capacity) {                                 \
             array##_capacity += ARRAY_EXPAND_CAPACITY;                          \
-            array = (type*) realloc(array, sizeof(type) * array##_capacity);    \
+            REALLOC(array, sizeof(type) * array##_capacity);                    \
         }                                                                       \
         array[array##_size++] = row;                                            \
     } while(0)

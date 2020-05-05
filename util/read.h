@@ -43,7 +43,7 @@
     r_offset[i] = 0;                                                                    \
     if (r_has_nexted) {                                                                 \
         SWAP(r_buffer[i], r_last_buffer[i], r_chunk_size[i], r_last_chunk_size[i]);     \
-        r_buffer[i] = realloc(r_buffer[i], r_chunk_size[i] + r_last_chunk_size[i]);     \
+        REALLOC(r_buffer[i], r_chunk_size[i] + r_last_chunk_size[i]);     \
         memcpy(r_buffer[i] + r_chunk_size[i], r_last_buffer[i], r_last_chunk_size[i]);  \
         r_chunk_size[i] += r_last_chunk_size[i];                                        \
     }
