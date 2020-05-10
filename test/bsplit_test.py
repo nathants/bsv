@@ -7,9 +7,9 @@ from hypothesis.strategies import composite, integers, sampled_from
 from test_util import compile_buffer_sizes, clone_source
 
 if os.environ.get('TEST_FACTOR'):
-    buffers = list(sorted(set([64, 256, 1024] + [random.randint(64, 1024) for _ in range(10)])))
+    buffers = list(sorted(set([64, 256, 1024, 1024 * 1024 * 5] + [random.randint(64, 1024) for _ in range(10)])))
 else:
-    buffers = [64, 256, 1024]
+    buffers = [64, 256, 1024, 1024 * 1024 * 5]
 
 def setup_module(m):
     m.tempdir = clone_source()
@@ -32,7 +32,7 @@ def teardown_module(m):
 @composite
 def inputs(draw):
     buffer = draw(sampled_from(buffers))
-    lines = draw(integers(min_value=buffer, max_value=1024))
+    lines = draw(integers(max_value=1024))
     chunks_per_file = draw(integers(min_value=0, max_value=64))
     return buffer, lines, chunks_per_file
 

@@ -9,9 +9,9 @@ from hypothesis.strategies import text, lists, composite, integers, sampled_from
 from test_util import compile_buffer_sizes, run, rm_whitespace, clone_source
 
 if os.environ.get('TEST_FACTOR'):
-    buffers = list(sorted(set([5, 8, 11, 17, 64, 256, 1024] + [random.randint(8, 1024) for _ in range(10)])))
+    buffers = list(sorted(set([5, 8, 11, 17, 64, 256, 1024, 1024 * 1024 * 5] + [random.randint(8, 1024) for _ in range(10)])))
 else:
-    buffers = [5, 8, 11, 17, 64]
+    buffers = [5, 8, 11, 17, 64, 1024 * 1024 * 5]
 
 def setup_module(m):
     m.tempdir = clone_source()
