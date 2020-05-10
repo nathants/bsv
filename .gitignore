@@ -36,3 +36,5 @@ build/
 bcountrows
 bsv_plain
 bcopy
+bsv_ascii
+csv_ascii
