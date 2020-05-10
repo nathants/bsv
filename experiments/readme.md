@@ -37,14 +37,14 @@ sys     0m0.680s
 
 ##### convert it to bsv
 ```
->> bsv_plain <data.csv >data.bsv
->> time bsv_plain <data.csv >/dev/null
+>> bsv_ascii <data.csv >data.bsv
+>> time bsv_ascii <data.csv >/dev/null
 real    0m5.115s
 user    0m4.893s
 sys     0m0.220s
 ```
 
-##### parsing numerics with `bsv` currently has some extra overhead, so we use `bsv_plain` for text data
+##### parsing numerics with `bsv` currently has some extra overhead, so we use `bsv_ascii` for text data
 ```
 >> time bsv <data.csv >/dev/null
 real    0m8.101s
@@ -132,7 +132,7 @@ openjdk version "13.0.2" 2020-01-14
 >> bcut 3,7 <data.bsv | csv | xxh3
 9135bc839b1f6beb
 
->> bsv_plain <data.csv | bcut 3,7 | csv | xxh3
+>> bsv_ascii <data.csv | bcut 3,7 | csv | xxh3
 9135bc839b1f6beb
 
 ```
@@ -195,7 +195,7 @@ sys     0m0.251s
 
 ##### conversions to and from csv have a cost, best to minimze them
 ```
-time bsv_plain < data.csv | bcut 3,7 | csv >/dev/null
+time bsv_ascii < data.csv | bcut 3,7 | csv >/dev/null
 real    0m5.863s
 user    0m6.717s
 sys     0m2.177s

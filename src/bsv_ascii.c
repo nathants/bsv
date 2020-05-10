@@ -1,4 +1,4 @@
-#include "csv_plain.h"
+#include "csv_ascii.h"
 #include "dump.h"
 
 #define NUM_ARGS 1
@@ -22,12 +22,8 @@ int main(int argc, const char **argv) {
         CSV_READ_LINE(stdin);
         if (csv_stop)
             break;
-
         if (csv_max > 0 || csv_sizes[0] > 0) {
-            csv_size = 0;
-            for (i = 0; i <= csv_max; i++)
-                csv_size += csv_sizes[i];
-            DUMP(0, csv_max, csv_columns, csv_types, csv_sizes, csv_size);
+            DUMP(0, csv_max, csv_columns, csv_types, csv_sizes);
         }
     }
     DUMP_FLUSH(0);

@@ -23,8 +23,10 @@ def setup_module(m):
     shell.run('make clean', stream=True)
     compile_buffer_sizes('csv', buffers)
     compile_buffer_sizes('bsv', buffers)
+    compile_buffer_sizes('bsv_ascii', buffers)
     shell.run('make csv')
     shell.run('make bsv')
+    shell.run('make bsv_ascii')
 
 def teardown_module(m):
     os.chdir(m.orig)
@@ -62,6 +64,7 @@ def expected(text):
 def test_props(arg):
     buffers, csv = arg
     assert expected(csv) + '\n' == run(csv, f'bsv.{buffers} | csv.{buffers}')
+    assert expected(csv) + '\n' == run(csv, f'bsv_ascii.{buffers} | csv.{buffers}')
 
 try:
     import bsv

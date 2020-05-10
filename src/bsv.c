@@ -43,7 +43,6 @@ int main(int argc, const char **argv) {
         CSV_READ_LINE(stdin);
         if (csv_stop)
             break;
-
         if (csv_max > 0 || csv_sizes[0] > 0) {
             PARSE_NUMERICS();
             if (csv_types[0] != BSV_CHAR)

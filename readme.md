@@ -40,7 +40,7 @@ small cli utilities manipulate data and can be combined into pipelines.
 - [bsplit](#bsplit) - split a stream into multiple files. files are named after the hash of the first chunk and then numbered
 - [bsum](#bsum) - integer sum numbers in the first column and output a single value
 - [bsv](#bsv) - convert csv to bsv
-- [bsv_plain](#bsv_plain) - convert csv to bsv, numerics remain ascii for faster parsing
+- [bsv_ascii](#bsv_ascii) - convert csv to bsv, numerics remain ascii for faster parsing
 - [btake](#btake) - take while the first column is VALUE
 - [btakeuntil](#btakeuntil) - take until the first column is gte to VALUE
 - [csv](#csv) - convert bsv to csv
@@ -309,7 +309,7 @@ usage: `... | bsv`
 c,b,a
 ```
 
-### [bsv_plain](https://github.com/nathants/bsv/blob/master/src/bsv_plain.c)
+### [bsv_ascii](https://github.com/nathants/bsv/blob/master/src/bsv_ascii.c)
 
 convert csv to bsv, numerics remain ascii for faster parsing
 
