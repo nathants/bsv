@@ -1,4 +1,5 @@
 #include "load_dump.h"
+#include "read_ahead.h"
 #include "simd.h"
 
 #define NUM_ARGS 2
@@ -10,6 +11,7 @@ int main(int argc, const char **argv) {
     HELP();
     SIGPIPE_HANDLER();
     LOAD_DUMP_INIT();
+    READ_AHEAD_INIT(1);
     char *val = argv[1];
     int32_t done_skipping = 0;
     int32_t matched = 0;
