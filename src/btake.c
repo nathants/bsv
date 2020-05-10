@@ -18,7 +18,7 @@ int main(int argc, const char **argv) {
             break;
         if (size != load_sizes[0] || strncmp(load_columns[0], val, MIN(load_sizes[0], size)) != 0)
             break;
-        DUMP(0, load_max, load_columns, load_types, load_sizes, load_size);
+        DUMP(0, load_max, load_columns, load_types, load_sizes);
     }
     DUMP_FLUSH(0);
 }

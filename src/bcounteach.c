@@ -7,8 +7,7 @@
             sprintf(output, "%llu", val);                                       \
             last_sizes[last_max] = strlen(output);                              \
             last_columns[last_max] = output;                                    \
-            last_size = last_sizes[0] + last_sizes[1];                          \
-            DUMP(0, last_max, last_columns, last_types, last_sizes, last_size); \
+            DUMP(0, last_max, last_columns, last_types, last_sizes);            \
         }                                                                       \
     } while(0)
 

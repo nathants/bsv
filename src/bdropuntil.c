@@ -28,12 +28,12 @@ int main(int argc, const char **argv) {
             }
         } else { /* ------------------------------------------------------ reading data chunk by chunk, checking the first row and the proceeding to the next chunk  */
             if (matched) { /* -------------------------------------------- once a match is found dump every row */
-                DUMP(0, load_max, load_columns, load_types, load_sizes, load_size);
+                DUMP(0, load_max, load_columns, load_types, load_sizes);
             } else { /* -------------------------------------------------- check for a match */
                 cmp = simd_strcmp(load_columns[0], val);
                 if (done_skipping) { /* ---------------------------------- since we are done skipping ahead by chunks, check every row for gte */
                     if (cmp >= 0) {
-                        DUMP(0, load_max, load_columns, load_types, load_sizes, load_size);
+                        DUMP(0, load_max, load_columns, load_types, load_sizes);
                         matched = 1;
                     }
                 } else if (cmp < 0) { /* --------------------------------- we aren't done skipping ahead, we wan't to keep skipping until we've gone too far */

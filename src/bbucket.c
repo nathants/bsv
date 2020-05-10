@@ -36,7 +36,7 @@ int main(int argc, const char **argv) {
             load_types[0] = BSV_INT;
             load_sizes[0] = sizeof(bsv_int_t);
             load_columns[0] = (uint8_t*)&mod;
-            DUMP(0, load_max + 1, load_columns, load_types, load_sizes, load_size);
+            DUMP(0, load_max + 1, load_columns, load_types, load_sizes);
         }
     }
     DUMP_FLUSH(0);

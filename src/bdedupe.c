@@ -18,7 +18,7 @@ int main(int argc, const char **argv) {
         if (load_stop)
             break;
         if (simd_strcmp(buffer, load_columns[0]) != 0) {
-            DUMP(0, load_max, load_columns, load_types, load_sizes, load_size);
+            DUMP(0, load_max, load_columns, load_types, load_sizes);
             memcpy(buffer, load_columns[0], load_sizes[0] + 1);
         }
     }

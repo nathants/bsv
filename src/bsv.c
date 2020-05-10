@@ -33,7 +33,6 @@ int main(int argc, const char **argv) {
     SIGPIPE_HANDLER();
     CSV_INIT();
     FILE *files[1] = {stdout};
-    int32_t csv_size;
     int32_t csv_types[MAX_COLUMNS];
     bsv_int_t csv_ints[MAX_COLUMNS];
     bsv_float_t csv_floats[MAX_COLUMNS];
@@ -47,12 +46,9 @@ int main(int argc, const char **argv) {
 
         if (csv_max > 0 || csv_sizes[0] > 0) {
             PARSE_NUMERICS();
-            csv_size = 0;
-            for (i = 0; i <= csv_max; i++)
-                csv_size += csv_sizes[i];
             if (csv_types[0] != BSV_CHAR)
                 DEBUG("warn: first column value is numeric, which will sort incorrectly. first column is the sort key, and is interpreted as bytes\n");
-            DUMP(0, csv_max, csv_columns, csv_types, csv_sizes, csv_size);
+            DUMP(0, csv_max, csv_columns, csv_types, csv_sizes);
         }
     }
     DUMP_FLUSH(0);

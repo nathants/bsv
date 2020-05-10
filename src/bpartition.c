@@ -24,16 +24,15 @@ static int isdigits(const char *s, const int size) {
     return 1;
 }
 
-#define HANDLE_ROW(max, columns, types, sizes, size)                                                        \
+#define HANDLE_ROW(max, columns, types, sizes)                                                              \
     do {                                                                                                    \
         if (max > 0 || sizes[0]) {                                                                          \
             ASSERT(max, "error: line with only one columns: %s\n", columns[0]);                             \
             ASSERT(types[0] == BSV_INT, "error: first columns not a digit: %.*s\n", sizes[0], columns[0]);  \
-            file_num = BYTES_TO_INT(columns[0]);                                                             \
+            file_num = BYTES_TO_INT(columns[0]);                                                            \
             ASSERT(file_num < num_buckets, "error: columns higher than num_buckets: %d\n", file_num);       \
-            size -= sizes[0];                                                                               \
             max -= 1;                                                                                       \
-            DUMP(file_num, max, (columns + 1), (types + 1), (sizes + 1), size);                             \
+            DUMP(file_num, max, (columns + 1), (types + 1), (sizes + 1));                                   \
         }                                                                                                   \
     } while (0)
 
@@ -72,7 +71,7 @@ int main(int argc, const char **argv) {
         LOAD(0);
         if (load_stop)
             break;
-        HANDLE_ROW(load_max, load_columns, load_types, load_sizes, load_size);
+        HANDLE_ROW(load_max, load_columns, load_types, load_sizes);
     }
 
     for (i = 0; i < num_buckets; i++) {

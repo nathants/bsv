@@ -6,14 +6,13 @@
 #define LOAD_NEW(name)                                                                              \
     int32_t name##_stop; /* -------------------- stop immediately */                                \
     int32_t name##_max; /* --------------------- highest zero-based index into sizes and columns */ \
-    int32_t name##_size; /* -------------------- total number of chars in all columns */            \
     int32_t name##_sizes[MAX_COLUMNS]; /* ------ array of the number of chars in each column */     \
     int32_t name##_types[MAX_COLUMNS]; /* ------ array of types as int, see util.h */               \
     uint8_t * name##_columns[MAX_COLUMNS];  /* - array of columns as uint8_t pointer */
 
 #define LOAD_INIT(files, num_files)             \
     READ_INIT(files, num_files);                \
-    int32_t l_i;                                \
+    int32_t l_i, l_size;                        \
     LOAD_NEW(load);
 
 #define _READ_ASSERT(size, i)                                                                           \
@@ -30,12 +29,12 @@
             for (l_i = 0; l_i <= load_max; l_i++)                                                                                                                           \
                 load_types[l_i] = BYTES_UINT8_TO_INT32(read_buffer + l_i * sizeof(uint8_t)); /* --- parse types */                                                          \
             _READ_ASSERT((load_max + 1) * sizeof(uint16_t), i); /* -------------------------------- read sizes */                                                           \
-            load_size = 0; /* --------------------------------------------------------------------- keep track of the total size in bytes of all columns */                 \
+            l_size = 0; /* ------------------------------------------------------------------------ keep track of the total size in bytes of all columns */                 \
             for (l_i = 0; l_i <= load_max; l_i++) {                                                                                                                         \
                 load_sizes[l_i] = BYTES_UINT16_TO_INT32(read_buffer + l_i * sizeof(uint16_t)); /* - parse sizes */                                                          \
-                load_size += load_sizes[l_i];                                                                                                                               \
+                l_size += load_sizes[l_i];                                                                                                                                  \
             }                                                                                                                                                               \
-            _READ_ASSERT((load_size + load_max + 1) * sizeof(uint8_t), i); /* --------------------- load all column bytes plus the \0 trailing each column */               \
+            _READ_ASSERT((l_size + load_max + 1) * sizeof(uint8_t), i); /* ------------------------ load all column bytes plus the \0 trailing each column */               \
             load_columns[0] = read_buffer;                                                                                                                                  \
             for (l_i = 0; l_i <= load_max - 1; l_i++)                                                                                                                       \
                 load_columns[l_i + 1] = load_columns[l_i] + load_sizes[l_i] + 1; /* --------------- setup zerocopy pointers to read_buffer and skip trailing \0 values */   \

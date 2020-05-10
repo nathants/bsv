@@ -15,7 +15,7 @@ int main(int argc, const char **argv) {
         LOAD(0);
         if (load_stop)
             break;
-        DUMP(0, load_max, load_columns, load_types, load_sizes, load_size);
+        DUMP(0, load_max, load_columns, load_types, load_sizes);
     }
 
     DUMP_FLUSH(0);
