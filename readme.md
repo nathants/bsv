@@ -39,10 +39,11 @@ small cli utilities manipulate data and can be combined into pipelines.
 - [bsort](#bsort) - timsort rows by strcmp the first column
 - [bsplit](#bsplit) - split a stream into multiple files. files are named after the hash of the first chunk and then numbered
 - [bsum](#bsum) - integer sum numbers in the first column and output a single value
-- [bsv](#bsv) - convert csv to bsv
 - [bsv_ascii](#bsv_ascii) - convert csv to bsv, numerics remain ascii for faster parsing
+- [bsv](#bsv) - convert csv to bsv
 - [btake](#btake) - take while the first column is VALUE
 - [btakeuntil](#btakeuntil) - take until the first column is gte to VALUE
+- [csv_ascii](#csv_ascii) - convert bsv to csv, numerics are treated as ascii
 - [csv](#csv) - convert bsv to csv
 - [xxh3](#xxh3) - xxh3_64 hash stdin, defaults to hex, can be --int, or --stream to hex and pass stdin through
 
@@ -298,9 +299,9 @@ usage: `... | bsum`
 10
 ```
 
-### [bsv](https://github.com/nathants/bsv/blob/master/src/bsv.c)
+### [bsv_ascii](https://github.com/nathants/bsv/blob/master/src/bsv_ascii.c)
 
-convert csv to bsv
+convert csv to bsv, numerics remain ascii for faster parsing
 
 usage: `... | bsv`
 
@@ -309,9 +310,9 @@ usage: `... | bsv`
 c,b,a
 ```
 
-### [bsv_ascii](https://github.com/nathants/bsv/blob/master/src/bsv_ascii.c)
+### [bsv](https://github.com/nathants/bsv/blob/master/src/bsv.c)
 
-convert csv to bsv, numerics remain ascii for faster parsing
+convert csv to bsv
 
 usage: `... | bsv`
 
@@ -351,6 +352,17 @@ d
 ' | bsv | btakeuntil c | csv
 a
 b
+```
+
+### [csv_ascii](https://github.com/nathants/bsv/blob/master/src/csv_ascii.c)
+
+convert bsv to csv, numerics are treated as ascii
+
+usage: `... | csv`
+
+```
+>> echo a,b,c | bsv | csv
+a,b,c
 ```
 
 ### [csv](https://github.com/nathants/bsv/blob/master/src/csv.c)
