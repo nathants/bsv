@@ -298,3 +298,24 @@ real    0m0.246s
 user    0m0.035s
 sys     0m0.225s
 ```
+
+##### something like coreutils cut with go and protobuf
+
+```
+cd psv
+go build csv.go
+go build psv.go
+
+time ./psv < /tmp/data.csv > /tmp/data.psv
+
+real    0m20.410s
+user    0m20.985s
+sys     0m1.350s
+
+time ./csv < /tmp/data.psv >/dev/null
+
+real    0m27.454s
+user    0m29.279s
+sys     0m0.818s
+
+```
