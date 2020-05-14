@@ -28,12 +28,11 @@ int main() {
         ASSERT(row_p != NULL, "failD\n");
         n = row_row_decode(row_p, &read_buffer[0], msg_size);
         ASSERT(n == msg_size, "failE\n");
+        ASSERT(row_p->columns.length == 8, "failF\n");
         column_p = row_p->columns.items_p[2];
-        ASSERT(row_p->columns.length >= 1, "failF\n");
         fwrite_unlocked(column_p.buf_p, 1, column_p.size, stdout);
         fwrite_unlocked(",", 1, 1, stdout);
         column_p = row_p->columns.items_p[6];
-        ASSERT(row_p->columns.length >= 1, "failG\n");
         fwrite_unlocked(column_p.buf_p, 1, column_p.size, stdout);
         fwrite_unlocked("\n", 1, 1, stdout);
     }
