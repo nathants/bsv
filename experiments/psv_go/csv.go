@@ -37,8 +37,7 @@ func main() {
 		if err != nil {
 			panic(err)
 		}
-		// _, err = fmt.Fprintln(w, strings.Join(current_row.Columns, ","))
-		_, err = fmt.Fprintln(w, current_row.Columns[0])
+		_, err = fmt.Fprintf(w, "%s,%s\n", current_row.Columns[2], current_row.Columns[6])
 		if err != nil {
 			panic(err)
 		}

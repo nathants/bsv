@@ -27,6 +27,11 @@ cd /tmp
 >> sudo sysctl fs.pipe-max-size=5242880
 ```
 
+##### make sure we dealing with bytes only
+```
+>> export LC_ALL=C
+```
+
 ##### make some csv
 ```
 >> time _gen_csv 8 25000000 >data.csv
@@ -37,24 +42,16 @@ sys     0m0.680s
 
 ##### convert it to bsv
 ```
->> bsv_ascii <data.csv >data.bsv
->> time bsv_ascii <data.csv >/dev/null
+>> bsv <data.csv >data.bsv
+>> time bsv <data.csv >/dev/null
 real    0m5.115s
 user    0m4.893s
 sys     0m0.220s
 ```
 
-##### parsing numerics with `bsv` currently has some extra overhead, so we use `bsv_ascii` for text data
-```
->> time bsv <data.csv >/dev/null
-real    0m8.101s
-user    0m7.898s
-sys     0m0.200s
-```
-
 ##### see how well the data compresses
 ```
-> time lz4 <data.csv >data.csv.lz4
+>> time lz4 <data.csv >data.csv.lz4
 real    0m5.135s
 user    0m4.782s
 sys     0m0.349s
@@ -68,7 +65,7 @@ sys     0m0.500s
 ##### check the sizes, bsv trades space for time compared with csv
 ```
 >> ls -lh data.* | cut -d' ' -f5,9
-2.4G data.bsv
+2.2G data.bsv
 1.1G data.bsv.lz4
 1.8G data.csv
 779M data.csv.lz4
@@ -132,7 +129,7 @@ openjdk version "13.0.2" 2020-01-14
 >> bcut 3,7 <data.bsv | csv | xxh3
 9135bc839b1f6beb
 
->> bsv_ascii <data.csv | bcut 3,7 | csv | xxh3
+>> bsv <data.csv | bcut 3,7 | csv | xxh3
 9135bc839b1f6beb
 
 ```
@@ -140,9 +137,9 @@ openjdk version "13.0.2" 2020-01-14
 ##### coreutils cut is a good baseline
 ```
 >> time cut -d, -f3,7 <data.csv >/dev/null
-real    0m6.017s
-user    0m5.657s
-sys     0m0.340s
+real    0m5.784s
+user    0m5.472s
+sys     0m0.311s
 ```
 
 ##### xsv meets that baseline
@@ -188,25 +185,25 @@ sys     0m0.160s
 ##### bcut is faster
 ```
 >> time bcut 3,7 <data.bsv >/dev/null
-real    0m1.126s
-user    0m0.875s
-sys     0m0.251s
+real    0m1.010s
+user    0m0.729s
+sys     0m0.280s
 ```
 
 ##### conversions to and from csv have a cost, best to minimze them
 ```
-time bsv_ascii < data.csv | bcut 3,7 | csv >/dev/null
-real    0m5.863s
-user    0m6.717s
-sys     0m2.177s
+>> time bsv < data.csv | bcut 3,7 | csv >/dev/null
+real    0m6.253s
+user    0m6.927s
+sys     0m1.766s
 ```
 
 ##### the only random access that should ever be happening is sort, again coreutils is a good baseline
 ```
->> LC_ALL=C sort --parallel=1 -S50% -k1,1 <data.csv | cut -d, -f1 | xxh3
+>> sort --parallel=1 -S50% -k1,1 <data.csv | cut -d, -f1 | xxh3
 60ea4f93b87d0cf5
 
->> time bash -c 'LC_ALL=C sort --parallel=1 -S50% -k1,1 <data.csv >/dev/null'
+>> time sort --parallel=1 -S50% -k1,1 <data.csv >/dev/null
 real    0m22.406s
 user    0m21.516s
 sys     0m0.880s
@@ -249,7 +246,7 @@ real    0m10.768s
 user    0m8.722s
 sys     0m2.012s
 
->> time bash -c 'for path in csv.*; do LC_ALL=C sort -k1,1 --parallel=1 -S50% <$path >$path.sorted; done'
+>> time for path in csv.*; do sort -k1,1 --parallel=1 -S50% <$path >$path.sorted; done
 real    0m12.033s
 user    0m10.590s
 sys     0m1.428s
@@ -257,7 +254,7 @@ sys     0m1.428s
 
 ##### merge the sorted pieces and make sure they get the same result
 ```
->> LC_ALL=C sort -m -k1,1 -S50% csv.*.sorted | cut -d, -f1 | xxh3
+>> sort -m -k1,1 -S50% csv.*.sorted | cut -d, -f1 | xxh3
 60ea4f93b87d0cf5
 
 bmerge $(cat filenames.txt | while read path; do echo $path.sorted; done) | bcut 1 | csv | xxh3
@@ -266,7 +263,7 @@ bmerge $(cat filenames.txt | while read path; do echo $path.sorted; done) | bcut
 
 ##### coreutils sort -m is a good baseline, bmerge is faster, all credit to [armon](https://github.com/statsite/statsite/blob/master/src/heap.c)
 ```
->> time bash -c 'LC_ALL=C sort -m -k1,1 -S50% csv.*.sorted >/dev/null'
+>> time sort -m -k1,1 -S50% csv.*.sorted >/dev/null
 real    0m8.846s
 user    0m6.692s
 sys     0m2.149s
@@ -302,20 +299,33 @@ sys     0m0.225s
 ##### something like coreutils cut with go and protobuf
 
 ```
-cd psv
-go build csv.go
-go build psv.go
+>> cd psv_go
+>> go build csv.go
+>> go build psv.go
 
-time ./psv < /tmp/data.csv > /tmp/data.psv
+>> time ./psv < /tmp/data.csv > /tmp/data.psv
 
 real    0m20.410s
 user    0m20.985s
 sys     0m1.350s
 
-time ./csv < /tmp/data.psv >/dev/null
+>> time ./csv < /tmp/data.psv >/dev/null
 
 real    0m27.454s
 user    0m29.279s
 sys     0m0.818s
 
+```
+
+##### let try decode with c and protobuf
+
+```
+>> cd psv_c
+>> gcc -Irow -flto -O3 -march=native -mtune=native csv.c row/*.c -o csv
+
+>> time ./csv < /tmp/data.psv >/dev/null
+
+real    0m4.367s
+user    0m4.115s
+sys     0m0.250s
 ```

@@ -2,10 +2,10 @@ package main
 
 import (
 	"bufio"
+	"bytes"
 	"encoding/binary"
 	"os"
 	"psv/row"
-	"strings"
 
 	"github.com/golang/protobuf/proto"
 )
@@ -16,7 +16,8 @@ func main() {
 	defer f.Flush()
 	for scanner.Scan() {
 		line := scanner.Text()
-		parts := strings.Split(line, ",")
+		line_bytes := []byte(line)
+		parts := bytes.Split(line_bytes, []byte{','})
 		r := &row.Row{Columns: parts}
 		res, err := proto.Marshal(r)
 		if err != nil {

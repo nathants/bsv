@@ -38,4 +38,5 @@ bsv_plain
 bcopy
 bsv_ascii
 csv_ascii
-*/psv/psv
+*/psv_*/psv
+*/psv_*/csv

@@ -3,5 +3,5 @@ syntax = "proto3";
 package row;
 
 message Row {
-    repeated string columns = 1;
+    repeated bytes columns = 1;
 };
