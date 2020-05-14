@@ -23,10 +23,11 @@ func main() {
 	for scanner.Scan() {
 		line := scanner.Text()
 		parts := strings.Split(line, ",")
-		var selected []string
-		for _, field := range fields {
-			selected = append(selected, parts[field-1])
+		selected := make([]string, len(fields))
+		for i, field := range fields {
+			selected[i] = parts[field-1]
 		}
+
 		fmt.Fprintln(f, strings.Join(selected, ","))
 	}
 }
