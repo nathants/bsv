@@ -317,7 +317,7 @@ sys     0m0.818s
 
 ```
 
-##### let try decode with c and protobuf
+##### try protobuf decode again with c
 
 ```
 >> cd psv_c
