@@ -86,7 +86,7 @@ sort (GNU coreutils) 8.32
 cut (GNU coreutils) 8.32
 
 >> gcc --version
-gcc (Arch Linux 9.3.0-1) 9.3.0
+gcc (GCC) 10.1.0
 
 >> python --version
 Python 3.8.2
@@ -107,12 +107,13 @@ rustc 1.43.1
 ##### copy the experiments and make sure they all get the same result
 ```
 >> cp -r ~/repos/bsv/experiments/* .
+>> cp -r ~/repos/bsv/util .
 
 >> cut -d, -f3,7 <data.csv | xxh3
 9135bc839b1f6beb
 
->> go build bcut.go
->> ./bcut 3,7 <data.csv | xxh3
+>> go build -o bcut_go bcut.go
+>> ./bcut_go 3,7 <data.csv | xxh3
 9135bc839b1f6beb
 
 >> python bcut.py 3,7 <data.csv | xxh3
@@ -137,6 +138,10 @@ rustc 1.43.1
 
 >> (cd bcut_rust && cargo build --release)
 >> ./bcut_rust/target/release/bcut 3,7 <data.csv | xxh3
+9135bc839b1f6beb
+
+>> gcc -Iutil -O3 -flto -march=native -mtune=native -o bcut_c bcut.c
+>> ./bcut_c 3,7 <data.csv | xxh3
 9135bc839b1f6beb
 
 ```
@@ -167,7 +172,7 @@ sys     0m0.463s
 
 ##### go is slower
 ```
->> time ./bcut 3,7 <data.csv >/dev/null
+>> time ./bcut_go 3,7 <data.csv >/dev/null
 real    0m10.765s
 user    0m11.515s
 sys     0m0.519s
@@ -197,7 +202,15 @@ user    0m4.073s
 sys     0m0.184s
 ```
 
-##### bcut is faster
+##### c is faster
+```
+>> time ./bcut_c 3,7 <data.csv >/dev/null
+real    0m3.843s
+user    0m3.621s
+sys     0m0.220s
+```
+
+##### bcut is fastest
 ```
 >> time bcut 3,7 <data.bsv >/dev/null
 real    0m1.010s
