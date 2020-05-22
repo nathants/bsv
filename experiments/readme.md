@@ -99,11 +99,14 @@ go version go1.14.2 linux/amd64
 
 >> java -version
 openjdk version "13.0.2" 2020-01-14
+
+>> rustc --version
+rustc 1.43.1
 ```
 
 ##### copy the experiments and make sure they all get the same result
 ```
->> cp ~/repos/bsv/experiments/* .
+>> cp -r ~/repos/bsv/experiments/* .
 
 >> cut -d, -f3,7 <data.csv | xxh3
 9135bc839b1f6beb
@@ -130,6 +133,10 @@ openjdk version "13.0.2" 2020-01-14
 9135bc839b1f6beb
 
 >> bsv <data.csv | bcut 3,7 | csv | xxh3
+9135bc839b1f6beb
+
+>> (cd bcut_rust && cargo build --release)
+>> ./bcut_rust/target/release/bcut 3,7 <data.csv | xxh3
 9135bc839b1f6beb
 
 ```
@@ -180,6 +187,14 @@ sys     0m0.360s
 real    0m25.491s
 user    0m25.323s
 sys     0m0.160s
+```
+
+##### rust is faster
+```
+>> time ./bcut_rust/target/release/bcut 3,7 <data.csv >/dev/null
+real    0m4.336s
+user    0m4.073s
+sys     0m0.184s
 ```
 
 ##### bcut is faster
