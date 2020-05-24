@@ -136,8 +136,8 @@ rustc 1.43.1
 >> bsv <data.csv | bcut 3,7 | csv | xxh3
 9135bc839b1f6beb
 
->> (cd bcut_rust && cargo build --release)
->> ./bcut_rust/target/release/bcut 3,7 <data.csv | xxh3
+>> rustc -O -o bcut_rust bcut.rs
+>> ./bcut_rust 3,7 <data.csv | xxh3
 9135bc839b1f6beb
 
 >> gcc -Iutil -O3 -flto -march=native -mtune=native -o bcut_c bcut.c
@@ -197,9 +197,9 @@ sys     0m0.160s
 ##### rust is faster
 ```
 >> time ./bcut_rust/target/release/bcut 3,7 <data.csv >/dev/null
-real    0m4.336s
-user    0m4.073s
-sys     0m0.184s
+real    0m4.118s
+user    0m3.927s
+sys     0m0.190s
 ```
 
 ##### c is faster

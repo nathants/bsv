@@ -1,3 +1,4 @@
+.ccls*
 Cargo.lock
 target/
 .tox/
@@ -15,6 +16,8 @@ _write
 bucket
 bdedupe
 bcut
+bcut_c
+bcut_rust
 bbucket
 bcounteach
 bsort
