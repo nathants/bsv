@@ -76,9 +76,6 @@ sys     0m0.500s
 >> lz4 --version
 *** LZ4 command line interface 64-bits v1.9.2, by Yann Collet ***
 
->> xsv --version
-0.13.0
-
 >> sort --version
 sort (GNU coreutils) 8.32
 
@@ -88,17 +85,11 @@ cut (GNU coreutils) 8.32
 >> gcc --version
 gcc (GCC) 10.1.0
 
->> python --version
-Python 3.8.2
-
 >> pypy --version
 [PyPy 7.3.1 with GCC 9.3.0]
 
 >> go version
-go version go1.14.2 linux/amd64
-
->> java -version
-openjdk version "13.0.2" 2020-01-14
+go version go1.14.3 linux/amd64
 
 >> rustc --version
 rustc 1.43.1
@@ -120,14 +111,6 @@ rustc 1.43.1
 9135bc839b1f6beb
 
 >> pypy bcut.py 3,7 <data.csv | xxh3
-9135bc839b1f6beb
-
->> javac BCut.java
->> java BCut 3,7 <data.csv | xxh3
-9135bc839b1f6beb
-
->> cargo install xsv
->> xsv select 3,7 <data.csv | xxh3
 9135bc839b1f6beb
 
 >> bcut 3,7 <data.bsv | csv | xxh3
@@ -154,44 +137,20 @@ user    0m5.472s
 sys     0m0.311s
 ```
 
-##### xsv meets that baseline
-```
->> time xsv select 3,7 <data.csv >/dev/null
-real    0m6.066s
-user    0m5.774s
-sys     0m0.290s
-```
-
-##### java is slower
-```
->> time java BCut 3,7 <data.csv >/dev/null
-real    0m11.727s
-user    0m11.601s
-sys     0m0.463s
-```
-
-##### go is slower
-```
->> time ./bcut_go 3,7 <data.csv >/dev/null
-real    0m10.765s
-user    0m11.515s
-sys     0m0.519s
-```
-
 ##### pypy is slower
 ```
 >> time pypy bcut.py 3,7 <data.csv >/dev/null
-real    0m13.766s
-user    0m13.372s
-sys     0m0.360s
+real    0m7.122s
+user    0m6.828s
+sys     0m0.290s
 ```
 
-##### cpython is even slower
+##### go is faster
 ```
->> time python bcut.py 3,7 <data.csv >/dev/null
-real    0m25.491s
-user    0m25.323s
-sys     0m0.160s
+>> time ./bcut_go 3,7 <data.csv >/dev/null
+real    0m4.794s
+user    0m4.421s
+sys     0m0.467s
 ```
 
 ##### rust is faster

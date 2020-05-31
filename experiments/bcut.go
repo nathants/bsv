@@ -2,7 +2,7 @@ package main
 
 import (
 	"bufio"
-	"fmt"
+	"io"
 	"os"
 	"strconv"
 	"strings"
@@ -15,19 +15,46 @@ func main() {
 		if err != nil {
 			panic(err)
 		}
-		fields = append(fields, x)
+		fields = append(fields, x-1)
 	}
-	scanner := bufio.NewScanner(os.Stdin)
-	f := bufio.NewWriter(os.Stdout)
-	defer f.Flush()
-	for scanner.Scan() {
-		line := scanner.Text()
-		parts := strings.Split(line, ",")
-		selected := make([]string, len(fields))
-		for i, field := range fields {
-			selected[i] = parts[field-1]
+	starts := make([]int, 1<<16)
+	ends := make([]int, 1<<16)
+	r := bufio.NewReader(os.Stdin)
+	w := bufio.NewWriter(os.Stdout)
+	defer w.Flush()
+	for {
+		// read row
+		line, isPrefix, err := r.ReadLine()
+		if isPrefix != false {
+			panic("line too long")
 		}
-
-		fmt.Fprintln(f, strings.Join(selected, ","))
+		if err != nil {
+			if err == io.EOF || err == io.ErrUnexpectedEOF {
+				break
+			}
+			panic(err)
+		}
+		// parse row
+		offset := 0
+		max := 0
+		for i := 0; i < len(line); i++ {
+			switch line[i] {
+			case byte(','):
+				starts[max] = offset
+				ends[max] = i
+				offset = i + 1
+				max += 1
+			}
+		}
+		starts[max] = offset
+		ends[max] = len(line)
+		// handle row
+		for i, f := range fields {
+			w.Write(line[starts[f]:ends[f]])
+			if i != len(fields)-1 {
+				w.Write([]byte(","))
+			}
+		}
+		w.Write([]byte("\n"))
 	}
 }
