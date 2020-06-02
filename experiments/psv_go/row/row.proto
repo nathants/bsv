@@ -1,7 +1,0 @@
-syntax = "proto3";
-
-package row;
-
-message Row {
-    repeated bytes columns = 1;
-};
