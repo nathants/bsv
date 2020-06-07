@@ -42,7 +42,6 @@
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include "heap.h"
 
 // Structure for a single heap entry
 typedef struct heap_entry {
@@ -53,7 +52,7 @@ typedef struct heap_entry {
 
 // Main struct for representing the heap
 typedef struct heap {
-    int (*compare_func)(void*, void*); // The key comparison function to use
+    int (*compare_func)(const void*, const void*); // The key comparison function to use
     int active_entries;  // The number of entries in the heap
     int minimum_pages;   // The minimum number of pages to maintain, based on the initial cap.
     int allocated_pages; // The number of pages in memory that are allocated
@@ -133,7 +132,7 @@ int compare_int_keys(register void* key1, register void* key2) {
 }
 
 // Creates a new heap
-void heap_create(heap* h, int initial_size, int (*comp_func)(void*,void*)) {
+void heap_create(heap* h, int initial_size, int (*comp_func)(const void*, const void*)) {
     // Check if we need to setup our globals
     if (MEM_PAGE_SIZE == 0) {
         // Get the page size
@@ -145,8 +144,7 @@ void heap_create(heap* h, int initial_size, int (*comp_func)(void*,void*)) {
     if (initial_size <= 0)
         initial_size = ENTRIES_PER_PAGE;
     // If the comp_func is null, treat the keys as signed ints
-    if (comp_func == NULL)
-        comp_func = compare_int_keys;
+    assert(comp_func != NULL);
     // Store the compare function
     h->compare_func = comp_func;
     // Set active entries to 0
@@ -210,7 +208,7 @@ void heap_insert(heap *h, void* key, void* value) {
         h->allocated_pages = new_size;
     }
     // Store the comparison function
-    int (*cmp_func)(void*,void*) = h->compare_func;
+    int (*cmp_func)(const void*, const void*) = h->compare_func;
     // Store the table address
     heap_entry* table = h->table;
     // Get the current index
@@ -271,7 +269,7 @@ int heap_delmin(heap* h, void** key, void** value) {
         heap_entry* left_child;
         heap_entry* right_child;
         // Load the comparison function
-        int (*cmp_func)(void*,void*) = h->compare_func;
+        int (*cmp_func)(const void*, const void*) = h->compare_func;
         // Store the left index
         int left_child_index;
         while (left_child_index = LEFT_CHILD(current_index), left_child_index < entries) {
@@ -333,7 +331,7 @@ int heap_delmin(heap* h, void** key, void** value) {
 }
 
 // Allows a user to iterate over all entries, e.g. to free() the memory
-void heap_foreach(heap* h, void (*func)(void*,void*)) {
+void heap_foreach(heap* h, void (*func)(const void*, const void*)) {
     // Store the current index and max index
     int index = 0;
     int entries = h->active_entries;

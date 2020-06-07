@@ -1,24 +1,39 @@
-#include "load_dump.h"
+#include "util.h"
+#include "load.h"
+#include "dump.h"
+#include "simd.h"
 
-#define NUM_ARGS 2
 #define DESCRIPTION "take while the first column is VALUE\n\n"
 #define USAGE "... | btake VALUE\n\n"
 #define EXAMPLE ">> echo '\na\nb\nc\nd\n' | bsv | bdropntil c | btake c | csv\nc\n\n"
 
 int main(int argc, const char **argv) {
-    HELP();
-    SIGPIPE_HANDLER();
-    LOAD_DUMP_INIT();
-    uint8_t *val = argv[1];
-    uint32_t size = strlen(val);
 
+    // setup bsv
+    SETUP();
+
+    // setup input
+    FILE *in_files[1] = {stdin};
+    readbuf_t rbuf;
+    rbuf_init(&rbuf, in_files, 1);
+
+    // setup output
+    FILE *out_files[1] = {stdout};
+    writebuf_t wbuf;
+    wbuf_init(&wbuf, out_files, 1);
+
+    // setup state
+    row_t row;
+    u8 *val = argv[1];
+
+    // process input row by row
     while (1) {
-        LOAD(0);
-        if (load_stop)
+        load_next(&rbuf, &row, 0);
+        if (row.stop)
             break;
-        if (size != load_sizes[0] || strncmp(load_columns[0], val, MIN(load_sizes[0], size)) != 0)
+        if (simd_strcmp(row.columns[0], val) != 0)
             break;
-        DUMP(0, load_max, load_columns, load_types, load_sizes);
+        dump(&wbuf, &row, 0);
     }
-    DUMP_FLUSH(0);
+    dump_flush(&wbuf, 0);
 }

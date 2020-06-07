@@ -1,26 +1,32 @@
 #ifndef ROW_H
 #define ROW_H
 
+#include "util.h"
+
 typedef struct row_s {
-    #ifdef ROW_META
-        int32_t meta;
-    #endif
-    uint8_t *header;
-    int32_t header_size;
-    uint8_t *buffer;
-    int32_t buffer_size;
+    i32 stop;
+    i32 max;
+    i32 sizes[MAX_COLUMNS];
+    u8 *columns[MAX_COLUMNS];
 } row_t;
 
-#define ROW_INIT()                              \
-    row_t *row;
+typedef struct raw_row_s {
+    #ifdef ROW_META
+        i32 meta;
+    #endif
+    u8 *header;
+    i32 header_size;
+    u8 *buffer;
+    i32 buffer_size;
+} raw_row_t;
 
-#define ROW(_header, _header_size, _buffer, _buffer_size)   \
-    do {                                                    \
-        MALLOC(row, sizeof(row_t));                         \
-        row->header = _header;                              \
-        row->header_size = _header_size;                    \
-        row->buffer = _buffer;                              \
-        row->buffer_size = _buffer_size;                    \
-    } while(0)
+inlined void row_to_raw(row_t *row, raw_row_t *raw_row) {
+    raw_row->header_size = sizeof(u16) + (row->max + 1) * sizeof(u16);
+    raw_row->header = row->columns[0] - raw_row->header_size;
+    raw_row->buffer = row->columns[0];
+    raw_row->buffer_size = 0;
+    for (i32 i = 0; i <= row->max; i++)
+        raw_row->buffer_size += row->sizes[i] + 1;
+}
 
 #endif

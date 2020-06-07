@@ -3,7 +3,7 @@ import string
 import shell
 from hypothesis.database import ExampleDatabase
 from hypothesis import given, settings
-from hypothesis.strategies import lists, composite, integers, randoms, floats, text, sampled_from
+from hypothesis.strategies import lists, composite, integers, randoms, floats, text
 from test_util import run, clone_source
 
 def setup_module(m):
@@ -52,8 +52,8 @@ def expected(value, csv):
     return '\n'.join(res) + '\n'
 
 @given(inputs())
-@settings(database=ExampleDatabase(':memory:'), max_examples=100 * int(os.environ.get('TEST_FACTOR', 1)), deadline=os.environ.get("TEST_DEADLINE", 1000 * 60))
+@settings(database=ExampleDatabase(':memory:'), max_examples=100 * int(os.environ.get('TEST_FACTOR', 1)), deadline=os.environ.get("TEST_DEADLINE", 1000 * 60)) # type: ignore
 def test_props(args):
     value, csv = args
     result = expected(value, csv)
-    assert result == run(csv, f'bsv | btake "{value}" | bin/csv')
+    assert result == run(csv, f'bsv | btake "{value}" | csv')

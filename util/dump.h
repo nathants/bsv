@@ -1,37 +1,35 @@
 #ifndef DUMP_H
 #define DUMP_H
 
+#include "row.h"
 #include "write.h"
 
-#define DUMP_INIT(files, num_files)             \
-    WRITE_INIT(files, num_files);               \
-    int32_t d_i, d_size;
+inlined void dump(writebuf_t *wbuf, const row_t *row, i32 file) {
+        ASSERT(row->max <= MAX_COLUMNS, "fatal: cannot have more then 2**16 columns\n");
+        i32 size = sizeof(u16) + (row->max + 1) * sizeof(u16); // -------------- init size with max:u16 + size1:u16,...sizen:u16
+        for (i32 i = 0; i <= row->max; i++) {
+            size += row->sizes[i] + 1; // -------------------------------------- content array, +1 for trailing \0
+        }
+        write_start(wbuf, size, file); // -------------------------------------- write start in case total size of writes would flush the buffer we want to flush it immediately
+        write_bytes(wbuf, TO_UINT16(row->max), sizeof(u16), file); // ---------- write row->max
+        for (i32 i = 0; i <= row->max; i++) {
+            ASSERT(row->sizes[i] <= MAX_COLUMNS - 1, "fatal: cannot have columns with more than 2**16 - 1 bytes, column: %d, size: %d, content: %.*s...\n", i, row->sizes[i], 10, row->columns[i]);
+            write_bytes(wbuf, TO_UINT16(row->sizes[i]), sizeof(u16), file); // - write row->sizes
+        }
+        for (i32 i = 0; i <= row->max; i++) {
+            write_bytes(wbuf, row->columns[i], row->sizes[i], file); // -------- write column
+            write_bytes(wbuf, (u8*)"\0", 1, file); // -------------------------- add a trailing \0 after every column to make strcmp easier
+        }
+    }
 
-#define DUMP(i, max, columns, types, sizes)                                                                                                                                                     \
-    do {                                                                                                                                                                                        \
-        ASSERT(max <= MAX_COLUMNS, "fatal: cannot have more then 2**16 columns\n");                                                                                                             \
-        /* -------------------------------------------------------------- write start in case total size of writes would flush the buffer we want to flush it immediately */                    \
-        d_size = 0;                                                                                                                                                                             \
-        for (d_i = 0; d_i <= max; d_i++)                                                                                                                                                        \
-            d_size += sizes[d_i];                                                                                                                                                               \
-        WRITE_START(sizeof(uint16_t) + /* ------------------------------- max, the max zero based index into columns data */                                                                    \
-                    ((max + 1) * sizeof(uint8_t)) +  /* ----------------- types */                                                                                                              \
-                    ((max + 1) * sizeof(uint16_t)) + /* ----------------- sizes */                                                                                                              \
-                    ((max + 1) * sizeof(uint8_t)) + /* ------------------ \0 after every column */                                                                                              \
-                    d_size * sizeof(uint8_t), i); /* -------------------- buffer */                                                                                                             \
-        WRITE(INT32_TO_UINT16(max), sizeof(uint16_t), i); /* ------------ write max */                                                                                                          \
-        for (d_i = 0; d_i <= max; d_i++)                                                                                                                                                        \
-            WRITE(INT32_TO_UINT8(types[d_i]), sizeof(uint8_t), i); /* --- write types */                                                                                                        \
-        for (d_i = 0; d_i <= max; d_i++) {                                                                                                                                                      \
-            ASSERT(sizes[d_i] <= MAX_COLUMNS - 1, "fatal: cannot have columns with more than 2**16 - 1 bytes, column: %d, size: %d, content: %.*s...\n", d_i, sizes[d_i], 10, columns[d_i]);    \
-            WRITE(INT32_TO_UINT16(sizes[d_i]), sizeof(uint16_t), i); /* - write sizes */                                                                                                        \
-        }                                                                                                                                                                                       \
-        for (d_i = 0; d_i <= max; d_i++) {                                                                                                                                                      \
-            WRITE(columns[d_i], sizes[d_i], i); /* ---------------------- write buffer */                                                                                                       \
-            WRITE("\0", 1, i); /* --------------------------------------- add a \0 after every column to make strcmp easier */                                                                  \
-        }                                                                                                                                                                                       \
-    } while(0)
+inlined void dump_raw(writebuf_t *wbuf, const raw_row_t *raw_row, i32 file) {
+    write_start(wbuf, raw_row->header_size + raw_row->buffer_size, file);
+    write_bytes(wbuf, raw_row->header, raw_row->header_size, file);
+    write_bytes(wbuf, raw_row->buffer, raw_row->buffer_size, file);
+}
 
-#define DUMP_FLUSH(i) WRITE_FLUSH(i);
+void dump_flush(writebuf_t *wbuf, i32 file) {
+    write_flush(wbuf, file);
+}
 
 #endif

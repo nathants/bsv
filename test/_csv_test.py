@@ -1,9 +1,7 @@
 import os
-import re
 import random
 import string
 import shell
-from hypothesis.database import ExampleDatabase
 from hypothesis import given, settings
 from hypothesis.strategies import text, lists, composite, integers, sampled_from
 from test_util import compile_buffer_sizes, run, rm_whitespace, clone_source
@@ -23,18 +21,9 @@ def setup_module(m):
     compile_buffer_sizes('_csv', buffers)
     shell.run('make _csv')
 
-def teardown_module(m):
-    os.chdir(m.orig)
-    os.environ['PATH'] = m.path
-    assert m.tempdir.startswith('/tmp/') or m.tempdir.startswith('/private/var/folders/')
-    shell.run('rm -rf', m.tempdir)
-
-def typed(text):
-    return '\n'.join([f'i={x}' if re.search(r'^\d+$', x) else
-                      f'f={x}' if re.search(r'^(\d|\.)+$', x) else
-                      f'c={x}' if x else
-                      x
-                      for x in text.splitlines()])
+def teardown_module():
+    with shell.climb_git_root():
+        shell.run('make clean', stream=True)
 
 @composite
 def inputs(draw):
@@ -45,7 +34,7 @@ def inputs(draw):
     line = line.filter(lambda x: len(' '.join(x)) + len(x) * 2 + 1 < buffer)
     lines = lists(line)
     csv = '\n'.join([','.join(x) for x in draw(lines)]) + '\n'
-    cmd = 'bin/_csv.%s' % buffer
+    cmd = '_csv.%s' % buffer
     return cmd, csv
 
 def expected(csv):
@@ -53,26 +42,14 @@ def expected(csv):
     for line in csv.splitlines():
         for col in line.split(','):
             res.append(col)
-    return typed('\n'.join(res)) + '\n'
+    return '\n'.join(res) + '\n'
 
 @given(inputs())
-@settings(database=ExampleDatabase(':memory:'), max_examples=100 * int(os.environ.get('TEST_FACTOR', 1)), deadline=os.environ.get("TEST_DEADLINE", 1000 * 60))
+@settings(max_examples=100 * int(os.environ.get('TEST_FACTOR', 1)), deadline=os.environ.get("TEST_DEADLINE", 1000 * 60))
 def test_props(arg):
     cmd, csv = arg
     result = expected(csv)
     assert result == run(csv, cmd)
-
-def test_types():
-    stdin = """
-    a
-    b
-    c
-    1
-    2
-    3.1
-    4.
-    """
-    assert typed(rm_whitespace(stdin)) == run(rm_whitespace(stdin), 'bin/_csv.8').strip()
 
 def test_cycling1():
     stdin = """
@@ -83,7 +60,7 @@ def test_cycling1():
     e
     f
     """
-    assert typed(rm_whitespace(stdin)) == run(rm_whitespace(stdin), 'bin/_csv.8').strip()
+    assert rm_whitespace(stdin) == run(rm_whitespace(stdin), '_csv.8').strip()
 
 def test_cycling2():
     stdin = """
@@ -93,7 +70,7 @@ def test_cycling2():
     d
     eee
     """
-    assert typed(rm_whitespace(stdin)) == run(rm_whitespace(stdin), 'bin/_csv.8').strip()
+    assert rm_whitespace(stdin) == run(rm_whitespace(stdin), '_csv.8').strip()
 
 def test_cycling3():
     stdin = """
@@ -104,7 +81,7 @@ def test_cycling3():
     e
     fff
     """
-    assert typed(rm_whitespace(stdin)) == run(rm_whitespace(stdin), 'bin/_csv.8').strip()
+    assert rm_whitespace(stdin) == run(rm_whitespace(stdin), '_csv.8').strip()
 
 def test_cycling4():
     stdin = """
@@ -113,21 +90,12 @@ def test_cycling4():
     c
     de
     """
-    assert typed(rm_whitespace(stdin)) == run(rm_whitespace(stdin), 'bin/_csv.8').strip()
-
-def test_cycling4():
-    stdin = """
-    a
-    b
-    c
-    de
-    """
-    assert typed(rm_whitespace(stdin)) == run(rm_whitespace(stdin), 'bin/_csv.8').strip()
+    assert rm_whitespace(stdin) == run(rm_whitespace(stdin), '_csv.8').strip()
 
 def test_holes():
     stdin = 'a,,c\n'
     stdout = 'a\n\nc\n'
-    assert typed(stdout) + '\n' == run(stdin, 'bin/_csv.8')
+    assert stdout == run(stdin, '_csv.8')
 
 def test_basic():
     stdin = """
@@ -140,12 +108,12 @@ def test_basic():
     cd
     e
     """
-    assert typed(rm_whitespace(stdout)) + '\n' == run(rm_whitespace(stdin), 'bin/_csv.8')
+    assert rm_whitespace(stdout) + '\n' == run(rm_whitespace(stdin), '_csv.8')
 
 def test_empties():
     stdin = 'a,,,b,c'
     stdout = 'a\n\n\nb\nc\n'
-    assert typed(stdout) + '\n' == run(stdin, 'bin/_csv.8')
+    assert stdout == run(stdin, '_csv.8')
 
 def test_whitespace1():
     stdin = ('a\n'
@@ -158,7 +126,8 @@ def test_whitespace1():
               'b\n'
               '\n'
               'c\n')
-    assert typed(stdout) + '\n' == run(stdin, 'bin/_csv.8')
+    assert stdout == run(stdin, '_csv.8')
+
 
 def test_whitespace2():
     stdin = ('\n'
@@ -175,7 +144,7 @@ def test_whitespace2():
               '\n'
               'c\n'
               '\n')
-    assert typed(stdout) + '\n' == run(stdin, 'bin/_csv.8')
+    assert stdout == run(stdin, '_csv.8')
 
 def test_whitespace3():
     stdin = ('\n'
@@ -186,7 +155,7 @@ def test_whitespace3():
               '\n'
               '\n'
               '\n')
-    assert typed(stdout) + '\n' == run(stdin, 'bin/_csv.8')
+    assert stdout == run(stdin, '_csv.8')
 
 def test_fails_when_too_many_columns():
     with shell.climb_git_root():
@@ -196,7 +165,7 @@ def test_fails_when_too_many_columns():
                 f.write(stdin)
             path = os.path.abspath('input')
         try:
-            res = shell.run('cat', path, '| bin/_csv >/dev/null', warn=True)
+            res = shell.run('cat', path, '| _csv >/dev/null', warn=True)
         finally:
             shell.run('rm', path)
         assert res['exitcode'] == 1
@@ -205,6 +174,6 @@ def test_fails_when_too_many_columns():
 def test_oversized_line():
     with shell.climb_git_root():
         stdin = 'a' * 8
-        res = shell.run('bin/_csv.8', stdin=stdin, warn=True)
+        res = shell.run('_csv.8', stdin=stdin, warn=True)
         assert res['exitcode'] == 1
         assert 'fatal: line longer than BUFFER_SIZE' == res['stderr']

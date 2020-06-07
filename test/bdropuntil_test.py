@@ -79,7 +79,7 @@ def expected(value, csv):
     return '\n'.join(res) + '\n'
 
 @given(inputs())
-@settings(database=ExampleDatabase(':memory:'), max_examples=100 * int(os.environ.get('TEST_FACTOR', 1)), deadline=os.environ.get("TEST_DEADLINE", 1000 * 60))
+@settings(database=ExampleDatabase(':memory:'), max_examples=100 * int(os.environ.get('TEST_FACTOR', 1)), deadline=os.environ.get("TEST_DEADLINE", 1000 * 60)) # type: ignore
 def test_props(args):
     value, csv, buffer = args
     result = expected(value, csv)
@@ -88,19 +88,19 @@ def test_props(args):
 def test_example1():
     value, csv = 'g', 'a\nb\nc\nd\ne\nf\ng\nh\n'
     result = expected(value, csv)
-    assert result == run(csv, f'bsv 2>/dev/null | bsort | bdropuntil "{value}" | bin/csv 2>/dev/null')
+    assert result == run(csv, f'bsv 2>/dev/null | bsort | bdropuntil "{value}" | csv 2>/dev/null')
 
 def test_example2():
     value, csv = 'a', 'a\n'
     result = expected(value, csv)
-    assert result == run(csv, f'bsv 2>/dev/null | bsort | bdropuntil "{value}" | bin/csv 2>/dev/null')
+    assert result == run(csv, f'bsv 2>/dev/null | bsort | bdropuntil "{value}" | csv 2>/dev/null')
 
 def test_example3():
     value, csv = 'ga', 'a\nb\nc\nddd\neee\nf\nga\n'
     result = expected(value, csv)
-    assert result == run(csv, f'bsv 2>/dev/null | bsort | bdropuntil "{value}" | bin/csv 2>/dev/null')
+    assert result == run(csv, f'bsv 2>/dev/null | bsort | bdropuntil "{value}" | csv 2>/dev/null')
 
 def test_example4():
     value, csv = 'b', 'a\na\na\nb\n'
     result = expected(value, csv)
-    assert result == run(csv, f'bsv 2>/dev/null | bsort | bdropuntil "{value}" | bin/csv 2>/dev/null')
+    assert result == run(csv, f'bsv 2>/dev/null | bsort | bdropuntil "{value}" | csv 2>/dev/null')

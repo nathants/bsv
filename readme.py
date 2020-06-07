@@ -18,11 +18,12 @@ for x in xs:
 after = []
 
 for path in co('ls src/*.c').splitlines():
+    name = path
     if not path.split('/')[-1].startswith('_'):
         with open(path) as f:
             xs = f.read().splitlines()
         try:
-            assert any(x.strip() == 'HELP();' for x in xs), path
+            assert any(x.strip() == 'SETUP();' for x in xs), path
             name = path.split('/')[-1].split('.c')[0]
             description = [x for x in xs if x.startswith('#define DESCRIPTION')][0].replace('\\n', '\n').split('"')[1]
             usage = [x for x in xs if x.startswith('#define USAGE')][0].replace('\\n', '\n').split('"')[1]

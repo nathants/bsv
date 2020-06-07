@@ -6,7 +6,7 @@
 #include "util.h"
 
 void showusage() {
-    fprintf(stderr, "\nusage: $ gen-csv NUM_COLUMNS NUM_ROWS\n");
+    FPRINTF(stderr, "\nusage: $ gen-csv NUM_COLUMNS NUM_ROWS\n");
     exit(1);
 }
 
@@ -14,10 +14,12 @@ int main(int argc, const char **argv) {
     SIGPIPE_HANDLER();
     if (argc < 3)
         showusage();
-    int32_t num_columns = atoi(argv[1]);
-    long long num_rows = atol(argv[2]);
-    int32_t add_int = 0;
-    int32_t add_float = 0;
+    i32 num_columns = atoi(argv[1]);
+    u64 num_rows = atol(argv[2]);
+    ASSERT(num_columns >= 0, "fatal: num_columns < 0");
+    ASSERT(num_rows >= 0, "fatal: num_rows < 0");
+    i32 add_int = 0;
+    i32 add_float = 0;
     if (argc > 3) {
         if (strcmp("f", argv[3]) == 0)
             add_float = 1;
@@ -25,7 +27,7 @@ int main(int argc, const char **argv) {
             add_int = 1;
     }
     time_t t;
-    int32_t i, j, num_words, add_delimiter;
+    i32 num_words, add_delimiter;
 
     const char *words[] = {
         "Abelson",
@@ -1031,21 +1033,21 @@ int main(int argc, const char **argv) {
     };
 
     num_words = sizeof(words) / sizeof(words[0]);
-    srand((int32_t) time(&t));
-    i = 0;
+    srand((i32)time(&t));
+    i32 i = 0;
     while (i++ < num_rows) {
         add_delimiter = 0;
-        for (j = 0; j< num_columns; j++) {
+        for (i32 j = 0; j< num_columns; j++) {
             if (add_delimiter)
-                fputs(",", stdout);
-            fputs(words[rand() % num_words], stdout);
+                FPUTS(",");
+            FPUTS(words[rand() % num_words]);
             add_delimiter = 1;
         }
         if (add_int) {
-            fprintf(stdout, ",%d", rand() % 100);
+            FPRINTF(stdout, ",%d", rand() % 100);
         } else if (add_float) {
-            fprintf(stdout, ",%f", ((float)rand()/(float)(RAND_MAX)) * 10000);
+            FPRINTF(stdout, ",%f", ((float)rand() / (float)(RAND_MAX)) * 10000);
         }
-        fputs("\n", stdout);
+        FPUTS("\n");
     }
 }

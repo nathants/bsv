@@ -1,6 +1,6 @@
 .PHONY: all clean test
 CFLAGS=-Iutil -Ivendor -flto -O3 -march=native -mtune=native
-ALL=docs bbucket bcat bcopy bcounteach bcountrows bcut bdedupe bdropuntil bmerge bpartition brmerge brsort bsort bsplit bsum bsv_ascii bsv btake btakeuntil _copy csv_ascii _csv csv _gen_csv xxh3
+ALL=docs bbucket bcat bcopy bcounteach bcountrows bcut bdedupe bdropuntil bmerge bpartition brmerge brsort bschema bsort bsplit bsum bsv btake btakeuntil _copy _csv csv _gen_csv xxh3
 
 all: $(ALL)
 
@@ -52,6 +52,9 @@ brmerge: setup
 brsort: setup
 	gcc $(CFLAGS) src/brsort.c -o bin/brsort
 
+bschema: setup
+	gcc $(CFLAGS) src/bschema.c -o bin/bschema
+
 bsort: setup
 	gcc $(CFLAGS) src/bsort.c -o bin/bsort
 
@@ -60,9 +63,6 @@ bsplit: setup
 
 bsum: setup
 	gcc $(CFLAGS) src/bsum.c -o bin/bsum
-
-bsv_ascii: setup
-	gcc $(CFLAGS) src/bsv_ascii.c -o bin/bsv_ascii
 
 bsv: setup
 	gcc $(CFLAGS) src/bsv.c -o bin/bsv
@@ -75,9 +75,6 @@ btakeuntil: setup
 
 _copy: setup
 	gcc $(CFLAGS) src/_copy.c -o bin/_copy
-
-csv_ascii: setup
-	gcc $(CFLAGS) src/csv_ascii.c -o bin/csv_ascii
 
 _csv: setup
 	gcc $(CFLAGS) src/_csv.c -o bin/_csv

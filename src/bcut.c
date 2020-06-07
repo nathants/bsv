@@ -1,63 +1,76 @@
 #include "util.h"
-#include "load_dump.h"
+#include "load.h"
+#include "dump.h"
 
-#define ERROR_CHECK_NOT_ENOUGH_COLUMNS(max, sizes, columns)                         \
-    do {                                                                            \
-        if (field_nums[i] > max) {                                                  \
-            fprintf(stderr, "fatal: line without %d columns: ", field_nums[i] + 1); \
-            add_delimeter = 0;                                                      \
-            for (i = 0; i <= max ; i++) {                                           \
-                if (add_delimeter)                                                  \
-                    fprintf(stderr, ",");                                           \
-                fwrite(columns[i], sizeof(char), sizes[i], stderr);                 \
-                add_delimeter = 1;                                                  \
-            };                                                                      \
-            fprintf(stderr, "\n");                                                  \
-            exit(1);                                                                \
-        }                                                                           \
-    } while (0)
-
-#define NUM_ARGS 2
 #define DESCRIPTION "select some columns\n\n"
 #define USAGE "... | bcut FIELD1,...,FIELDN\n\n"
 #define EXAMPLE ">> echo a,b,c | bsv | bcut 3,3,3,2,2,1 | csv\nc,c,c,b,b,a\n"
 
+#define PARSE_ARGV()                                                                                                            \
+    do {                                                                                                                        \
+        char *f;                                                                                                                \
+        char *fs = (char*)argv[1];                                                                                              \
+        while ((f = strsep(&fs, ","))) {                                                                                        \
+            index = atoi(f);                                                                                                    \
+            indices[num_fields++] = index - 1;                                                                                  \
+            ASSERT(index <= MAX_COLUMNS, "fatal: cannot select indices above %d, tried to select: %d\n", MAX_COLUMNS, index);   \
+            ASSERT(index > 0, "fatal: indices must be gte 0, got: %d", index);                                                  \
+        }                                                                                                                       \
+        ASSERT(num_fields <= MAX_COLUMNS, "fatal: cannot select more than %d indices\n", MAX_COLUMNS);                          \
+    } while (0)
+
+// print as csv for fatal error message
+u8 *join_comma(row_t *row) {
+    u8 *buffer;
+    MALLOC(buffer, BUFFER_SIZE);
+    u8 *head = buffer;
+    for (i32 i = 0; i <= row->max; i++) {
+        memcpy(head, row->columns[i], row->sizes[i]);
+        head[row->sizes[i]] = ',';
+        head += row->sizes[i] + 1;
+        ASSERT(head - buffer < BUFFER_SIZE, "fatal: overflow\n");
+    }
+    if (head != buffer)
+        head[-1] = '\0';
+    return buffer;
+}
+
 int main(int argc, const char **argv) {
-    HELP();
-    SIGPIPE_HANDLER();
-    LOAD_DUMP_INIT();
-    LOAD_NEW(new);
-    char *f;
-    char *fs;
-    int32_t i;
-    int32_t add_delimeter;
-    int32_t field;
-    int32_t num_fields=0;
-    int32_t field_nums[MAX_COLUMNS];
 
-    fs = argv[1];
-    while ((f = strsep(&fs, ","))) {
-        field = atoi(f);
-        field_nums[num_fields++] = field - 1;
-        ASSERT(field <= MAX_COLUMNS, "fatal: cannot select fields above %d, tried to select: %d\n", MAX_COLUMNS, field);
-        ASSERT(field >= 1, "fatal: fields must be positive, got: %d", field);
-        ASSERT(num_fields <= MAX_COLUMNS, "fatal: cannot select more than %d fields\n", MAX_COLUMNS);
-    }
+    // setup bsv
+    SETUP();
 
+    // setup input
+    FILE *in_files[1] = {stdin};
+    readbuf_t rbuf;
+    rbuf_init(&rbuf, in_files, 1);
+
+    // setup output
+    FILE *out_files[1] = {stdout};
+    writebuf_t wbuf;
+    wbuf_init(&wbuf, out_files, 1);
+
+    // setup state
+    i32 num_fields = 0;
+    i32 indices[MAX_COLUMNS];
+    i32 index;
+    PARSE_ARGV();
+    row_t row;
+    row_t new;
+
+    // process input row by row
     while (1) {
-        LOAD(0);
-        if (load_stop)
+        load_next(&rbuf, &row, 0);
+        if (row.stop)
             break;
-        if (load_max || load_sizes[0]) {
-            for (i = 0; i < num_fields; i++) {
-                ERROR_CHECK_NOT_ENOUGH_COLUMNS(load_max, load_sizes, load_columns);
-                field = field_nums[i];
-                new_columns[i] = load_columns[field];
-                new_types[i] = load_types[field];
-                new_sizes[i] = load_sizes[field];
-            }
-            DUMP(0, num_fields - 1, new_columns, new_types, new_sizes);
+        for (i32 i = 0; i < num_fields; i++) {
+            index = indices[i];
+            ASSERT(index <= row.max, "fatal: line without %d columns: %s\n", index + 1, join_comma(&row));
+            new.columns[i] = row.columns[index];
+            new.sizes[i] = row.sizes[index];
         }
+        new.max = num_fields - 1;
+        dump(&wbuf, &new, 0);
     }
-    DUMP_FLUSH(0);
+    dump_flush(&wbuf, 0);
 }

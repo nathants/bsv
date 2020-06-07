@@ -13,7 +13,7 @@ def setup_module(m):
     m.path = os.environ['PATH']
     os.chdir(m.tempdir)
     os.environ['PATH'] = f'{os.getcwd()}/bin:/usr/bin:/usr/local/bin:/sbin:/usr/sbin:/bin'
-    shell.run('make clean && make bsv csv bcat bpartition', stream=True)
+    shell.run('make clean && make bsv csv bschema bcat bpartition', stream=True)
 
 def teardown_module(m):
     os.chdir(m.orig)
@@ -45,14 +45,14 @@ def expected(num_buckets, csv):
     return val.strip()
 
 @given(inputs())
-@settings(database=ExampleDatabase(':memory:'), max_examples=100 * int(os.environ.get('TEST_FACTOR', 1)), deadline=os.environ.get("TEST_DEADLINE", 1000 * 60))
+@settings(database=ExampleDatabase(':memory:'), max_examples=100 * int(os.environ.get('TEST_FACTOR', 1)), deadline=os.environ.get("TEST_DEADLINE", 1000 * 60)) # type: ignore
 def test_props(args):
     num_buckets, csv = args
     result = expected(num_buckets, csv)
     with shell.tempdir():
         stdout = '\n'.join(sorted({l.split(':')[0] for l in result.splitlines()}))
-        assert stdout == shell.run(f'bsv | bpartition {num_buckets} prefix', stdin=csv, echo=True)
-        assert result == shell.run(f'bcat --prefix prefix*')
+        assert stdout == shell.run(f'bsv | bschema a:u64,... | bpartition prefix {num_buckets}', stdin=csv, echo=True)
+        assert result == shell.run('bcat --prefix prefix*')
 
 def test_fail1():
     args = (254, '0,a\n')
@@ -60,9 +60,11 @@ def test_fail1():
     result = expected(num_buckets, csv)
     with shell.tempdir():
         stdout = '\n'.join(sorted({l.split(':')[0] for l in result.splitlines()}))
-        assert stdout == shell.run(f'bsv | bpartition {num_buckets} prefix', stdin=csv, echo=True)
-        assert result == shell.run(f'bcat --prefix prefix*')
+        assert stdout == shell.run(f'bsv | bschema a:u64,... | bpartition prefix {num_buckets}', stdin=csv, echo=True)
+        assert result == shell.run('bcat --prefix prefix*')
 
+import pytest
+@pytest.mark.only
 def test_basic():
     with shell.tempdir():
         stdin = """
@@ -75,13 +77,13 @@ def test_basic():
         prefix01
         prefix02
         """
-        assert rm_whitespace(unindent(stdout)) == shell.run(f'bsv | bpartition 10 prefix', stdin=unindent(stdin))
+        assert rm_whitespace(unindent(stdout)) == shell.run('bsv | bschema a:u64,... | bpartition prefix 10', stdin=unindent(stdin))
         stdout = """
         prefix00:b,c,d
         prefix01:e,f,g
         prefix02:h,i,j
         """
-        assert unindent(stdout).strip() == shell.run(f'bcat --prefix prefix*')
+        assert unindent(stdout).strip() == shell.run('bcat --prefix prefix*')
         stdout = """
         prefix00
         prefix01
@@ -101,8 +103,8 @@ def test_appends():
         prefix01
         prefix02
         """
-        assert rm_whitespace(unindent(stdout)) == shell.run(f'bsv | bpartition 10 prefix', stdin=unindent(stdin))
-        assert rm_whitespace(unindent(stdout)) == shell.run(f'bsv | bpartition 10 prefix', stdin=unindent(stdin))
+        assert rm_whitespace(unindent(stdout)) == shell.run('bsv | bschema a:u64,... | bpartition prefix 10', stdin=unindent(stdin))
+        assert rm_whitespace(unindent(stdout)) == shell.run('bsv | bschema a:u64,... | bpartition prefix 10', stdin=unindent(stdin))
         stdout = """
         prefix00:b,c,d
         prefix00:b,c,d
@@ -111,7 +113,7 @@ def test_appends():
         prefix02:h,i,j
         prefix02:h,i,j
         """
-        assert unindent(stdout).strip() == shell.run(f'bcat --prefix prefix*')
+        assert unindent(stdout).strip() == shell.run('bcat --prefix prefix*')
         stdout = """
         prefix00
         prefix01

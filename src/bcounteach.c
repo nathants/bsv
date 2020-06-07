@@ -1,48 +1,64 @@
-#include "load_dump.h"
+#include "util.h"
+#include "load.h"
+#include "dump.h"
 #include "simd.h"
 
-#define DUMP_COUNT()                                                            \
-    do {                                                                        \
-        if (buffer[0] != '\0') {                                                \
-            sprintf(output, "%llu", val);                                       \
-            last_sizes[last_max] = strlen(output);                              \
-            last_columns[last_max] = output;                                    \
-            DUMP(0, last_max, last_columns, last_types, last_sizes);            \
-        }                                                                       \
-    } while(0)
-
-#define NUM_ARGS 1
-#define DESCRIPTION "count and collapse each contiguous identical row by strcmp the first column\n\n"
+#define DESCRIPTION "count as u64 each contiguous identical row by strcmp the first column\n\n"
 #define USAGE "... | bcounteach\n\n"
 #define EXAMPLE "echo 'a\na\nb\nb\nb\na\n' | bsv | bcounteach | csv\na,2\nb,3\na,1\n"
 
+#define DUMP_COUNT()                                                    \
+    do {                                                                \
+        if (size > 0) {                                                 \
+            ASSERT(count < ULONG_MAX, "fatal: count exceed u64 max\n"); \
+            new.columns[0] = buffer;                                    \
+            new.sizes[0] = size;                                        \
+            new.columns[1] = &count;                                    \
+            new.sizes[1] = sizeof(u64);                                 \
+            new.max = 1;                                                \
+            dump(&wbuf, &new, 0);                                       \
+        }                                                               \
+    } while(0)
+
 int main(int argc, const char **argv) {
-    HELP();
-    SIGPIPE_HANDLER();
-    unsigned long long val = 0;
-    uint8_t output[1024 * 1024];
-    LOAD_NEW(last);
-    LOAD_DUMP_INIT();
-    uint8_t *buffer;
+
+    // setup bsv
+    SETUP();
+
+    // setup input
+    FILE *in_files[1] = {stdin};
+    readbuf_t rbuf;
+    rbuf_init(&rbuf, in_files, 1);
+
+    // setup output
+    FILE *out_files[1] = {stdout};
+    writebuf_t wbuf;
+    wbuf_init(&wbuf, out_files, 1);
+
+    // setup state
+    u64 count = 0;
+    i32 size = 0;
+    u8 *buffer;
+    row_t row;
+    row_t new;
     MALLOC(buffer, BUFFER_SIZE);
-    memset(buffer, 0, BUFFER_SIZE);
-    last_columns[0] = buffer;
-    last_max = 1;
-    last_types[0] = BSV_CHAR;
-    last_types[1] = BSV_CHAR;
+
+    // process input row by row
     while (1) {
-        LOAD(0);
-        if (load_stop)
+        load_next(&rbuf, &row, 0);
+        if (row.stop)
             break;
-        val += 1;
-        if (simd_strcmp(buffer, load_columns[0]) != 0) {
+        count++;
+        if (simd_strcmp(buffer, row.columns[0]) != 0) {
             DUMP_COUNT();
-            last_sizes[0] = load_sizes[0];
-            memcpy(buffer, load_columns[0], load_sizes[0] + 1); // +1 for the trailing \0
-            val = 0;
+            memcpy(buffer, row.columns[0], row.sizes[0] + 1); // +1 for the trailing \0
+            size = row.sizes[0];
+            count = 0;
         }
     }
-    val += 1;
+
+    // flush last value
+    count += 1;
     DUMP_COUNT();
-    DUMP_FLUSH(0);
+    dump_flush(&wbuf, 0);
 }

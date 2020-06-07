@@ -3,47 +3,50 @@
 
 #include "util.h"
 
-#define READ_INIT(files, num_files)             \
-    INVARIANTS();                               \
-    INCREASE_PIPE_SIZES();                      \
-    FILE **r_files = files;                     \
-    int32_t read_bytes;                         \
-    uint8_t *read_buffer;                       \
-    uint8_t *r_buffer[num_files];               \
-    int32_t r_bytes_left;                       \
-    int32_t r_bytes_todo;                       \
-    int32_t r_bytes = 0;                        \
-    int32_t r_stop[num_files];                  \
-    int32_t r_i;                                \
-    for (r_i = 0; r_i < num_files; r_i++)       \
-        r_stop[r_i] = 0;                        \
-    int32_t r_offset[num_files];                \
-    for (r_i = 0; r_i < num_files; r_i++) {     \
-        r_offset[r_i] = BUFFER_SIZE;            \
-        MALLOC(r_buffer[r_i], BUFFER_SIZE);     \
-    }
+typedef struct readbuf_s {
+    // public
+    i32 bytes;
+    u8 *buffer;
+    // private
+    i32 *stop;
+    i32 *offset;
+    FILE **files;
+    u8 **buffers;
+} readbuf_t;
 
-#define READ(size, i)                                                                               \
-    do {                                                                                            \
-        ASSERT(size <= BUFFER_SIZE, "error: cant read more bytes than %d\n", BUFFER_SIZE);          \
-        if (r_stop[i] == 0) {                                                                       \
-            r_bytes_left = BUFFER_SIZE - r_offset[i];                                               \
-            read_bytes = size;                                                                      \
-            if (size > r_bytes_left) {                                                              \
-                memmove(r_buffer[i], r_buffer[i] + r_offset[i], r_bytes_left);                      \
-                r_bytes_todo = BUFFER_SIZE - r_bytes_left;                                          \
-                r_bytes = fread_unlocked(r_buffer[i] + r_bytes_left, 1, r_bytes_todo, r_files[i]);  \
-                r_offset[i] = 0;                                                                    \
-                if (r_bytes_todo != r_bytes) {                                                      \
-                    ASSERT(!ferror(r_files[i]), "error: couldnt read input\n");                     \
-                    r_stop[i] = r_bytes_left + r_bytes;                                             \
-                    read_bytes = MIN(size, r_bytes + r_bytes_left);                                 \
-                }                                                                                   \
-            }                                                                                       \
-        } else                                                                                      \
-            read_bytes = MIN(size, r_stop[i] - r_offset[i]);                                        \
-        read_buffer = r_buffer[i] + r_offset[i];                                                    \
-        r_offset[i] += read_bytes;                                                                  \
-    } while (0)
+void rbuf_init(readbuf_t *buf, FILE **files, i32 num_files) {
+    buf->files = files;
+    MALLOC(buf->stop, sizeof(i32) * num_files);
+    for (i32 file = 0; file < num_files; file++)
+        buf->stop[file] = 0;
+    MALLOC(buf->offset, sizeof(i32) * num_files);
+    MALLOC(buf->buffers, sizeof(u8*) * num_files);
+    for (i32 file = 0; file < num_files; file++) {
+        buf->offset[file] = BUFFER_SIZE;
+        MALLOC(buf->buffers[file], BUFFER_SIZE);
+    }
+}
+
+inlined void read_bytes(readbuf_t *buf, i32 size, i32 file) {
+    ASSERT(size <= BUFFER_SIZE, "error: cant read more bytes than %d\n", BUFFER_SIZE);
+    if (buf->stop[file] == 0) {
+        i32 bytes_left = BUFFER_SIZE - buf->offset[file];
+        buf->bytes = size;
+        if (size > bytes_left) {
+            memmove(buf->buffers[file], buf->buffers[file] + buf->offset[file], bytes_left);
+            i32 bytes_todo = BUFFER_SIZE - bytes_left;
+            i32 bytes = fread_unlocked(buf->buffers[file] + bytes_left, 1, bytes_todo, buf->files[file]);
+            buf->offset[file] = 0;
+            if (bytes_todo != bytes) {
+                ASSERT(!ferror_unlocked(buf->files[file]), "error: couldnt read input\n");
+                buf->stop[file] = bytes_left + bytes;
+                buf->bytes = MIN(size, bytes + bytes_left);
+            }
+        }
+    } else
+        buf->bytes = MIN(size, buf->stop[file] - buf->offset[file]);
+    buf->buffer = buf->buffers[file] + buf->offset[file];
+    buf->offset[file] += buf->bytes;
+}
 
 #endif

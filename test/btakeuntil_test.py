@@ -61,8 +61,8 @@ def expected(value, csv):
     return '\n'.join(res) + '\n'
 
 @given(inputs())
-@settings(database=ExampleDatabase(':memory:'), max_examples=100 * int(os.environ.get('TEST_FACTOR', 1)), deadline=os.environ.get("TEST_DEADLINE", 1000 * 60))
+@settings(database=ExampleDatabase(':memory:'), max_examples=100 * int(os.environ.get('TEST_FACTOR', 1)), deadline=os.environ.get("TEST_DEADLINE", 1000 * 60)) # type: ignore
 def test_props(args):
     value, csv = args
     result = expected(value, csv)
-    assert set(result.splitlines()) == set(run(csv, f'bsv | bsort | btakeuntil "{value}" | bin/csv').splitlines()) # set because sort is not stable and is only for first column values
+    assert set(result.splitlines()) == set(run(csv, f'bsv | bsort | btakeuntil "{value}" | csv').splitlines()) # set because sort is not stable and is only for first column values

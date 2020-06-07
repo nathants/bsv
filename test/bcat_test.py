@@ -16,11 +16,6 @@ def teardown_module(m):
     assert m.tempdir.startswith('/tmp/') or m.tempdir.startswith('/private/var/folders/')
     shell.run('rm -rf', m.tempdir)
 
-def test_numeric():
-    with shell.tempdir():
-        shell.run('echo a,1,2.0 | bsv > data.bsv')
-        assert 'a,1,2.000000' == shell.run('bcat data.bsv')
-
 def test_basic():
     with shell.tempdir():
         shell.run('for char in a a b b c c; do echo $char | bsv >> $char; done')
@@ -29,7 +24,7 @@ def test_basic():
         b:b
         c:c
         """
-        assert rm_whitespace(unindent(stdout)) == shell.run(f'bcat --prefix --head 1 a b c')
+        assert rm_whitespace(unindent(stdout)) == shell.run('bcat --prefix --head 1 a b c')
         stdout = """
         a:a
         a:a
@@ -38,15 +33,15 @@ def test_basic():
         c:c
         c:c
         """
-        assert rm_whitespace(unindent(stdout)) == shell.run(f'bcat --prefix --head 2 a b c')
-        assert rm_whitespace(unindent(stdout)) == shell.run(f'bcat --head 2 --prefix a b c')
-        assert rm_whitespace(unindent(stdout)) == shell.run(f'bcat --prefix a b c')
+        assert rm_whitespace(unindent(stdout)) == shell.run('bcat --prefix --head 2 a b c')
+        assert rm_whitespace(unindent(stdout)) == shell.run('bcat --head 2 --prefix a b c')
+        assert rm_whitespace(unindent(stdout)) == shell.run('bcat --prefix a b c')
         stdout = """
         a
         b
         c
         """
-        assert rm_whitespace(unindent(stdout)) == shell.run(f'bcat --head 1 a b c')
+        assert rm_whitespace(unindent(stdout)) == shell.run('bcat --head 1 a b c')
         stdout = """
         a
         a
@@ -55,4 +50,4 @@ def test_basic():
         c
         c
         """
-        assert rm_whitespace(unindent(stdout)) == shell.run(f'bcat a b c')
+        assert rm_whitespace(unindent(stdout)) == shell.run('bcat a b c')

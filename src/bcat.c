@@ -1,9 +1,7 @@
 #include "util.h"
 #include "load.h"
 #include "write_simple.h"
-#include <ctype.h>
 
-#define NUM_ARGS 0
 #define DESCRIPTION "cat some bsv file to csv\n\n"
 #define USAGE "bcat [--prefix] [--head NUM] FILE1 ... FILEN\n\n"
 #define EXAMPLE                                     \
@@ -15,7 +13,7 @@
     "/tmp/b:b\n"                                    \
     "/tmp/c:c\n"
 
-static int isdigits(const char *s) {
+int isdigits(const char *s) {
     while (*s != '\0') {
         if (!isdigit(*s))
             return 0;
@@ -25,79 +23,66 @@ static int isdigits(const char *s) {
 }
 
 int main(int argc, const char **argv) {
-    HELP();
-    SIGPIPE_HANDLER();
-    int32_t prefix_mode = 0;
-    int32_t head = 0;
-    int32_t i, j;
-    int32_t ran = 0;
-    uint8_t buffer[1024];
-    uint64_t line;
+    // setup bsv
+    SETUP();
 
+    // setup state
+    i32 prefix_mode = 0;
+    i32 ran = 0;
+    u64 head = 0;
+    u64 line;
     while (1) {
         if (argc > 1 && strcmp(argv[1], "--prefix") == 0) {
             prefix_mode = 1;
             argv = argv + 1;
             argc -= 1;
         } else if (argc > 2 && strcmp(argv[1], "--head") == 0) {
-            if (!isdigits(argv[2])) { fprintf(stderr, "fatal: should have been `--head INT`, not `--head %s`\n", argv[2]); exit(1); }
+            ASSERT(isdigits(argv[2]), "fatal: should have been `--head INT`, not `--head %s`\n", argv[2]);
             head = atoi(argv[2]);
             argv = argv + 2;
             argc -= 2;
-        } else
+        } else {
             break;
+        }
     }
 
-    FILE *file;
+    // setup input
     FILE *files[argc - 1];
-    for (i = 1; i < argc; i++) {
-        files[i - 1] = fopen(argv[i], "rb");
-        ASSERT(files[i - 1], "fatal: failed to open: %s\n", argv[i])
-    }
-    LOAD_INIT(files, argc - 1);
+    for (i32 i = 1; i < argc; i++)
+        FOPEN(files[i - 1], argv[i], "rb");
+    readbuf_t rbuf;
+    rbuf_init(&rbuf, files, argc - 1);
+    row_t row;
 
-    FILE *write_files[1] = {stdout};
-    WRITE_INIT(write_files, 1);
+    // setup output
+    FILE *out_files[1] = {stdout};
+    writebuf_t wbuf;
+    wbuf_init(&wbuf, out_files, 1);
 
-    for (int32_t i = 1; i < argc; i++) {
+    // process input row by row
+    for (i32 i = 1; i < argc; i++) {
         line = 0;
         while (1) {
             line++;
-            LOAD(i - 1);
-            if (load_stop)
+            load_next(&rbuf, &row, i - 1);
+            if (row.stop)
                 break;
             if (head != 0 && line > head)
                 break;
             if (prefix_mode) {
-                WRITE(argv[i], strlen(argv[i]), 0);
-                WRITE(":", 1, 0);
+                write_bytes(&wbuf, argv[i], strlen(argv[i]), 0);
+                write_bytes(&wbuf, ":", 1, 0);
             }
-            for (j = 0; j <= load_max; j++) {
-                switch (load_types[j]) {
-                    case BSV_INT:
-                        sprintf(buffer, "%d", BYTES_TO_INT(load_columns[j]));
-                        load_columns[j] = buffer;
-                        load_sizes[j] = strlen(buffer);
-                        break;
-                    case BSV_FLOAT:
-                        sprintf(buffer, "%f", BYTES_TO_FLOAT(load_columns[j]));
-                        load_columns[j] = buffer;
-                        load_sizes[j] = strlen(buffer);
-                        break;
-                    case BSV_CHAR:
-                        break;
-                }
-
-                WRITE(load_columns[j], load_sizes[j], 0);
-                if (j != load_max)
-                    WRITE(",", 1, 0);
+            for (i32 j = 0; j <= row.max; j++) {
+                write_bytes(&wbuf, row.columns[j], row.sizes[j], 0);
+                if (j != row.max)
+                    write_bytes(&wbuf, ",", 1, 0);
             }
-            WRITE("\n", 1, 0);
+            write_bytes(&wbuf, "\n", 1, 0);
             ran = 1;
         }
     }
     if (ran == 0)
-        WRITE("\n", 1, 0);
-    WRITE_FLUSH(0);
-
+        write_bytes(&wbuf, "\n", 1, 0);
+    write_flush(&wbuf, 0);
 }

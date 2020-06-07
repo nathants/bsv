@@ -1,36 +1,52 @@
 #ifndef READ_AHEAD_H
 #define READ_AHEAD_H
 
+#include "read.h"
 #include "util.h"
 
-#define READ_AHEAD_INIT(num_files)                  \
-    uint8_t *r_last_buffer[num_files];              \
-    int32_t r_last_chunk_size[num_files];           \
-    int32_t r_has_nexted = 0;                       \
-    for (r_i = 0; r_i < num_files; r_i++) {         \
-        MALLOC(r_last_buffer[r_i], BUFFER_SIZE);    \
+typedef struct readaheadbuf_s {
+    i32 has_nexted;
+    u8 **last_buffers;
+    i32 *last_chunk_size;
+    i32 _i32;
+    u8 * _u8s;
+} readaheadbuf_t;
+
+void rabuf_init(readaheadbuf_t *buf, i32 num_files) {
+    buf->has_nexted = 0;
+    MALLOC(buf->last_buffers, sizeof(u8*) * num_files);
+    MALLOC(buf->last_chunk_size, sizeof(i32) * num_files);
+    for (i32 i = 0; i < num_files; i++) {
+      MALLOC(buf->last_buffers[i], BUFFER_SIZE);
     }
+}
 
-#define SWAP(a_buff, b_buff, a_size, b_size)    \
-    r_char = a_buff;                            \
-    a_buff = b_buff;                            \
-    b_buff = r_char;                            \
-    r_i = a_size;                               \
-    a_size = b_size;                            \
-    b_size = r_i;
+inlined void swap(readbuf_t *rbuf, readaheadbuf_t* rabuf, i32 file) {
+    // swap buffers
+    rabuf->_u8s = rbuf->buffers[file];
+    rbuf->buffers[file] = rabuf->last_buffers[file];
+    rabuf->last_buffers[file] = rabuf->_u8s;
+    // swap chunk sizes
+    rabuf->_i32 = rbuf->chunk_size[file];
+    rbuf->chunk_size[file] = rabuf->last_chunk_size[file];
+    rabuf->last_chunk_size[file] = rabuf->_i32;
+}
 
-#define READ_GOTO_NEXT_CHUNK(i)                                                 \
-    SWAP(r_buffer[i], r_last_buffer[i], r_chunk_size[i], r_last_chunk_size[i]); \
-    r_offset[i] = r_chunk_size[i];                                              \
-    r_has_nexted = 1;
+inlined void read_goto_next_chunk(readbuf_t *rbuf, readaheadbuf_t* rabuf, i32 file) {
+    swap(rbuf, rabuf, file);
+    rbuf->offset[file] = rbuf->chunk_size[file];
+    rabuf->has_nexted = 1;
+}
 
-#define READ_GOTO_LAST_CHUNK(i)                                                         \
-    r_offset[i] = 0;                                                                    \
-    if (r_has_nexted) {                                                                 \
-        SWAP(r_buffer[i], r_last_buffer[i], r_chunk_size[i], r_last_chunk_size[i]);     \
-        REALLOC(r_buffer[i], r_chunk_size[i] + r_last_chunk_size[i]);                   \
-        memcpy(r_buffer[i] + r_chunk_size[i], r_last_buffer[i], r_last_chunk_size[i]);  \
-        r_chunk_size[i] += r_last_chunk_size[i];                                        \
+inlined void read_goto_last_chunk(readbuf_t *rbuf, readaheadbuf_t* rabuf, i32 file) {
+    rbuf->offset[file] = 0;
+    if (rabuf->has_nexted) {
+        // goto_last only does something if goto_next has been used, and results in: buffer = last_buf + current_buf
+        swap(rbuf, rabuf, file);
+        REALLOC(rbuf->buffers[file], rbuf->chunk_size[file] + rabuf->last_chunk_size[file]);
+        memcpy(rbuf->buffers[file] + rbuf->chunk_size[file], rabuf->last_buffers[file], rabuf->last_chunk_size[file]);
+        rbuf->chunk_size[file] += rabuf->last_chunk_size[file];
     }
+}
 
 #endif

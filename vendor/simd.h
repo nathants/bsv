@@ -17,7 +17,7 @@ static inline int simd_strcmp(const char* s1, const char* s2) {
 
 #else
 
-static inline int simd_strcmp(const char* s1, const char* s2) {
+static inline int simd_strcmp(const void* s1, const void* s2) {
     // from: https://github.com/WojciechMula/simd-string/blob/e9f739c4b4eb953e18ccd284740f2761bf78c723/strcmp.cpp
     /* Copyright (c) 2006-2015, Wojciech Muła */
     /* All rights reserved. */
@@ -53,7 +53,7 @@ static inline int simd_strcmp(const char* s1, const char* s2) {
             _SIDD_LEAST_SIGNIFICANT;
         if (_mm_cmpistrc(a, b, mode)) {
             // a & b are different (not counting past-zero bytes)
-            const auto idx = _mm_cmpistri(a, b, mode);
+            const int32_t idx = _mm_cmpistri(a, b, mode);
             const uint8_t b1 = ((char*)(ptr1))[idx];
             const uint8_t b2 = ((char*)(ptr2))[idx];
             if (b1 < b2) {

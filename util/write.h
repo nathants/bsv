@@ -3,39 +3,40 @@
 
 #include "util.h"
 
-#define WRITE_INIT(files, num_files)                                            \
-    INVARIANTS();                                                               \
-    INCREASE_PIPE_SIZES();                                                      \
-    FILE **w_files = files;                                                     \
-    uint8_t *w_buffer[num_files];                                               \
-    int32_t w_offset[num_files];                                                \
-    int32_t w_int;                                                              \
-    for (int32_t w_i = 0; w_i < num_files; w_i++) {                             \
-        w_offset[w_i] = 0;                                                      \
-        w_buffer[w_i] = malloc(BUFFER_SIZE);                                    \
-        ASSERT(w_buffer[w_i] != NULL, "fatal: failed to allocate memory\n");    \
+typedef struct writebuf_s {
+    // private
+    FILE **files;
+    u8 **buffer;
+    i32 *offset;
+} writebuf_t;
+
+void wbuf_init(writebuf_t *buf, FILE **files, i32 num_files) {
+    buf->files = files;
+    MALLOC(buf->buffer, sizeof(u8*) * num_files);
+    MALLOC(buf->offset, sizeof(i32) * num_files);
+    for (i32 i = 0; i < num_files; i++) {
+        buf->offset[i] = 0;
+        MALLOC(buf->buffer[i], BUFFER_SIZE);
     }
+}
 
-#define WRITE(str, size, i)                             \
-    do {                                                \
-        memcpy(w_buffer[i] + w_offset[i], str, size);   \
-        w_offset[i] += size;                            \
-    } while (0)
+inlined void write_bytes(writebuf_t *buf, u8 *bytes, i32 size, i32 file) {
+        memcpy(buf->buffer[file] + buf->offset[file], bytes, size);
+        buf->offset[file] += size;
+}
 
-#define WRITE_START(size, i)                                                        \
-    do {                                                                            \
-        ASSERT(size <= BUFFER_SIZE, "fatal: cant write larger than BUFFER_SIZE\n"); \
-        if (size > BUFFER_SIZE - w_offset[i])                                       \
-            WRITE_FLUSH(i);                                                         \
-    } while (0)
+inlined void write_flush(writebuf_t *buf, i32 file) {
+    if (buf->offset[file]) { // -------------------------------------------- flush with an empty buffer is a nop
+        FWRITE(&buf->offset[file], sizeof(i32), buf->files[file]); // ------ write chunk header with size of chunk
+        FWRITE(buf->buffer[file], buf->offset[file], buf->files[file]); // - write chunk
+        buf->offset[file] = 0; // ------------------------------------------ reset the buffer to prepare for the next write
+    }
+}
 
-#define WRITE_FLUSH(i)                                                                                                  \
-    do {                                                                                                                \
-        if (w_offset[i]) { /* ------------------------------------- flush with an empty buffer is a nop */              \
-            FWRITE(&w_offset[i], sizeof(int32_t), w_files[i]); /* - write chunk header with size of chunk */            \
-            FWRITE(w_buffer[i], w_offset[i], w_files[i]);  /* ----- write chunk */                                      \
-            w_offset[i] = 0; /* ----------------------------------- reset the buffer to prepare for the next write */   \
-        }                                                                                                               \
-    } while (0)
+inlined void write_start(writebuf_t *buf, i32 size, i32 file) {
+  ASSERT(size <= BUFFER_SIZE, "fatal: cant write larger than BUFFER_SIZE\n");
+  if (size > BUFFER_SIZE - buf->offset[file])
+      write_flush(buf, file);
+}
 
 #endif

@@ -23,10 +23,8 @@ def setup_module(m):
     shell.run('make clean', stream=True)
     compile_buffer_sizes('csv', buffers)
     compile_buffer_sizes('bsv', buffers)
-    compile_buffer_sizes('bsv_ascii', buffers)
     shell.run('make csv')
     shell.run('make bsv')
-    shell.run('make bsv_ascii')
 
 def teardown_module(m):
     os.chdir(m.orig)
@@ -60,11 +58,11 @@ def expected(text):
     return '\n'.join(','.join('%d' % int(y) if y.isdigit() else y for y in x.split(',')) for x in text.splitlines())
 
 @given(inputs())
-@settings(database=ExampleDatabase(':memory:'), max_examples=100 * int(os.environ.get('TEST_FACTOR', 1)), deadline=os.environ.get("TEST_DEADLINE", 1000 * 60))
+@settings(database=ExampleDatabase(':memory:'), max_examples=100 * int(os.environ.get('TEST_FACTOR', 1)), deadline=os.environ.get("TEST_DEADLINE", 1000 * 60)) # type: ignore
 def test_props(arg):
     buffers, csv = arg
     assert expected(csv) + '\n' == run(csv, f'bsv.{buffers} | csv.{buffers}')
-    assert expected(csv) + '\n' == run(csv, f'bsv_ascii.{buffers} | csv.{buffers}')
+    assert expected(csv) + '\n' == run(csv, f'bsv.{buffers} | csv.{buffers}')
 
 try:
     import bsv
@@ -72,7 +70,7 @@ except ImportError:
     pass # not working on mac via tox
 else:
     @given(inputs())
-    @settings(database=ExampleDatabase(':memory:'), max_examples=100 * int(os.environ.get('TEST_FACTOR', 1)), deadline=os.environ.get("TEST_DEADLINE", 1000 * 60))
+    @settings(database=ExampleDatabase(':memory:'), max_examples=100 * int(os.environ.get('TEST_FACTOR', 1)), deadline=os.environ.get("TEST_DEADLINE", 1000 * 60)) # type: ignore
     def test_props_python_write(arg):
         buffers, csv = arg
         csv[:1024 * 1024 * 5] # slice to buffer size which is max python write supports
@@ -82,7 +80,7 @@ else:
         assert expected(csv) == runb(bytes_io.getvalue(), 'csv').decode('utf-8').rstrip()
 
     @given(inputs())
-    @settings(database=ExampleDatabase(':memory:'), max_examples=100 * int(os.environ.get('TEST_FACTOR', 1)), deadline=os.environ.get("TEST_DEADLINE", 1000 * 60))
+    @settings(database=ExampleDatabase(':memory:'), max_examples=100 * int(os.environ.get('TEST_FACTOR', 1)), deadline=os.environ.get("TEST_DEADLINE", 1000 * 60)) # type: ignore
     def test_props_python_read(arg):
         buffers, csv = arg
         assert expected(csv) + '\n' == '\n'.join(','.join(v.decode('utf-8')
@@ -95,21 +93,14 @@ def test_example1():
     csv = ',\n'
     val = runb(csv, 'bsv')
     bsv = b''.join([
-        struct.pack('i', 8 + 2), # uint32 num bytes in this chunk, chunks contain 1 or more rows
+        struct.pack('i', 8), # uint32 num bytes in this chunk, chunks contain 1 or more rows
         struct.pack('H', 1), # uint16 max, see load.h
-        struct.pack('B', 0), # uint8 types, see load.h
-        struct.pack('B', 0), # uint8 types, see load.h
         struct.pack('H', 0), # uint16 sizes, see load.h
         struct.pack('H', 0), # uint16 sizes, see load.h
         b'\0\0',
     ])
     assert bsv == val
-    assert csv == run(csv, f'bsv | csv')
-
-def test_numeric_first_column_is_possibly_unwise():
-    res = shell.run('echo 1 | bsv', warn=True)
-    assert 'warn: first column value is numeric, which will sort incorrectly. first column is the sort key, and is interpreted as bytes' == res['stderr']
-    assert res['exitcode'] == 0
+    assert csv == run(csv, 'bsv | csv')
 
 def test_max_bytes():
     stdin = 'a' * (2**16 - 2)
@@ -133,10 +124,9 @@ def test_encoding():
     val = runb(rm_whitespace(stdin), 'bsv')
     bsv = b''.join([
         # chunk header
-        struct.pack('i', 6 + 1), # uint32 num bytes in this chunk, chunks contain 1 or more rows
+        struct.pack('i', 6), # uint32 num bytes in this chunk, chunks contain 1 or more rows
         # chunk body
         struct.pack('H', 0), # uint16 max, see load.h
-        struct.pack('B', 0), # uint8 types, see load.h
         struct.pack('H', 1), # uint16 sizes, see load.h
         b'a\0'
     ])
@@ -149,36 +139,13 @@ def test_encoding():
     val = runb(rm_whitespace(stdin), 'bsv')
     bsv = b''.join([
         # chunk header
-        struct.pack('i', 17 + 3), # uint32 num bytes in this chunk, chunks contain 1 or more rows
+        struct.pack('i', 17), # uint32 num bytes in this chunk, chunks contain 1 or more rows
         # chunk body
         struct.pack('H', 2), # uint16 max, see load.h
-        struct.pack('B', 0), # uint8 types, see load.h
-        struct.pack('B', 0), # uint8 types, see load.h
-        struct.pack('B', 0), # uint8 types, see load.h
         struct.pack('H', 1), # uint16 sizes, see load.h
         struct.pack('H', 2), # uint16 sizes, see load.h
         struct.pack('H', 3), # uint16 sizes, see load.h
         b'a\0bb\0ccc\0',
-    ])
-    assert bsv == val
-    assert rm_whitespace(stdin) + '\n' == run(rm_whitespace(stdin), 'bsv | csv')
-
-    stdin = """
-    a,12,1.500000
-    """
-    val = runb(rm_whitespace(stdin), 'bsv')
-    bsv = b''.join([
-        # chunk header
-        struct.pack('i', 28 + 3), # uint32 num bytes in this chunk, chunks contain 1 or more rows
-        # chunk body
-        struct.pack('H', 2), # uint16 max, see load.h
-        struct.pack('B', 0), # uint8 types, see load.h
-        struct.pack('B', 1), # uint8 types, see load.h
-        struct.pack('B', 2), # uint8 types, see load.h
-        struct.pack('H', 1), # uint16 sizes, see load.h
-        struct.pack('H', 8), # uint16 sizes, see load.h
-        struct.pack('H', 8), # uint16 sizes, see load.h
-        b'a\0', struct.pack('q', 12) + b'\0', struct.pack('d', 1.5) + b'\0',
     ])
     assert bsv == val
     assert rm_whitespace(stdin) + '\n' == run(rm_whitespace(stdin), 'bsv | csv')
@@ -190,10 +157,9 @@ def test_encoding():
     val = bytes(val, 'utf-8')
     bsv = b''.join([
         # chunk header
-        struct.pack('i', 6 + 1), # uint32 num bytes in this chunk, chunks contain 1 or more rows
+        struct.pack('i', 6), # uint32 num bytes in this chunk, chunks contain 1 or more rows
         # chunk body
         struct.pack('H', 0), # uint16 max, see load.h
-        struct.pack('B', 0), # uint8 types, see load.h
         struct.pack('H', 1), # uint16 sizes, see load.h
         b'a\0',
     ])

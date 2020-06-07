@@ -1,15 +1,12 @@
-
-import pytest
 import os
 import string
 import shell
 from hypothesis.database import ExampleDatabase
 from hypothesis import given, settings
-from hypothesis.strategies import text, lists, composite, integers, randoms
-from test_util import run, rm_whitespace, clone_source
+from hypothesis.strategies import text, lists, composite, integers
+from test_util import clone_source
 import os
 import shell
-from test_util import unindent, rm_whitespace, clone_source
 
 def setup_module(m):
     m.tempdir = clone_source()
@@ -46,7 +43,7 @@ def expected(csvs):
     return '\n'.join(xs) + '\n'
 
 @given(inputs())
-@settings(database=ExampleDatabase(':memory:'), max_examples=100 * int(os.environ.get('TEST_FACTOR', 1)), deadline=os.environ.get("TEST_DEADLINE", 1000 * 60))
+@settings(database=ExampleDatabase(':memory:'), max_examples=100 * int(os.environ.get('TEST_FACTOR', 1)), deadline=os.environ.get("TEST_DEADLINE", 1000 * 60)) # type: ignore
 def test_props(csvs):
     result = expected(csvs)
     if result.strip():
@@ -56,5 +53,5 @@ def test_props(csvs):
                 path = f'file{i}.bsv'
                 shell.run(f'bsv > {path}', stdin=csv)
                 paths.append(path)
-            assert result.strip() == shell.run(f'brmerge', *paths, ' | bcut 1 | csv', echo=True)
-            assert shell.run('cat', *paths, '| brsort | bcut 1 | csv') == shell.run(f'brmerge', *paths, ' | bcut 1 | csv')
+            assert result.strip() == shell.run('brmerge', *paths, ' | bcut 1 | csv', echo=True)
+            assert shell.run('cat', *paths, '| brsort | bcut 1 | csv') == shell.run('brmerge', *paths, ' | bcut 1 | csv')

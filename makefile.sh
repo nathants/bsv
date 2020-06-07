@@ -3,8 +3,8 @@ set -eou pipefail
 cd $(dirname $(realpath $0))
 
 echo ".PHONY: all clean test" > Makefile
-# echo "CFLAGS=-Iutil -Wall -Wextra -Ivendor -flto -O3 -march=native -mtune=native" >> Makefile
 echo "CFLAGS=-Iutil -Ivendor -flto -O3 -march=native -mtune=native" >> Makefile
+# echo "CFLAGS=-Wextra -Wall -Iutil -Ivendor -flto -O3 -march=native -mtune=native" >> Makefile
 echo ALL=docs $(for src in src/*.c; do basename $src | cut -d. -f1; done) >> Makefile
 echo >> Makefile
 

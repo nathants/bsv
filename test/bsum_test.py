@@ -1,11 +1,10 @@
-import pytest
 import os
 import string
 import shell
 from hypothesis.database import ExampleDatabase
 from hypothesis import given, settings
 from hypothesis.strategies import text, lists, composite, integers
-from test_util import run, rm_whitespace, clone_source
+from test_util import run, clone_source
 
 def setup_module(m):
     m.tempdir = clone_source()
@@ -13,7 +12,7 @@ def setup_module(m):
     m.path = os.environ['PATH']
     os.chdir(m.tempdir)
     os.environ['PATH'] = f'{os.getcwd()}/bin:/usr/bin:/usr/local/bin:/sbin:/usr/sbin:/bin'
-    shell.run('make clean && make bsv csv brsort bcut', stream=True)
+    shell.run('make clean && make bsv csv bschema bsum', stream=True)
 
 def teardown_module(m):
     os.chdir(m.orig)
@@ -24,42 +23,31 @@ def teardown_module(m):
 @composite
 def inputs(draw):
     num_columns = draw(integers(min_value=1, max_value=64))
-    column = text(string.ascii_lowercase, min_size=1, max_size=64)
+    column = text(string.digits, min_size=1, max_size=16)
     line = lists(column, min_size=num_columns, max_size=num_columns)
     lines = draw(lists(line))
     csv = '\n'.join([','.join(x) for x in lines]) + '\n'
     return csv
 
 def expected(csv):
-    xs = csv.splitlines()
-    xs = [x.split(',')[0] for x in xs]
-    xs = sorted(xs, reverse=True)
-    return '\n'.join(xs) + '\n'
+    val = 0
+    for line in csv.splitlines():
+        col = line.split(',')[0]
+        if col:
+            val += int(col)
+    return val
 
 @given(inputs())
 @settings(database=ExampleDatabase(':memory:'), max_examples=100 * int(os.environ.get('TEST_FACTOR', 1)), deadline=os.environ.get("TEST_DEADLINE", 1000 * 60)) # type: ignore
-def test_props(csv):
+def test_props(args):
+    csv = args
     result = expected(csv)
-    if result:
-        assert result == run(csv, 'bsv | brsort | bcut 1 | csv')
-    else:
-        with pytest.raises(AssertionError):
-            run(csv, 'bsv | brsort | bcut 1 | csv')
+    assert result == int(run(csv, 'bsv | bschema a:u64 | bsum | bschema u64:a | csv'))
 
-@given(inputs())
-@settings(database=ExampleDatabase(':memory:'), max_examples=100 * int(os.environ.get('TEST_FACTOR', 1)), deadline=os.environ.get("TEST_DEADLINE", 1000 * 60)) # type: ignore
-def test_props_compatability(csv):
-    assert run(csv, 'LC_ALL=C sort -r -k1,1 | cut -d, -f1') == run(csv, 'bsv | brsort | bcut 1 | csv')
-
-def test_compatability():
+def test1():
     stdin = """
-    b
-    c
-    a
+    1
+    1
+    1
     """
-    stdout = """
-    c
-    b
-    a
-    """
-    assert rm_whitespace(stdout) + '\n' == run(rm_whitespace(stdin), 'bsv | brsort | csv')
+    assert '3' == shell.run('bsv | bschema a:u64 | bsum | bschema u64:a | csv', stdin=stdin)

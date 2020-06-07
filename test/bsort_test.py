@@ -4,7 +4,7 @@ import string
 import shell
 from hypothesis.database import ExampleDatabase
 from hypothesis import given, settings
-from hypothesis.strategies import text, lists, composite, integers, randoms
+from hypothesis.strategies import text, lists, composite, integers
 from test_util import run, rm_whitespace, clone_source
 
 def setup_module(m):
@@ -37,19 +37,19 @@ def expected(csv):
     return '\n'.join(xs) + '\n'
 
 @given(inputs())
-@settings(database=ExampleDatabase(':memory:'), max_examples=100 * int(os.environ.get('TEST_FACTOR', 1)), deadline=os.environ.get("TEST_DEADLINE", 1000 * 60))
+@settings(database=ExampleDatabase(':memory:'), max_examples=100 * int(os.environ.get('TEST_FACTOR', 1)), deadline=os.environ.get("TEST_DEADLINE", 1000 * 60)) # type: ignore
 def test_props(csv):
     result = expected(csv)
     if result:
-        assert result == run(csv, f'bsv | bsort | bcut 1 | csv')
+        assert result == run(csv, 'bsv | bsort | bcut 1 | csv')
     else:
         with pytest.raises(AssertionError):
-            run(csv, f'bsv | bsort | csv')
+            run(csv, 'bsv | bsort | csv')
 
 @given(inputs())
-@settings(database=ExampleDatabase(':memory:'), max_examples=100 * int(os.environ.get('TEST_FACTOR', 1)), deadline=os.environ.get("TEST_DEADLINE", 1000 * 60))
+@settings(database=ExampleDatabase(':memory:'), max_examples=100 * int(os.environ.get('TEST_FACTOR', 1)), deadline=os.environ.get("TEST_DEADLINE", 1000 * 60)) # type: ignore
 def test_props_compatability(csv):
-    assert run(csv, f'LC_ALL=C sort -k1,1 | cut -d, -f1') == run(csv, f'bsv | bsort | bcut 1 | csv')
+    assert run(csv, 'LC_ALL=C sort -k1,1 | cut -d, -f1') == run(csv, 'bsv | bsort | bcut 1 | csv')
 
 def test_basic2():
     stdin = """

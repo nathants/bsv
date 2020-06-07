@@ -24,32 +24,32 @@ small cli utilities manipulate data and can be combined into pipelines.
 
 ## utilities
 
-- [bbucket](#bbucket) - prefix each row with a consistent hash of the first column
+- [bbucket](#bbucket) - prefix each row with a u64 consistent hash of the first column
 - [bcat](#bcat) - cat some bsv file to csv
 - [bcopy](#bcopy) - pass through data, to benchmark load/dump performance
-- [bcounteach](#bcounteach) - count and collapse each contiguous identical row by strcmp the first column
-- [bcountrows](#bcountrows) - count rows
+- [bcounteach](#bcounteach) - count as u64 each contiguous identical row by strcmp the first column
+- [bcountrows](#bcountrows) - count rows as u64
 - [bcut](#bcut) - select some columns
-- [bdedupe](#bdedupe) - dedupe identical contiguous rows by strcmp the first column
+- [bdedupe](#bdedupe) - dedupe identical contiguous rows by strcmp the first column, keeping the first
 - [bdropuntil](#bdropuntil) - drop until the first column is gte to VALUE
 - [bmerge](#bmerge) - merge sorted files
 - [bpartition](#bpartition) - split into multiple files by the first column value
 - [brmerge](#brmerge) - merge reverse sorted files
 - [brsort](#brsort) - reverse timsort rows by strcmp the first column
+- [bschema](#bschema) - validate and convert column values
 - [bsort](#bsort) - timsort rows by strcmp the first column
-- [bsplit](#bsplit) - split a stream into multiple files. files are named after the hash of the first chunk and then numbered
-- [bsum](#bsum) - integer sum numbers in the first column and output a single value
-- [bsv_ascii](#bsv_ascii) - convert csv to bsv, numerics remain ascii for faster parsing
-- [bsv](#bsv) - convert csv to bsv
+- [bsplit](#bsplit) - split a stream into multiple files
+- [bsum](#bsum) - u64 sum the first column and output a single u64
+- [bsv](#bsv) - convert csv to bsv, numerics remain ascii for faster parsing
 - [btake](#btake) - take while the first column is VALUE
 - [btakeuntil](#btakeuntil) - take until the first column is gte to VALUE
-- [csv_ascii](#csv_ascii) - convert bsv to csv, numerics are treated as ascii
-- [csv](#csv) - convert bsv to csv
-- [xxh3](#xxh3) - xxh3_64 hash stdin, defaults to hex, can be --int, or --stream to hex and pass stdin through
+- [csv](#csv) - convert bsv to csv, numerics are treated as ascii
+- [xxh3](#xxh3) - xxh3_64 hash stdin. defaults to hex, can also be --int.
+use --stream to pass stdin through to stdout with hash on stderr
 
 ### [bbucket](https://github.com/nathants/bsv/blob/master/src/bbucket.c)
 
-prefix each row with a consistent hash of the first column
+prefix each row with a u64 consistent hash of the first column
 
 usage: `... | bbucket NUM_BUCKETS`
 
@@ -94,7 +94,7 @@ a,b,c
 
 ### [bcounteach](https://github.com/nathants/bsv/blob/master/src/bcounteach.c)
 
-count and collapse each contiguous identical row by strcmp the first column
+count as u64 each contiguous identical row by strcmp the first column
 
 usage: `... | bcounteach`
 
@@ -113,7 +113,7 @@ a,1
 
 ### [bcountrows](https://github.com/nathants/bsv/blob/master/src/bcountrows.c)
 
-count rows
+count rows as u64
 
 usage: `... | bcountrows`
 
@@ -139,7 +139,7 @@ c,c,c,b,b,a
 
 ### [bdedupe](https://github.com/nathants/bsv/blob/master/src/bdedupe.c)
 
-dedupe identical contiguous rows by strcmp the first column
+dedupe identical contiguous rows by strcmp the first column, keeping the first
 
 usage: `... | bdedupe`
 
@@ -256,6 +256,17 @@ b
 a
 ```
 
+### [bschema](https://github.com/nathants/bsv/blob/master/src/bschema.c)
+
+validate and convert column values
+
+usage: `... | bschema 4,u64:a,a:i32,2,*,...`
+
+```
+>> echo aa,bbb,cccc | bsv | bschema 2,3,4 | csv
+aa,bbb,cccc
+```
+
 ### [bsort](https://github.com/nathants/bsv/blob/master/src/bsort.c)
 
 timsort rows by strcmp the first column
@@ -275,7 +286,7 @@ c
 
 ### [bsplit](https://github.com/nathants/bsv/blob/master/src/bsplit.c)
 
-split a stream into multiple files. files are named after the hash of the first chunk and then numbered
+split a stream into multiple files
 
 usage: `... | bsplit [chunks_per_file=1]`
 
@@ -286,7 +297,7 @@ usage: `... | bsplit [chunks_per_file=1]`
 
 ### [bsum](https://github.com/nathants/bsv/blob/master/src/bsum.c)
 
-integer sum numbers in the first column and output a single value
+u64 sum the first column and output a single u64
 
 usage: `... | bsum`
 
@@ -294,25 +305,14 @@ usage: `... | bsum`
 >> echo -e '1
 2
 3
-4.1
-' | bsv | bsum | csv
+4
+' | bsv | bschema a:u64 | bsum | bschema u64:a | csv
 10
-```
-
-### [bsv_ascii](https://github.com/nathants/bsv/blob/master/src/bsv_ascii.c)
-
-convert csv to bsv, numerics remain ascii for faster parsing
-
-usage: `... | bsv`
-
-```
->> echo a,b,c | bsv | bcut 3,2,1 | csv
-c,b,a
 ```
 
 ### [bsv](https://github.com/nathants/bsv/blob/master/src/bsv.c)
 
-convert csv to bsv
+convert csv to bsv, numerics remain ascii for faster parsing
 
 usage: `... | bsv`
 
@@ -354,7 +354,7 @@ a
 b
 ```
 
-### [csv_ascii](https://github.com/nathants/bsv/blob/master/src/csv_ascii.c)
+### [csv](https://github.com/nathants/bsv/blob/master/src/csv.c)
 
 convert bsv to csv, numerics are treated as ascii
 
@@ -365,20 +365,10 @@ usage: `... | csv`
 a,b,c
 ```
 
-### [csv](https://github.com/nathants/bsv/blob/master/src/csv.c)
-
-convert bsv to csv
-
-usage: `... | csv`
-
-```
->> echo a,b,c | bsv | csv
-a,b,c
-```
-
 ### [xxh3](https://github.com/nathants/bsv/blob/master/src/xxh3.c)
 
-xxh3_64 hash stdin, defaults to hex, can be --int, or --stream to hex and pass stdin through
+xxh3_64 hash stdin. defaults to hex, can also be --int.
+use --stream to pass stdin through to stdout with hash on stderr
 
 usage: `... | xxh3 [--stream|--int]`
 

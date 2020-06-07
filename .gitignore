@@ -1,6 +1,6 @@
-.ccls*
 Cargo.lock
 target/
+.ccls*
 .tox/
 .hypothesis/
 __pycache__/
@@ -16,9 +16,8 @@ _write
 bucket
 bdedupe
 bcut
-bcut_c
 bcut_go
-bcut_rust
+bcut_c
 bbucket
 bcounteach
 bsort
@@ -46,3 +45,4 @@ bsv_ascii
 csv_ascii
 */psv_*/psv
 */psv_*/csv
+bschema

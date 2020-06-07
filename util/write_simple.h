@@ -3,30 +3,37 @@
 
 #include "util.h"
 
-#define WRITE_INIT(files, num_files)                \
-    INVARIANTS();                                   \
-    INCREASE_PIPE_SIZES();                          \
-    FILE **w_files = files;                         \
-    uint8_t *w_buffer[num_files];                   \
-    int32_t w_offset[num_files];                    \
-    for (int32_t w_i = 0; w_i < num_files; w_i++) { \
-        w_offset[w_i] = 0;                          \
-        MALLOC(w_buffer[w_i], BUFFER_SIZE);         \
+typedef struct writebuf_s {
+    // private
+    FILE **files;
+    u8 **buffer;
+    i32 *offset;
+} writebuf_t;
+
+
+void wbuf_init(writebuf_t *buf, FILE **files, i32 num_files) {
+    buf->files = files;
+    MALLOC(buf->buffer, sizeof(u8*) * num_files);
+    MALLOC(buf->offset, sizeof(i32) * num_files);
+    for (i32 i = 0; i < num_files; i++) {
+        buf->offset[i] = 0;
+        MALLOC(buf->buffer[i], BUFFER_SIZE);
     }
+}
 
-#define WRITE(str, size, i)                                                         \
-    do {                                                                            \
-        ASSERT(size <= BUFFER_SIZE, "fatal: cant write more than BUFFER_SIZE\n");   \
-        if (size > BUFFER_SIZE - w_offset[i]) {                                     \
-            FWRITE(w_buffer[i], w_offset[i], w_files[i]);                           \
-            memcpy(w_buffer[i], str, size);                                         \
-            w_offset[i] = size;                                                     \
-        } else {                                                                    \
-            memcpy(w_buffer[i] + w_offset[i], str, size);                           \
-            w_offset[i] += size;                                                    \
-        }                                                                           \
-    } while (0)
+inlined void write_flush(writebuf_t *buf, i32 file) {
+    if (buf->offset[file]) {
+        FWRITE(buf->buffer[file], buf->offset[file], buf->files[file]);
+        buf->offset[file] = 0;
+    }
+}
 
-#define WRITE_FLUSH(i) FWRITE(w_buffer[i], w_offset[i], w_files[i])
+inlined void write_bytes(writebuf_t *buf, u8 *bytes, i32 size, i32 file) {
+    ASSERT(size <= BUFFER_SIZE, "fatal: cant write more than BUFFER_SIZE\n");
+    if (size > BUFFER_SIZE - buf->offset[file])
+        write_flush(buf, file);
+    memcpy(buf->buffer[file] + buf->offset[file], bytes, size);
+    buf->offset[file] += size;
+}
 
 #endif

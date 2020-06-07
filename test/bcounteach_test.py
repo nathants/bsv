@@ -12,7 +12,7 @@ def setup_module(m):
     m.path = os.environ['PATH']
     os.chdir(m.tempdir)
     os.environ['PATH'] = f'{os.getcwd()}/bin:/usr/bin:/usr/local/bin:/sbin:/usr/sbin:/bin'
-    shell.run('make clean && make bsv csv bcounteach', stream=True)
+    shell.run('make clean && make bsv csv bschema bcounteach', stream=True)
 
 def teardown_module(m):
     os.chdir(m.orig)
@@ -52,11 +52,11 @@ def expected(csv):
     return '\n'.join(result) + '\n'
 
 @given(inputs())
-@settings(database=ExampleDatabase(':memory:'), max_examples=100 * int(os.environ.get('TEST_FACTOR', 1)), suppress_health_check=HealthCheck.all())
+@settings(database=ExampleDatabase(':memory:'), max_examples=100 * int(os.environ.get('TEST_FACTOR', 1)), suppress_health_check=HealthCheck.all()) # type: ignore
 def test_props(args):
     csv = args
     result = expected(csv)
-    assert result == run(csv, f'bsv | bcounteach | bin/csv')
+    assert result == run(csv, 'bsv | bcounteach | bschema *,u64:a | csv')
 
 def test_basic():
     stdin = """
@@ -72,4 +72,4 @@ def test_basic():
     b,2
     a,1
     """
-    assert rm_whitespace(stdout) + '\n' == run(rm_whitespace(stdin), 'bsv | bcounteach | bin/csv')
+    assert rm_whitespace(stdout) + '\n' == run(rm_whitespace(stdin), 'bsv | bcounteach | bschema *,u64:a | csv')

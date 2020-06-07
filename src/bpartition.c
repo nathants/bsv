@@ -1,10 +1,10 @@
+#include "util.h"
 #include "load.h"
 #include "dump.h"
 #include <errno.h>
 #include <sys/stat.h>
 #include <ctype.h>
 
-#define NUM_ARGS 3
 #define DESCRIPTION "split into multiple files by the first column value\n\n"
 #define USAGE "\n... | bbucket NUM_BUCKETS | bpartition PREFIX NUM_BUCKETS\n\n"
 #define EXAMPLE ">> echo '\n0,a\n1,b\n2,c\n' | bsv | bpartition prefix 10\nprefix00\nprefix01\nprefix02\n"
@@ -16,77 +16,76 @@ int empty_file(char *path) {
     return -1;
 }
 
-static int isdigits(const char *s, const int size) {
-    for (int i = 0; i < size; i++) {
-        if (!isdigit(s[i]))
-            return 0;
-    }
-    return 1;
-}
-
-#define HANDLE_ROW(max, columns, types, sizes)                                                              \
-    do {                                                                                                    \
-        if (max > 0 || sizes[0]) {                                                                          \
-            ASSERT(max, "error: line with only one columns: %s\n", columns[0]);                             \
-            ASSERT(types[0] == BSV_INT, "error: first columns not a digit: %.*s\n", sizes[0], columns[0]);  \
-            file_num = BYTES_TO_INT(columns[0]);                                                            \
-            ASSERT(file_num < num_buckets, "error: columns higher than num_buckets: %d\n", file_num);       \
-            max -= 1;                                                                                       \
-            DUMP(file_num, max, (columns + 1), (types + 1), (sizes + 1));                                   \
-        }                                                                                                   \
-    } while (0)
-
 int main(int argc, const char **argv) {
-    HELP();
-    SIGPIPE_HANDLER();
 
-    FILE *load_files[1] = {stdin};
-    LOAD_INIT(load_files, 1);
+    // setup bsv
+    SETUP();
 
-    uint8_t *prefix;
-    uint8_t num_buckets_str[16];
-    uint8_t path[1024];
-    int32_t i, empty;
-    int32_t file_num;
-    int32_t num_buckets;
-    FILE *file;
+    // setup input
+    FILE *in_files[1] = {stdin};
+    readbuf_t rbuf;
+    rbuf_init(&rbuf, in_files, 1);
 
-    if (strlen(argv[1]) > 8) { fprintf(stderr, "NUM_BUCKETS must be less than 1e8, got: %s\n", argv[1]); exit(1); }
-    num_buckets = atoi(argv[1]);
-    if (num_buckets < 1) { fprintf(stderr, "NUM_BUCKETS must be positive, got: %d\n", num_buckets); exit(1); }
-    prefix = argv[2];
+    // setup state
+    row_t row;
+    u8 *prefix;
+    u8 num_buckets_str[16];
+    u8 path[1024];
+    i32 empty;
+    u64 file_num;
+    i32 num_buckets;
 
+    // parse args
+    prefix = argv[1];
+    ASSERT(strlen(argv[2]) <= 8, "NUM_BUCKETS must be less than 1e8, got: %s\n", argv[1]);
+    num_buckets = atoi(argv[2]);
+    ASSERT(num_buckets > 0, "NUM_BUCKETS must be positive, got: %d\n", num_buckets);
+
+    // open output files
     FILE *files[num_buckets];
-    sprintf(num_buckets_str, "%d", num_buckets) ;
-    for (i = 0; i < num_buckets; i++) {
-        sprintf(path, "%s%0*d", prefix, (int32_t)strlen(num_buckets_str), i);
-        file = fopen(path, "ab");
-        ASSERT(file, "fatal: failed to open: %s %d\n", path, errno);
-        files[i] = file;
+    SNPRINTF(num_buckets_str, sizeof(num_buckets_str), "%d", num_buckets);
+    for (i32 i = 0; i < num_buckets; i++) {
+        SNPRINTF(path, sizeof(path), "%s%0*d", prefix, strlen(num_buckets_str), i);
+        FOPEN(files[i], path, "ab");
     }
 
-    DUMP_INIT(files, num_buckets);
+    // setup output
+    writebuf_t wbuf;
+    wbuf_init(&wbuf, files, num_buckets);
 
+    // process input row by row
     while (1) {
-        LOAD(0);
-        if (load_stop)
+        load_next(&rbuf, &row, 0);
+        if (row.stop)
             break;
-        HANDLE_ROW(load_max, load_columns, load_types, load_sizes);
+        ASSERT(row.max, "error: line with only one columns: %s\n", row.columns[0]);
+        ASSERT(row.sizes[0] == 8, "error: wrong size for u64: %d\n", row.sizes[0]);
+        file_num = *(u64*)(row.columns[0]);
+        ASSERT(file_num < num_buckets, "error: columns higher than num_buckets: %lu %d\n", file_num, num_buckets);
+        for (i32 i = 0; i < row.max; i++) {
+            row.columns[i] = row.columns[i + 1];
+            row.sizes[i] = row.sizes[i + 1];
+        }
+        row.max -= 1;
+        dump(&wbuf, &row, file_num);
     }
 
-    for (i = 0; i < num_buckets; i++) {
-        DUMP_FLUSH(i);
+    // flush and close
+    for (i32 i = 0; i < num_buckets; i++) {
+        dump_flush(&wbuf, i);
         ASSERT(fclose(files[i]) != EOF, "fatal: failed to close files\n");
     }
 
-    for (i = 0; i < num_buckets; i++) {
-        sprintf(path, "%s%0*d", prefix, (int32_t)strlen(num_buckets_str), i);
+    // delete any empty output files
+    for (i32 i = 0; i < num_buckets; i++) {
+        SNPRINTF(path, sizeof(path), "%s%0*d", prefix, strlen(num_buckets_str), i);
         empty = empty_file(path);
         if (empty == 1) {
             ASSERT(remove(path) == 0, "fatal: failed to delete file: %s\n", path);
         } else {
             ASSERT(empty != -1, "fatal: failed to stat file: %s\n", path);
-            fprintf(stdout, "%s\n", path);
+            FPRINTF(stdout, "%s\n", path);
         }
     }
+
 }

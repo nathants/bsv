@@ -43,25 +43,25 @@ def expected(csv):
     return '\n'.join(result) + '\n'
 
 @given(inputs())
-@settings(database=ExampleDatabase(':memory:'), max_examples=100 * int(os.environ.get('TEST_FACTOR', 1)), deadline=os.environ.get("TEST_DEADLINE", 1000 * 60))
+@settings(database=ExampleDatabase(':memory:'), max_examples=100 * int(os.environ.get('TEST_FACTOR', 1)), deadline=os.environ.get("TEST_DEADLINE", 1000 * 60)) # type: ignore
 def test_props(args):
     csv = args
     result = expected(csv)
-    assert result == run(csv, f'bsv | bdedupe | csv')
+    assert result == run(csv, 'bsv | bdedupe | csv')
 
 def test_basic():
     stdin = """
-    a
-    a
-    a
-    b
-    b
-    a
-    a
+    a,1
+    a,2
+    a,3
+    b,4
+    b,5
+    a,6
+    a,7
     """
     stdout = """
-    a
-    b
-    a
+    a,1
+    b,4
+    a,6
     """
     assert rm_whitespace(stdout) + '\n' == run(rm_whitespace(stdin), 'bsv | bdedupe | csv')

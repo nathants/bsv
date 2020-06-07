@@ -12,7 +12,7 @@ def setup_module(m):
     m.path = os.environ['PATH']
     os.chdir(m.tempdir)
     os.environ['PATH'] = f'{os.getcwd()}/bin:/usr/bin:/usr/local/bin:/sbin:/usr/sbin:/bin'
-    shell.run('make clean && make bsv csv bbucket xxh3', stream=True)
+    shell.run('make clean && make bsv csv bbucket xxh3 bschema', stream=True)
 
 def teardown_module(m):
     os.chdir(m.orig)
@@ -41,11 +41,11 @@ def expected(buckets, csv):
     return '\n'.join(xs) + '\n'
 
 @given(inputs())
-@settings(database=ExampleDatabase(':memory:'), max_examples=100 * int(os.environ.get('TEST_FACTOR', 1)), deadline=os.environ.get("TEST_DEADLINE", 1000 * 60), suppress_health_check=HealthCheck.all())
+@settings(database=ExampleDatabase(':memory:'), max_examples=100 * int(os.environ.get('TEST_FACTOR', 1)), deadline=os.environ.get("TEST_DEADLINE", 1000 * 60), suppress_health_check=HealthCheck.all()) # type: ignore
 def test_props(args):
     buckets, csv = args
     result = expected(buckets, csv)
-    assert result == run(csv, 'bsv | bbucket', buckets, '| bin/csv')
+    assert result == run(csv, 'bsv | bbucket', buckets, ' | bschema u64:a,... | csv')
 
 def test_single_column():
     stdin = """
@@ -58,8 +58,10 @@ def test_single_column():
     3,y
     2,x
     """
-    assert rm_whitespace(stdout) + '\n' == run(rm_whitespace(stdin), 'bsv | bbucket 4 | bin/csv')
+    assert rm_whitespace(stdout) + '\n' == run(rm_whitespace(stdin), 'bsv | bbucket 4 | bschema u64:a,... | csv')
 
+import pytest
+@pytest.mark.only
 def test_basic():
     stdin = """
     a,b,c,d
@@ -71,7 +73,7 @@ def test_basic():
     3,e,f,g
     2,x,y
     """
-    assert rm_whitespace(stdout) + '\n' == run(rm_whitespace(stdin), 'bsv | bbucket 4 | bin/csv')
+    assert rm_whitespace(stdout) + '\n' == run(rm_whitespace(stdin), 'bsv | bbucket 4 | bschema u64:a,... | csv')
 
 def test_fails_when_non_positive_buckets():
     with shell.climb_git_root():
