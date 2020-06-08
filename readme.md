@@ -6,13 +6,29 @@ sequential io is fast. cpu is the bottleneck. sequential only data access is the
 
 ## what
 
-a minimal, row oriented [data](https://github.com/nathants/bsv/blob/master/util/load.h) [format](https://github.com/nathants/bsv/blob/master/util/dump.h) designed for time efficiency and ease of use.
+a simple and efficient [data](https://github.com/nathants/bsv/blob/master/util/load.h) [format](https://github.com/nathants/bsv/blob/master/util/dump.h) for sequentially manipulating chunks of rows of columns without allocating or copying.
 
-small cli utilities manipulate data and can be combined into pipelines.
+[cli](https://github.com/nathants/bsv/blob/master/src) utilities to manipulate data based on [shared](https://github.com/nathants/bsv/blob/master/util) code.
 
-[util/](https://github.com/nathants/bsv/blob/master/util) is shared code.
+## how
 
-[src/](https://github.com/nathants/bsv/blob/master/src) are independent utilities building on [util/](https://github.com/nathants/bsv/blob/master/util).
+a column is 0-65536 bytes.
+
+a [row](https://github.com/nathants/bsv/blob/master/util/row.h) is 0-65536 columns.
+
+a chunk is up to 5MB containing 1 or more complete rows.
+
+note: row data cannot exceed chunk size.
+
+## layout
+
+[chunk](https://github.com/nathants/bsv/blob/master/util/read.h): `| i32:chunk_size | row-1 | ... | row-n |`
+
+[row](https://github.com/nathants/bsv/blob/master/util/row.h): `| u16:max | u16:size-1 | ... | u16:size-n | u8:column-1 + \0 | ... | u8:column-n + \0 |`
+
+note: column bytes are always followed by a single nullbyte: `\0`
+
+note: max is the maximum zero based index into the row, ie: `max = size(row) - 1`
 
 ## testing methodology
 
@@ -20,7 +36,7 @@ small cli utilities manipulate data and can be combined into pipelines.
 
 ## experiments
 
-[performance](https://github.com/nathants/bsv/blob/master/experiments/readme.md) experiments with alternate implementations and approaches.
+[performance](https://github.com/nathants/bsv/blob/master/experiments/readme.md) experiments and alternate implementations.
 
 ## utilities
 
@@ -39,13 +55,12 @@ small cli utilities manipulate data and can be combined into pipelines.
 - [bschema](#bschema) - validate and convert column values
 - [bsort](#bsort) - timsort rows by strcmp the first column
 - [bsplit](#bsplit) - split a stream into multiple files
-- [bsum](#bsum) - u64 sum the first column and output a single u64
+- [bsum](#bsum) - u64 sum the first column
 - [bsv](#bsv) - convert csv to bsv, numerics remain ascii for faster parsing
 - [btake](#btake) - take while the first column is VALUE
 - [btakeuntil](#btakeuntil) - take until the first column is gte to VALUE
 - [csv](#csv) - convert bsv to csv, numerics are treated as ascii
-- [xxh3](#xxh3) - xxh3_64 hash stdin. defaults to hex, can also be --int.
-use --stream to pass stdin through to stdout with hash on stderr
+- [xxh3](#xxh3) - xxh3_64 hash stdin. defaults to hex, can be --int. --stream to pass stdin through to stdout with hash on stderr
 
 ### [bbucket](https://github.com/nathants/bsv/blob/master/src/bbucket.c)
 
@@ -297,7 +312,7 @@ usage: `... | bsplit [chunks_per_file=1]`
 
 ### [bsum](https://github.com/nathants/bsv/blob/master/src/bsum.c)
 
-u64 sum the first column and output a single u64
+u64 sum the first column
 
 usage: `... | bsum`
 
@@ -367,8 +382,7 @@ a,b,c
 
 ### [xxh3](https://github.com/nathants/bsv/blob/master/src/xxh3.c)
 
-xxh3_64 hash stdin. defaults to hex, can also be --int.
-use --stream to pass stdin through to stdout with hash on stderr
+xxh3_64 hash stdin. defaults to hex, can be --int. --stream to pass stdin through to stdout with hash on stderr
 
 usage: `... | xxh3 [--stream|--int]`
 
