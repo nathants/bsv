@@ -15,7 +15,7 @@ _read
 _write
 bucket
 bdedupe
-bcut
+bin/bcut
 bcut_go
 bcut_c
 bbucket
