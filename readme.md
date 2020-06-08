@@ -8,15 +8,15 @@ sequential io is fast. cpu is the bottleneck. sequential only data access is the
 
 a simple and efficient [data](https://github.com/nathants/bsv/blob/master/util/load.h) [format](https://github.com/nathants/bsv/blob/master/util/dump.h) for sequentially manipulating chunks of rows of columns without allocating or copying.
 
-[cli](https://github.com/nathants/bsv/blob/master/src) utilities to manipulate data based on [shared](https://github.com/nathants/bsv/blob/master/util) code.
+[cli](https://github.com/nathants/bsv/blob/master/src) utilities based on [shared](https://github.com/nathants/bsv/blob/master/util) code.
 
 ## how
 
-a column is 0-65536 bytes.
+column: 0-65536 bytes.
 
-a [row](https://github.com/nathants/bsv/blob/master/util/row.h) is 0-65536 columns.
+row: 0-65536 columns.
 
-a chunk is up to 5MB containing 1 or more complete rows.
+chunk: up to 5MB containing 1 or more complete rows.
 
 note: row data cannot exceed chunk size.
 
