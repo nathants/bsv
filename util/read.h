@@ -1,5 +1,4 @@
-#ifndef READ_H
-#define READ_H
+#pragma once
 
 #include "util.h"
 
@@ -64,5 +63,3 @@ inlined void read_bytes_assert(readbuf_t *buf, i32 size, i32 file) {
     read_bytes(buf, size, file);
     ASSERT(buf->bytes == size, "didnt read enough, only got: %d, expected: %d\n", (buf)->bytes, size);
 }
-
-#endif

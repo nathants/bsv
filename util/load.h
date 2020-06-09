@@ -1,5 +1,4 @@
-#ifndef LOAD_H
-#define LOAD_H
+#pragma once
 
 #include "row.h"
 #include "read.h"
@@ -28,5 +27,3 @@ inlined void load_next(readbuf_t *rbuf, row_t *row, i32 file) {
             ASSERT(0, "fatal: row.h read size of row got bad num bytes, this should never happen\n");
     }
 }
-
-#endif

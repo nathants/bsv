@@ -1,5 +1,4 @@
-#ifndef WRITE_H
-#define WRITE_H
+#pragma once
 
 #include "util.h"
 
@@ -35,5 +34,3 @@ inlined void write_bytes(writebuf_t *buf, u8 *bytes, i32 size, i32 file) {
     memcpy(buf->buffer[file] + buf->offset[file], bytes, size);
     buf->offset[file] += size;
 }
-
-#endif

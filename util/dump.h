@@ -1,5 +1,4 @@
-#ifndef DUMP_H
-#define DUMP_H
+#pragma once
 
 #include "row.h"
 #include "write.h"
@@ -30,5 +29,3 @@ inlined void dump_raw(writebuf_t *wbuf, const raw_row_t *raw_row, i32 file) {
 void dump_flush(writebuf_t *wbuf, i32 file) {
     write_flush(wbuf, file);
 }
-
-#endif

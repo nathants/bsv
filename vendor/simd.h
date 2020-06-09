@@ -1,5 +1,4 @@
-#ifndef SIMD_H
-#define SIMD_H
+#pragma once
 
 #include <immintrin.h>
 
@@ -70,7 +69,5 @@ static inline int simd_strcmp(const void* s1, const void* s2) {
     }
     return 0;
 }
-
-#endif
 
 #endif

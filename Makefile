@@ -1,5 +1,5 @@
 .PHONY: all clean test
-CFLAGS=-Iutil -Ivendor -flto -O3 -march=native -mtune=native
+CFLAGS=-Wno-incompatible-pointer-types -Wno-discarded-qualifiers -Iutil -Ivendor -flto -O3 -march=native -mtune=native
 ALL=docs bbucket bcat bcopy bcounteach bcountrows bcut bdedupe bdropuntil bmerge bpartition brmerge brsort bschema bsort bsplit bsum bsv btake btakeuntil _copy _csv csv _gen_csv xxh3
 
 all: $(ALL)

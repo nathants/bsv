@@ -32,8 +32,7 @@
  *
  */
 
-#ifndef HEAP_H
-#define HEAP_H
+#pragma once
 
 #include <unistd.h>
 #include <sys/mman.h>
@@ -344,5 +343,3 @@ void heap_foreach(heap* h, void (*func)(const void*, const void*)) {
         func(entry->key, entry->value);
     }
 }
-
-#endif

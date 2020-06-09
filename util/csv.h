@@ -1,5 +1,4 @@
-#ifndef CSV_H
-#define CSV_H
+#pragma once
 
 #include "util.h"
 #include <ctype.h>
@@ -85,5 +84,3 @@
                 break;                                                                                                                                                                  \
         }                                                                                                                                                                               \
     } while(0)
-
-#endif

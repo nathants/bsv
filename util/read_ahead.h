@@ -1,5 +1,4 @@
-#ifndef READ_AHEAD_H
-#define READ_AHEAD_H
+#pragma once
 
 #include "read.h"
 #include "util.h"
@@ -48,5 +47,3 @@ inlined void read_goto_last_chunk(readbuf_t *rbuf, readaheadbuf_t* rabuf, i32 fi
         rbuf->chunk_size[file] += rabuf->last_chunk_size[file];
     }
 }
-
-#endif

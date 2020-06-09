@@ -1,5 +1,4 @@
-#ifndef UTIL_H
-#define UTIL_H
+#pragma once
 
 #if ! defined(__clang__)
 #define _GNU_SOURCE
@@ -176,5 +175,3 @@ void _sigpipe_handler(int signum) {
     SIGPIPE_HANDLER();                          \
     INVARIANTS();                               \
     INCREASE_PIPE_SIZES();
-
-#endif

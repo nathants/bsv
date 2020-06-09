@@ -1,5 +1,4 @@
-#ifndef WRITE_H
-#define WRITE_H
+#pragma once
 
 #include "util.h"
 
@@ -38,5 +37,3 @@ inlined void write_start(writebuf_t *buf, i32 size, i32 file) {
   if (size > BUFFER_SIZE - buf->offset[file])
       write_flush(buf, file);
 }
-
-#endif

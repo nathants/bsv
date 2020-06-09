@@ -1,5 +1,4 @@
-#ifndef ROW_H
-#define ROW_H
+#pragma once
 
 #include "util.h"
 
@@ -28,5 +27,3 @@ inlined void row_to_raw(row_t *row, raw_row_t *raw_row) {
     for (i32 i = 0; i <= row->max; i++)
         raw_row->buffer_size += row->sizes[i] + 1;
 }
-
-#endif

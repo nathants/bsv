@@ -1,5 +1,4 @@
-#ifndef ARRAY_H
-#define ARRAY_H
+#pragma once
 
 #define ARRAY_EXPAND_CAPACITY 1024 * 1024
 
@@ -25,6 +24,3 @@
             dst = NULL;                         \
         }                                       \
     } while(0)
-
-
-#endif

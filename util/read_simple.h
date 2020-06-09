@@ -1,5 +1,4 @@
-#ifndef READ_H
-#define READ_H
+#pragma once
 
 #include "util.h"
 
@@ -48,5 +47,3 @@ inlined void read_bytes(readbuf_t *buf, i32 size, i32 file) {
     buf->buffer = buf->buffers[file] + buf->offset[file];
     buf->offset[file] += buf->bytes;
 }
-
-#endif
