@@ -18,9 +18,8 @@ inlined void load_next(readbuf_t *rbuf, row_t *row, i32 file) {
             }
             read_bytes_assert(rbuf, size * sizeof(u8), file); // ---------------- row all column bytes
             row->columns[0] = rbuf->buffer;
-            for (i32 i = 0; i <= row->max - 1; i++) {
+            for (i32 i = 0; i <= row->max - 1; i++)
                 row->columns[i + 1] = row->columns[i] + row->sizes[i] + 1; // --- setup zerocopy pointers to read_buffer and skip trailing \0 values
-            }
             break;
         case 0:
             row->stop = 1; // --------------------------------------------------- empty read means EOF

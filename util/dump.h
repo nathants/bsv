@@ -7,9 +7,8 @@
 inlined void dump(writebuf_t *wbuf, const row_t *row, i32 file) {
         ASSERT(row->max <= MAX_COLUMNS, "fatal: cannot have more then 2**16 columns\n");
         i32 size = sizeof(u16) + (row->max + 1) * sizeof(u16); // -------------- init size with max:u16 + size1:u16,...sizen:u16
-        for (i32 i = 0; i <= row->max; i++) {
+        for (i32 i = 0; i <= row->max; i++)
             size += row->sizes[i] + 1; // -------------------------------------- content array, +1 for trailing \0
-        }
         write_start(wbuf, size, file); // -------------------------------------- write start in case total size of writes would flush the buffer we want to flush it immediately
         write_bytes(wbuf, TO_UINT16(row->max), sizeof(u16), file); // ---------- write row->max
         for (i32 i = 0; i <= row->max; i++) {
@@ -18,7 +17,7 @@ inlined void dump(writebuf_t *wbuf, const row_t *row, i32 file) {
         }
         for (i32 i = 0; i <= row->max; i++) {
             write_bytes(wbuf, row->columns[i], row->sizes[i], file); // -------- write column
-            write_bytes(wbuf, (u8*)"\0", 1, file); // -------------------------- add a trailing \0 after every column to make strcmp easier
+            write_bytes(wbuf, "\0", 1, file); // ------------------------------- add a trailing \0 after every column to make strcmp easier
         }
     }
 
