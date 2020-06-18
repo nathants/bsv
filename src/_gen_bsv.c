@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "util.h"
+#include "dump.h"
 
 void showusage() {
     FPRINTF(stderr, "\nusage: $ gen-csv NUM_COLUMNS NUM_ROWS\n");
@@ -18,10 +19,13 @@ int main(int argc, const char **argv) {
     u64 num_rows = atol(argv[2]);
     ASSERT(num_columns >= 0, "fatal: num_columns < 0");
     ASSERT(num_rows >= 0, "fatal: num_rows < 0");
-    time_t t;
-    i32 num_words, add_delimiter;
 
-    const char *words[] = {
+    // setup output
+    FILE *out_files[1] = {stdout};
+    writebuf_t wbuf;
+    wbuf_init(&wbuf, out_files, 1);
+
+    const u8 *words[] = {
         "Abelson",
         "Aberdeen",
         "Allison",
@@ -1023,17 +1027,33 @@ int main(int argc, const char **argv) {
         "zings",
     };
 
-    num_words = sizeof(words) / sizeof(words[0]);
+    i32 num_words = sizeof(words) / sizeof(words[0]);
+    i32 sizes[num_words];
+    for (i32 i = 0; i < num_words; i++)
+        sizes[i] = strlen(words[i]);
+
+    time_t t;
     srand((i32)time(&t));
+    u8 *word;
+    i32 size;
+    i32 index;
+    row_t row;
+    u8 *buffer;
+    MALLOC(buffer, BUFFER_SIZE);
     i32 i = 0;
+    i32 offset;
     while (i++ < num_rows) {
-        add_delimiter = 0;
+        offset = 0;
+        row.max = 0;
         for (i32 j = 0; j < num_columns; j++) {
-            if (add_delimiter)
-                FPUTS(",");
-            FPUTS(words[rand() % num_words]);
-            add_delimiter = 1;
+            index = rand() % num_words;
+            memcpy(buffer + offset, words[index], sizes[index]);
+            row.sizes[j] = sizes[index];
+            row.columns[j] = buffer + offset;
+            offset += sizes[index];
+            row.max = j;
         }
-        FPUTS("\n");
+        dump(&wbuf, &row, 0);
     }
+    dump_flush(&wbuf, 0);
 }
