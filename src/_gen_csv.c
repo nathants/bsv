@@ -18,7 +18,6 @@ int main(int argc, const char **argv) {
     u64 num_rows = atol(argv[2]);
     ASSERT(num_columns >= 0, "fatal: num_columns < 0");
     ASSERT(num_rows >= 0, "fatal: num_rows < 0");
-    time_t t;
     i32 num_words, add_delimiter;
 
     const char *words[] = {
@@ -1024,7 +1023,11 @@ int main(int argc, const char **argv) {
     };
 
     num_words = sizeof(words) / sizeof(words[0]);
-    srand((i32)time(&t));
+
+    struct timespec ts;
+    clock_gettime(CLOCK_MONOTONIC, &ts);
+    srand(ts.tv_nsec);
+
     i32 i = 0;
     while (i++ < num_rows) {
         add_delimiter = 0;

@@ -1032,8 +1032,10 @@ int main(int argc, const char **argv) {
     for (i32 i = 0; i < num_words; i++)
         sizes[i] = strlen(words[i]);
 
-    time_t t;
-    srand((i32)time(&t));
+    struct timespec ts;
+    clock_gettime(CLOCK_MONOTONIC, &ts);
+    srand(ts.tv_nsec);
+
     u8 *word;
     i32 size;
     i32 index;
