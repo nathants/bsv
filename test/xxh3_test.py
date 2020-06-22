@@ -17,11 +17,11 @@ def teardown_module(m):
     shell.run('rm -rf', m.tempdir)
 
 def test_hex():
-    assert 'b5ca312e51d77d64' == shell.run('echo abc | xxh3')
+    assert '079364cbfdf9f4cb' == shell.run('echo abc | xxh3')
 
 def test_int():
-    assert '13099336541171842404' == shell.run('echo abc | xxh3 --int')
+    assert '545890807144117451' == shell.run('echo abc | xxh3 --int')
 
 def test_stream():
     assert 'abc' == shell.run('echo abc | xxh3 --stream')
-    assert 'b5ca312e51d77d64' == shell.run('echo abc | xxh3 --stream 2>&1 1>/dev/null')
+    assert '079364cbfdf9f4cb' == shell.run('echo abc | xxh3 --stream 2>&1 1>/dev/null')
