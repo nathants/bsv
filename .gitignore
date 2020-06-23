@@ -16,8 +16,12 @@ _write
 bucket
 bdedupe
 bin/bcut
+bcut_rust
 bcut_go
 bcut_c
+cut_rust
+cut_go
+cut_c
 bbucket
 bcounteach
 bsort
