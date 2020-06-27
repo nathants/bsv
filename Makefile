@@ -11,7 +11,7 @@ clean: setup
 	cd bin && rm -f -- $(ALL) *.*
 
 docs:
-	./readme.py
+	./scripts/readme.py
 
 test: setup
 	tox

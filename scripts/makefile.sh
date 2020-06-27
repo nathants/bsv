@@ -20,7 +20,7 @@ echo -e '\tcd bin && rm -f -- $(ALL) *.*' >> Makefile
 echo >> Makefile
 
 echo docs: >> Makefile
-echo -e '\t./readme.py' >> Makefile
+echo -e '\t./scripts/readme.py' >> Makefile
 echo >> Makefile
 
 echo test: setup >> Makefile
