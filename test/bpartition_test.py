@@ -51,7 +51,7 @@ def test_props(args):
     result = expected(num_buckets, csv)
     with shell.tempdir():
         stdout = '\n'.join(sorted({l.split(':')[0] for l in result.splitlines()}))
-        assert stdout == shell.run(f'bsv | bschema a:u64,... | bpartition prefix {num_buckets}', stdin=csv, echo=True)
+        assert stdout == shell.run(f'bsv | bschema a:u64,... | bpartition {num_buckets} prefix', stdin=csv, echo=True)
         assert result == shell.run('bcat --prefix prefix*')
 
 def test_fail1():
@@ -60,8 +60,22 @@ def test_fail1():
     result = expected(num_buckets, csv)
     with shell.tempdir():
         stdout = '\n'.join(sorted({l.split(':')[0] for l in result.splitlines()}))
-        assert stdout == shell.run(f'bsv | bschema a:u64,... | bpartition prefix {num_buckets}', stdin=csv, echo=True)
+        assert stdout == shell.run(f'bsv | bschema a:u64,... | bpartition {num_buckets} prefix', stdin=csv, echo=True)
         assert result == shell.run('bcat --prefix prefix*')
+
+def test_without_prefix():
+    with shell.tempdir():
+        stdin = """
+        0,b,c,d
+        1,e,f,g
+        2,h,i,j
+        """
+        stdout = """
+        00
+        01
+        02
+        """
+        assert rm_whitespace(unindent(stdout)) == shell.run('bsv | bschema a:u64,... | bpartition 10', stdin=unindent(stdin))
 
 def test_basic():
     with shell.tempdir():
@@ -75,7 +89,7 @@ def test_basic():
         prefix01
         prefix02
         """
-        assert rm_whitespace(unindent(stdout)) == shell.run('bsv | bschema a:u64,... | bpartition prefix 10', stdin=unindent(stdin))
+        assert rm_whitespace(unindent(stdout)) == shell.run('bsv | bschema a:u64,... | bpartition 10 prefix', stdin=unindent(stdin))
         stdout = """
         prefix00:b,c,d
         prefix01:e,f,g
@@ -101,8 +115,8 @@ def test_appends():
         prefix01
         prefix02
         """
-        assert rm_whitespace(unindent(stdout)) == shell.run('bsv | bschema a:u64,... | bpartition prefix 10', stdin=unindent(stdin))
-        assert rm_whitespace(unindent(stdout)) == shell.run('bsv | bschema a:u64,... | bpartition prefix 10', stdin=unindent(stdin))
+        assert rm_whitespace(unindent(stdout)) == shell.run('bsv | bschema a:u64,... | bpartition 10 prefix', stdin=unindent(stdin))
+        assert rm_whitespace(unindent(stdout)) == shell.run('bsv | bschema a:u64,... | bpartition 10 prefix', stdin=unindent(stdin))
         stdout = """
         prefix00:b,c,d
         prefix00:b,c,d

@@ -217,14 +217,14 @@ f
 
 split into multiple files by the first column value
 
-usage: `... | bbucket NUM_BUCKETS | bpartition PREFIX NUM_BUCKETS`
+usage: `... | bbucket NUM_BUCKETS | bpartition NUM_BUCKETS [PREFIX]`
 
 ```
 >> echo '
 0,a
 1,b
 2,c
-' | bsv | bpartition prefix 10
+' | bsv | bpartition 10 prefix
 prefix00
 prefix01
 prefix02

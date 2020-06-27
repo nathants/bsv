@@ -6,8 +6,8 @@
 #include <ctype.h>
 
 #define DESCRIPTION "split into multiple files by the first column value\n\n"
-#define USAGE "\n... | bbucket NUM_BUCKETS | bpartition PREFIX NUM_BUCKETS\n\n"
-#define EXAMPLE ">> echo '\n0,a\n1,b\n2,c\n' | bsv | bpartition prefix 10\nprefix00\nprefix01\nprefix02\n"
+#define USAGE "\n... | bbucket NUM_BUCKETS | bpartition NUM_BUCKETS [PREFIX]\n\n"
+#define EXAMPLE ">> echo '\n0,a\n1,b\n2,c\n' | bsv | bpartition 10 prefix\nprefix00\nprefix01\nprefix02\n"
 
 int empty_file(char *path) {
     struct stat st;
@@ -36,10 +36,14 @@ int main(int argc, const char **argv) {
     i32 num_buckets;
 
     // parse args
-    prefix = argv[1];
-    ASSERT(strlen(argv[2]) <= 8, "NUM_BUCKETS must be less than 1e8, got: %s\n", argv[1]);
-    num_buckets = atoi(argv[2]);
+    ASSERT(strlen(argv[1]) <= 8, "NUM_BUCKETS must be less than 1e8, got: %s\n", argv[1]);
+    num_buckets = atoi(argv[1]);
     ASSERT(num_buckets > 0, "NUM_BUCKETS must be positive, got: %d\n", num_buckets);
+    if (argc == 3) {
+        prefix = argv[2];
+    } else {
+        prefix = "";
+    }
 
     // open output files
     FILE *files[num_buckets];
