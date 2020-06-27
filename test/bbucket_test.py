@@ -60,8 +60,6 @@ def test_single_column():
     """
     assert rm_whitespace(stdout) + '\n' == run(rm_whitespace(stdin), 'bsv | bbucket 4 | bschema u64:a,... | csv')
 
-import pytest
-@pytest.mark.only
 def test_basic():
     stdin = """
     a,b,c,d
@@ -70,7 +68,7 @@ def test_basic():
     """
     stdout = """
     3,a,b,c,d
-    3,e,f,g
+    0,e,f,g
     2,x,y
     """
     assert rm_whitespace(stdout) + '\n' == run(rm_whitespace(stdin), 'bsv | bbucket 4 | bschema u64:a,... | csv')

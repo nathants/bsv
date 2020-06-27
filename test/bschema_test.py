@@ -17,10 +17,12 @@ def teardown_module(m):
     assert m.tempdir.startswith('/tmp/') or m.tempdir.startswith('/private/var/folders/')
     shell.run('rm -rf', m.tempdir)
 
+import pytest
+@pytest.mark.only
 def test_basic():
-    with pytest.raises(Exception):
+    with pytest.raises(SystemExit):
         shell.run('echo 1,2,3 | bsv | bschema 1,1,1,1 | csv')
-    with pytest.raises(Exception):
+    with pytest.raises(SystemExit):
         shell.run('echo 1,2,3 | bsv | bschema 1,2,1 | csv')
     assert '49,50,51' == shell.run('echo 1,2,3 | bsv | bschema u16:a,u16:a,u16:a | csv')
     assert '1,2,3'    == shell.run('echo 1,2,3 | bsv | bschema 1,1,1 | csv')

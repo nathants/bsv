@@ -35,7 +35,9 @@ def test_basic():
         e,e
         f,f
         """
-        assert rm_whitespace(unindent(stdout)) == shell.run('bmerge a.bsv b.bsv | csv')
+        assert rm_whitespace(unindent(stdout)) == shell.run('echo a.bsv b.bsv | bmerge | csv', stream=True)
+        assert rm_whitespace(unindent(stdout)) == shell.run('(echo a.bsv; echo b.bsv) | bmerge | csv', stream=True)
+        assert rm_whitespace(unindent(stdout)) == shell.run('(echo a.bsv; echo; echo b.bsv) | bmerge | csv', stream=True)
 
 @composite
 def inputs(draw):
@@ -68,8 +70,8 @@ def test_props(csvs):
                 path = f'file{i}.bsv'
                 shell.run(f'bsv > {path}', stdin=csv)
                 paths.append(path)
-            assert result.strip() == shell.run('bmerge', *paths, '| bcut 1 | csv', echo=True)
-            assert shell.run('cat', *paths, '| bsort | bcut 1 | csv') == shell.run('bmerge', *paths, '| bcut 1 | csv')
+            assert result.strip() == shell.run('echo', *paths, '| bmerge | bcut 1 | csv', echo=True)
+            assert shell.run('cat', *paths, '| bsort | bcut 1 | csv') == shell.run('echo', *paths, '| bmerge | bcut 1 | csv')
 
 @given(inputs())
 @settings(database=ExampleDatabase(':memory:'), max_examples=100 * int(os.environ.get('TEST_FACTOR', 1)), deadline=os.environ.get("TEST_DEADLINE", 1000 * 60)) # type: ignore
@@ -87,4 +89,4 @@ def test_props_compatability(csvs):
                 path = f'file{i}.csv'
                 shell.run(f'cat - > {path}', stdin=csv)
                 csv_paths.append(path)
-            assert shell.run('LC_ALL=C sort -m -k1,1', *csv_paths, ' | cut -d, -f1') == shell.run('bmerge', *bsv_paths, ' | bcut 1 | csv', echo=True)
+            assert shell.run('LC_ALL=C sort -m -k1,1', *csv_paths, ' | cut -d, -f1 | grep -v ^$') == shell.run('echo', *bsv_paths, '| bmerge | bcut 1 | csv', echo=True)

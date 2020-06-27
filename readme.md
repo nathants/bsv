@@ -48,9 +48,9 @@ note: max is the maximum zero based index into the row, ie: `max = size(row) - 1
 - [bcut](#bcut) - select some columns
 - [bdedupe](#bdedupe) - dedupe identical contiguous rows by strcmp the first column, keeping the first
 - [bdropuntil](#bdropuntil) - drop until the first column is gte to VALUE
-- [bmerge](#bmerge) - merge sorted files
+- [bmerge](#bmerge) - merge sorted files from stdin
 - [bpartition](#bpartition) - split into multiple files by the first column value
-- [brmerge](#brmerge) - merge reverse sorted files
+- [brmerge](#brmerge) - merge reverse sorted files from stdin
 - [brsort](#brsort) - reverse timsort rows by strcmp the first column
 - [bschema](#bschema) - validate and convert column values
 - [bsort](#bsort) - timsort rows by strcmp the first column
@@ -120,7 +120,7 @@ b
 b
 b
 a
-' | bsv | bcounteach | csv
+' | bsv | bcounteach | bschema *,u64:a | csv
 a,2
 b,3
 a,1
@@ -191,9 +191,9 @@ d
 
 ### [bmerge](https://github.com/nathants/bsv/blob/master/src/bmerge.c)
 
-merge sorted files
+merge sorted files from stdin
 
-usage: `bmerge FILE1 ... FILEN`
+usage: `echo FILE1 ... FILEN | bmerge`
 
 ```
 >> echo -e 'a
@@ -204,7 +204,7 @@ e
 d
 f
 ' | bsv > b.bsv
->> bmerge a.bsv b.bsv
+>> echo a.bsv b.bsv | bmerge
 a
 b
 c
@@ -232,9 +232,9 @@ prefix02
 
 ### [brmerge](https://github.com/nathants/bsv/blob/master/src/brmerge.c)
 
-merge reverse sorted files
+merge reverse sorted files from stdin
 
-usage: `brmerge FILE1 ... FILEN`
+usage: `echo FILE1 ... FILEN | brmerge`
 
 ```
 >> echo -e 'e
@@ -245,7 +245,7 @@ a
 d
 b
 ' | bsv > b.bsv
->> brmerge a.bsv b.bsv
+>> echo a.bsv b.bsv | brmerge
 f
 e
 d

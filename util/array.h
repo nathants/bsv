@@ -24,3 +24,11 @@
             dst = NULL;                         \
         }                                       \
     } while(0)
+
+#define ARRAY_RESET(array)                      \
+    do {                                        \
+        array##_size = 0;                       \
+    } while(0)
+
+#define ARRAY_SIZE(array)                       \
+    array##_size

@@ -53,5 +53,5 @@ def test_props(csvs):
                 path = f'file{i}.bsv'
                 shell.run(f'bsv > {path}', stdin=csv)
                 paths.append(path)
-            assert result.strip() == shell.run('brmerge', *paths, ' | bcut 1 | csv', echo=True)
-            assert shell.run('cat', *paths, '| brsort | bcut 1 | csv') == shell.run('brmerge', *paths, ' | bcut 1 | csv')
+            assert result.strip() == shell.run('echo', *paths, '| brmerge | bcut 1 | csv', echo=True)
+            assert shell.run('cat', *paths, '| brsort | bcut 1 | csv') == shell.run('echo', *paths, '| brmerge | bcut 1 | csv')

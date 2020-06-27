@@ -63,8 +63,6 @@ def test_fail1():
         assert stdout == shell.run(f'bsv | bschema a:u64,... | bpartition prefix {num_buckets}', stdin=csv, echo=True)
         assert result == shell.run('bcat --prefix prefix*')
 
-import pytest
-@pytest.mark.only
 def test_basic():
     with shell.tempdir():
         stdin = """
