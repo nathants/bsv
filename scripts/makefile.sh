@@ -1,6 +1,6 @@
 #!/bin/bash
 set -eou pipefail
-cd $(dirname $(realpath $0))
+cd $(dirname $(dirname $(realpath $0)))
 
 echo ".PHONY: all clean test" > Makefile
 echo "CFLAGS=-Wno-incompatible-pointer-types -Wno-discarded-qualifiers -Iutil -Ivendor -flto -O3 -march=native -mtune=native" >> Makefile

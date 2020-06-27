@@ -2,7 +2,7 @@
 import os
 import subprocess
 
-os.chdir(os.path.dirname(__file__))
+os.chdir(os.path.dirname(os.path.dirname(__file__)))
 co = lambda *a: subprocess.check_output(' '.join(map(str, a)), shell=True, executable='/bin/bash').decode('utf-8').strip()
 
 with open('readme.md') as f:
