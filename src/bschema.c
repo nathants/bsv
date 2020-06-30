@@ -2,8 +2,8 @@
 #include "load.h"
 #include "dump.h"
 
-#define DESCRIPTION "validate and convert column values\n\n"
-#define USAGE "... | bschema 4,u64:a,a:i32,2,*,...\n"
+#define DESCRIPTION "validate and convert column values. if filter violations are omitted, otherwise they error.\n\n"
+#define USAGE "... | bschema SCHEMA [--filter]\n"
 #define EXAMPLE ">> echo aa,bbb,cccc | bsv | bschema 2,3,4 | csv\naa,bbb,cccc\n"
 
 static int isdigits(const char *s) {
@@ -14,11 +14,25 @@ static int isdigits(const char *s) {
     return 1;
 }
 
+#define FILTERING_ASSERT(cond, ...)             \
+    do {                                        \
+        if (!(cond)) {                          \
+            if (filtering) {                    \
+                filtered = 1;                   \
+            } else {                            \
+                fprintf(stderr, ##__VA_ARGS__); \
+                exit(1);                        \
+            }                                   \
+        }                                       \
+    } while(0)
+
 enum conversion {
 
     // bytes
     PASS,
     SIZE,
+    HEAD,
+    TAIL,
 
     // int
     A_I16,
@@ -47,18 +61,19 @@ enum conversion {
 #define INIT(type)                              \
     type _##type;
 
-#define N_TO_A(type, format)                                                                                \
-    SNNPRINTF(n, scratch + scratch_offset, BUFFER_SIZE - scratch_offset, format, *(type*)row.columns[i]);   \
-    row.columns[i] = scratch + scratch_offset;                                                              \
-    row.sizes[i] = n;                                                                                       \
+#define N_TO_A(type, format)                                                                                        \
+    FILTERING_ASSERT(sizeof(type) == row.sizes[i], "fatal: number->ascii didn't have the write number of bytes\n"); \
+    SNNPRINTF(n, scratch + scratch_offset, BUFFER_SIZE - scratch_offset, format, *(type*)row.columns[i]);           \
+    row.columns[i] = scratch + scratch_offset;                                                                      \
+    row.sizes[i] = n;                                                                                               \
     scratch_offset += n;
 
-#define A_TO_N(type, conversion)                                                \
-    ASSERT(sizeof(type) < BUFFER_SIZE - scratch_offset, "scratch overflow\n");  \
-    _##type = conversion(row.columns[i]);                                       \
-    memcpy(scratch + scratch_offset, &_##type, sizeof(type));                   \
-    row.columns[i] = scratch + scratch_offset;                                  \
-    row.sizes[i] = sizeof(type);                                                \
+#define A_TO_N(type, conversion)                                                        \
+    ASSERT(sizeof(type) < BUFFER_SIZE - scratch_offset, "fatal: scratch overflow\n");   \
+    _##type = conversion(row.columns[i]);                                               \
+    memcpy(scratch + scratch_offset, &_##type, sizeof(type));                           \
+    row.columns[i] = scratch + scratch_offset;                                          \
+    row.sizes[i] = sizeof(type);                                                        \
     scratch_offset += sizeof(type);
 
 int main(int argc, const char **argv) {
@@ -79,15 +94,23 @@ int main(int argc, const char **argv) {
     // setup state
     i32 truncate = 1;
     row_t row;
-    char *f;
-    char *fs = argv[1];
+    u8 *f;
+    u8 f_butlast[1024];
+    ASSERT(argc >= 2, "fatal: usage: bschema SCHEMA [--filter]\n");
+    u8 *fs = argv[1];
     i32 max = -1;
     i32 conversion[MAX_COLUMNS];
     i32 args[MAX_COLUMNS];
+    u64 num_filtered = 0;
+    i32 filtered;
+    i32 filtering = (argc == 3 && strcmp(argv[2], "--filter") == 0) ? 1 : 0;
 
     // parse args
     while ((f = strsep(&fs, ","))) {
         args[++max] = -1;
+        ASSERT(strlen(f) < sizeof(f_butlast), "fatal: schema too large\n");
+        strcpy(f_butlast, f);
+        f_butlast[strlen(f) - 1] = '\0';
 
         // bytes
         if (strcmp(f, "*") == 0) {
@@ -95,6 +118,12 @@ int main(int argc, const char **argv) {
         } else if (isdigits(f)) {
             conversion[max] = SIZE;
             args[max] = atoi(f);
+        } else if (strlen(f) > 1 && f[0] == '*' && isdigits(f + 1)) {
+            conversion[max] = TAIL;
+            args[max] = atoi(f + 1);
+        } else if (strlen(f) > 1 && f[strlen(f) - 1] == '*' && isdigits(f_butlast)) {
+            conversion[max] = HEAD;
+            args[max] = atoi(f_butlast);
         }
 
         // int
@@ -119,7 +148,7 @@ int main(int argc, const char **argv) {
         else if (strcmp(f, "f32:a") == 0) { conversion[max] = F32_A; }
         else if (strcmp(f, "f64:a") == 0) { conversion[max] = F64_A; }
 
-        // don't truncate
+        // don't truncate trailing columns
         else if (strcmp(f, "...") == 0) { truncate = 0; break; }
 
     }
@@ -150,14 +179,17 @@ int main(int argc, const char **argv) {
         if (row.stop)
             break;
 
-        ASSERT(max <= row.max, "fatal: row had %d columns, needed %d\n", row.max + 1, max + 1);
+        FILTERING_ASSERT(max <= row.max, "fatal: row had %d columns, needed %d\n", row.max + 1, max + 1);
         scratch_offset = 0;
+        filtered = 0;
         for (i32 i = 0; i <= max; i++) {
             switch (conversion[i]) {
 
                 // bytes
                 case PASS: break;
-                case SIZE: ASSERT(row.sizes[i] == args[i], "fatal: column %d was size %d, needed to be %d\n", i, row.sizes[i], args[i]); break;
+                case SIZE: FILTERING_ASSERT(row.sizes[i] == args[i], "fatal: column %d was size %d, needed to be %d\n", i, row.sizes[i], args[i]); break;
+                case HEAD: FILTERING_ASSERT(row.sizes[i] >= args[i], "fatal: column %d was size %d, needed to be %d\n", i, row.sizes[i], args[i]); row.sizes[i] = args[i]; break;
+                case TAIL: FILTERING_ASSERT(row.sizes[i] >= args[i], "fatal: column %d was size %d, needed to be %d\n", i, row.sizes[i], args[i]); row.columns[i] = row.columns[i] + (row.sizes[i] - args[i]); row.sizes[i] = args[i]; break;
 
                 // int
                 case A_I16: A_TO_N(i16, atol);  break;
@@ -185,10 +217,17 @@ int main(int argc, const char **argv) {
             }
         }
 
+        if (filtered) {
+            num_filtered++;
+            continue;
+        }
+
         if (truncate)
             row.max = max;
 
         dump(&wbuf, &row, 0);
     }
     dump_flush(&wbuf, 0);
+    if (num_filtered > 0)
+        DEBUG("filtered: %lu\n", num_filtered);
 }
