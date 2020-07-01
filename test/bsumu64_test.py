@@ -12,7 +12,7 @@ def setup_module(m):
     m.path = os.environ['PATH']
     os.chdir(m.tempdir)
     os.environ['PATH'] = f'{os.getcwd()}/bin:/usr/bin:/usr/local/bin:/sbin:/usr/sbin:/bin'
-    shell.run('make clean && make bsv csv bschema bsum', stream=True)
+    shell.run('make clean && make bsv csv bschema bsumu64', stream=True)
 
 def teardown_module(m):
     os.chdir(m.orig)
@@ -42,7 +42,7 @@ def expected(csv):
 def test_props(args):
     csv = args
     result = expected(csv)
-    assert result == int(run(csv, 'bsv | bschema a:u64 | bsum | bschema u64:a | csv'))
+    assert result == int(run(csv, 'bsv | bschema a:u64 | bsumu64 | bschema u64:a | csv'))
 
 def test1():
     stdin = """
@@ -50,4 +50,4 @@ def test1():
     1
     1
     """
-    assert '3' == shell.run('bsv | bschema a:u64 | bsum | bschema u64:a | csv', stdin=stdin)
+    assert '3' == shell.run('bsv | bschema a:u64 | bsumu64 | bschema u64:a | csv', stdin=stdin)

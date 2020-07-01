@@ -55,8 +55,9 @@ note: max is the maximum zero based index into the row, ie: `max = size(row) - 1
 - [bschema](#bschema) - validate and convert column values. if filter violations are omitted, otherwise they error.
 - [bsort](#bsort) - timsort rows by strcmp the first column
 - [bsplit](#bsplit) - split a stream into multiple files
-- [bsum](#bsum) - u64 sum the first column
-- [bsumeach](#bsumeach) - sum as u64 the second colum of each contiguous identical row by strcmp the first column
+- [bsumeachf64](#bsumeachf64) - sum as f64 the second colum of each contiguous identical row by strcmp the first column
+- [bsumeachu64](#bsumeachu64) - sum as u64 the second colum of each contiguous identical row by strcmp the first column
+- [bsumu64](#bsumu64) - u64 sum the first column
 - [bsv](#bsv) - convert csv to bsv, numerics remain ascii for faster parsing
 - [btake](#btake) - take while the first column is VALUE
 - [btakeuntil](#btakeuntil) - take until the first column is gte to VALUE
@@ -311,22 +312,26 @@ usage: `... | bsplit [chunks_per_file=1]`
 1595793589_0000000000
 ```
 
-### [bsum](https://github.com/nathants/bsv/blob/master/src/bsum.c)
+### [bsumeachf64](https://github.com/nathants/bsv/blob/master/src/bsumeachf64.c)
 
-u64 sum the first column
+sum as f64 the second colum of each contiguous identical row by strcmp the first column
 
-usage: `... | bsum`
+usage: `... | bsumeach`
 
 ```
->> echo -e '1
-2
-3
-4
-' | bsv | bschema a:u64 | bsum | bschema u64:a | csv
-10
+echo 'a,1.1
+a,2.1
+b,3.1
+b,4.1
+b,5.1
+a,6.1
+' | bsv | bschema *,a:f64 | bsumeachf64 | bschema *,f64:a | csv
+a,3.200000
+b,12.300000
+a,6.100000
 ```
 
-### [bsumeach](https://github.com/nathants/bsv/blob/master/src/bsumeach.c)
+### [bsumeachu64](https://github.com/nathants/bsv/blob/master/src/bsumeachu64.c)
 
 sum as u64 the second colum of each contiguous identical row by strcmp the first column
 
@@ -339,10 +344,25 @@ b,3
 b,4
 b,5
 a,6
-' | bsv | bschema *,a:u64 | bcounteach | bschema *,u64:a | csv
+' | bsv | bschema *,a:u64 | bsumeachu64 | bschema *,u64:a | csv
+a,3
+b,12
 a,6
-b,9
-a,6
+```
+
+### [bsumu64](https://github.com/nathants/bsv/blob/master/src/bsumu64.c)
+
+u64 sum the first column
+
+usage: `... | bsum`
+
+```
+>> echo -e '1
+2
+3
+4
+' | bsv | bschema a:u64 | bsum | bschema u64:a | csv
+10
 ```
 
 ### [bsv](https://github.com/nathants/bsv/blob/master/src/bsv.c)

@@ -52,3 +52,6 @@ csv_ascii
 bschema
 _gen_bsv
 bsumeach
+bsumeachu64
+bsumu64
+bsumeachf64
