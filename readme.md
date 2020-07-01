@@ -52,10 +52,11 @@ note: max is the maximum zero based index into the row, ie: `max = size(row) - 1
 - [bpartition](#bpartition) - split into multiple files by the first column value
 - [brmerge](#brmerge) - merge reverse sorted files from stdin
 - [brsort](#brsort) - reverse timsort rows by strcmp the first column
-- [bschema](#bschema) - validate and convert column values
+- [bschema](#bschema) - validate and convert column values. if filter violations are omitted, otherwise they error.
 - [bsort](#bsort) - timsort rows by strcmp the first column
 - [bsplit](#bsplit) - split a stream into multiple files
 - [bsum](#bsum) - u64 sum the first column
+- [bsumeach](#bsumeach) - sum as u64 the second colum of each contiguous identical row by strcmp the first column
 - [bsv](#bsv) - convert csv to bsv, numerics remain ascii for faster parsing
 - [btake](#btake) - take while the first column is VALUE
 - [btakeuntil](#btakeuntil) - take until the first column is gte to VALUE
@@ -273,9 +274,9 @@ a
 
 ### [bschema](https://github.com/nathants/bsv/blob/master/src/bschema.c)
 
-validate and convert column values
+validate and convert column values. if filter violations are omitted, otherwise they error.
 
-usage: `... | bschema 4,u64:a,a:i32,2,*,...`
+usage: `... | bschema SCHEMA [--filter]`
 
 ```
 >> echo aa,bbb,cccc | bsv | bschema 2,3,4 | csv
@@ -323,6 +324,25 @@ usage: `... | bsum`
 4
 ' | bsv | bschema a:u64 | bsum | bschema u64:a | csv
 10
+```
+
+### [bsumeach](https://github.com/nathants/bsv/blob/master/src/bsumeach.c)
+
+sum as u64 the second colum of each contiguous identical row by strcmp the first column
+
+usage: `... | bsumeach`
+
+```
+echo 'a,1
+a,2
+b,3
+b,4
+b,5
+a,6
+' | bsv | bschema *,a:u64 | bcounteach | bschema *,u64:a | csv
+a,6
+b,9
+a,6
 ```
 
 ### [bsv](https://github.com/nathants/bsv/blob/master/src/bsv.c)
