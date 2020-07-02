@@ -116,7 +116,8 @@ count as u64 each contiguous identical row by strcmp the first column
 usage: `... | bcounteach`
 
 ```
-echo 'a
+echo '
+a
 a
 b
 b
@@ -135,7 +136,8 @@ count rows as u64
 usage: `... | bcountrows`
 
 ```
->> echo -e '1
+>> echo '
+1
 2
 3
 4.1
@@ -319,7 +321,8 @@ sum as f64 the second colum of each contiguous identical row by strcmp the first
 usage: `... | bsumeach`
 
 ```
-echo 'a,1.1
+echo '
+a,1.1
 a,2.1
 b,3.1
 b,4.1
@@ -338,7 +341,8 @@ sum as u64 the second colum of each contiguous identical row by strcmp the first
 usage: `... | bsumeach`
 
 ```
-echo 'a,1
+echo '
+a,1
 a,2
 b,3
 b,4

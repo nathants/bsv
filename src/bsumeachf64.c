@@ -5,7 +5,7 @@
 
 #define DESCRIPTION "sum as f64 the second colum of each contiguous identical row by strcmp the first column\n\n"
 #define USAGE "... | bsumeach\n\n"
-#define EXAMPLE "echo 'a,1.1\na,2.1\nb,3.1\nb,4.1\nb,5.1\na,6.1\n' | bsv | bschema *,a:f64 | bsumeachf64 | bschema *,f64:a | csv\na,3.200000\nb,12.300000\na,6.100000\n"
+#define EXAMPLE "echo '\na,1.1\na,2.1\nb,3.1\nb,4.1\nb,5.1\na,6.1\n' | bsv | bschema *,a:f64 | bsumeachf64 | bschema *,f64:a | csv\na,3.200000\nb,12.300000\na,6.100000\n"
 
 #define DUMP_SUMS()                                                     \
     do {                                                                \

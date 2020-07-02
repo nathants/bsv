@@ -4,7 +4,7 @@
 
 #define DESCRIPTION "count rows as u64\n\n"
 #define USAGE "... | bcountrows\n\n"
-#define EXAMPLE ">> echo -e '1\n2\n3\n4.1\n' | bsv | bcountrows | csv\n4\n\n"
+#define EXAMPLE ">> echo '\n1\n2\n3\n4.1\n' | bsv | bcountrows | csv\n4\n\n"
 
 int main(int argc, const char **argv) {
 

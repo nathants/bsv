@@ -5,7 +5,7 @@
 
 #define DESCRIPTION "count as u64 each contiguous identical row by strcmp the first column\n\n"
 #define USAGE "... | bcounteach\n\n"
-#define EXAMPLE "echo 'a\na\nb\nb\nb\na\n' | bsv | bcounteach | bschema *,u64:a | csv\na,2\nb,3\na,1\n"
+#define EXAMPLE "echo '\na\na\nb\nb\nb\na\n' | bsv | bcounteach | bschema *,u64:a | csv\na,2\nb,3\na,1\n"
 
 #define DUMP_COUNT()                                                    \
     do {                                                                \

@@ -23,6 +23,25 @@ def teardown_module(m):
     assert m.tempdir.startswith('/tmp/') or m.tempdir.startswith('/private/var/folders/')
     shell.run('rm -rf', m.tempdir)
 
+def test_dupes():
+    with shell.tempdir():
+        shell.run('echo -e "a,a\na,a\nc,c\nc,c\ne,e\ne,e\n" | bsv > a.bsv')
+        shell.run('echo -e "b,b\nd,d\nf,f\n" | bsv > b.bsv')
+        stdout = """
+        a,a
+        a,a
+        b,b
+        c,c
+        c,c
+        d,d
+        e,e
+        e,e
+        f,f
+        """
+        assert rm_whitespace(unindent(stdout)) == shell.run('echo a.bsv b.bsv | bmerge | csv', stream=True)
+        assert rm_whitespace(unindent(stdout)) == shell.run('(echo a.bsv; echo b.bsv) | bmerge | csv', stream=True)
+        assert rm_whitespace(unindent(stdout)) == shell.run('(echo a.bsv; echo; echo b.bsv) | bmerge | csv', stream=True)
+
 def test_basic():
     with shell.tempdir():
         shell.run('echo -e "a,a\nc,c\ne,e\n" | bsv > a.bsv')
