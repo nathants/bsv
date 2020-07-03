@@ -49,7 +49,10 @@ int main(int argc, const char **argv) {
     FILE *files[num_buckets];
     SNPRINTF(num_buckets_str, sizeof(num_buckets_str), "%d", num_buckets);
     for (i32 i = 0; i < num_buckets; i++) {
-        SNPRINTF(path, sizeof(path), "%s%0*d", prefix, strlen(num_buckets_str), i);
+        if (strlen(prefix) != 0)
+            SNPRINTF(path, sizeof(path), "%s_%0*d", prefix, strlen(num_buckets_str), i);
+        else
+            SNPRINTF(path, sizeof(path), "%0*d", strlen(num_buckets_str), i);
         FOPEN(files[i], path, "ab");
     }
 
@@ -82,7 +85,10 @@ int main(int argc, const char **argv) {
 
     // delete any empty output files
     for (i32 i = 0; i < num_buckets; i++) {
-        SNPRINTF(path, sizeof(path), "%s%0*d", prefix, strlen(num_buckets_str), i);
+        if (strlen(prefix) != 0)
+            SNPRINTF(path, sizeof(path), "%s_%0*d", prefix, strlen(num_buckets_str), i);
+        else
+            SNPRINTF(path, sizeof(path), "%0*d", strlen(num_buckets_str), i);
         empty = empty_file(path);
         if (empty == 1) {
             ASSERT(remove(path) == 0, "fatal: failed to delete file: %s\n", path);

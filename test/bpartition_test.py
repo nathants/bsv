@@ -41,7 +41,7 @@ def expected(num_buckets, csv):
     val = ''
     for k in sorted(res):
         for line in res[k]:
-            val += f'prefix{k}:{line}\n'
+            val += f'prefix_{k}:{line}\n'
     return val.strip()
 
 @given(inputs())
@@ -85,21 +85,21 @@ def test_basic():
         2,h,i,j
         """
         stdout = """
-        prefix00
-        prefix01
-        prefix02
+        prefix_00
+        prefix_01
+        prefix_02
         """
         assert rm_whitespace(unindent(stdout)) == shell.run('bsv | bschema a:u64,... | bpartition 10 prefix', stdin=unindent(stdin))
         stdout = """
-        prefix00:b,c,d
-        prefix01:e,f,g
-        prefix02:h,i,j
+        prefix_00:b,c,d
+        prefix_01:e,f,g
+        prefix_02:h,i,j
         """
         assert unindent(stdout).strip() == shell.run('bcat --prefix prefix*')
         stdout = """
-        prefix00
-        prefix01
-        prefix02
+        prefix_00
+        prefix_01
+        prefix_02
         """
         assert unindent(stdout).strip() == shell.run('ls prefix*')
 
@@ -111,24 +111,24 @@ def test_appends():
         2,h,i,j
         """
         stdout = """
-        prefix00
-        prefix01
-        prefix02
+        prefix_00
+        prefix_01
+        prefix_02
         """
         assert rm_whitespace(unindent(stdout)) == shell.run('bsv | bschema a:u64,... | bpartition 10 prefix', stdin=unindent(stdin))
         assert rm_whitespace(unindent(stdout)) == shell.run('bsv | bschema a:u64,... | bpartition 10 prefix', stdin=unindent(stdin))
         stdout = """
-        prefix00:b,c,d
-        prefix00:b,c,d
-        prefix01:e,f,g
-        prefix01:e,f,g
-        prefix02:h,i,j
-        prefix02:h,i,j
+        prefix_00:b,c,d
+        prefix_00:b,c,d
+        prefix_01:e,f,g
+        prefix_01:e,f,g
+        prefix_02:h,i,j
+        prefix_02:h,i,j
         """
         assert unindent(stdout).strip() == shell.run('bcat --prefix prefix*')
         stdout = """
-        prefix00
-        prefix01
-        prefix02
+        prefix_00
+        prefix_01
+        prefix_02
         """
         assert unindent(stdout).strip() == shell.run('ls prefix*')
