@@ -1,13 +1,16 @@
 #include "util.h"
 #include "load.h"
 #include "dump.h"
+#include "xxh3.h"
 #include <errno.h>
 #include <sys/stat.h>
 #include <ctype.h>
 
-#define DESCRIPTION "split into multiple files by the first column value\n\n"
-#define USAGE "\n... | bbucket NUM_BUCKETS | bpartition NUM_BUCKETS [PREFIX]\n\n"
-#define EXAMPLE ">> echo '\n0,a\n1,b\n2,c\n' | bsv | bpartition 10 prefix\nprefix00\nprefix01\nprefix02\n"
+#define SEED 0
+
+#define DESCRIPTION "split into multiple files by consistent hash of the first column value\n\n"
+#define USAGE "\n... | bpartition NUM_BUCKETS [PREFIX]\n\n"
+#define EXAMPLE ">> echo '\na\b\nc\n' | bsv | bpartition 10 prefix\nprefix03\nprefix06\n"
 
 int empty_file(char *path) {
     struct stat st;
@@ -34,6 +37,7 @@ int main(int argc, const char **argv) {
     i32 empty;
     u64 file_num;
     i32 num_buckets;
+    u64 hash;
 
     // parse args
     ASSERT(strlen(argv[1]) <= 8, "NUM_BUCKETS must be less than 1e8, got: %s\n", argv[1]);
@@ -65,15 +69,8 @@ int main(int argc, const char **argv) {
         load_next(&rbuf, &row, 0);
         if (row.stop)
             break;
-        ASSERT(row.max, "error: line with only one columns: %s\n", row.columns[0]);
-        ASSERT(row.sizes[0] == 8, "error: wrong size for u64: %d\n", row.sizes[0]);
-        file_num = *(u64*)(row.columns[0]);
-        ASSERT(file_num < num_buckets, "error: columns higher than num_buckets: %lu %d\n", file_num, num_buckets);
-        for (i32 i = 0; i < row.max; i++) {
-            row.columns[i] = row.columns[i + 1];
-            row.sizes[i] = row.sizes[i + 1];
-        }
-        row.max -= 1;
+        hash = XXH3_64bits(row.columns[0], row.sizes[0]);
+        file_num = hash % num_buckets;
         dump(&wbuf, &row, file_num);
     }
 

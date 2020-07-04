@@ -40,7 +40,6 @@ note: max is the maximum zero based index into the row, ie: `max = size(row) - 1
 
 ## utilities
 
-- [bbucket](#bbucket) - prefix each row with a u64 consistent hash of the first column
 - [bcat](#bcat) - cat some bsv file to csv
 - [bcopy](#bcopy) - pass through data, to benchmark load/dump performance
 - [bcounteach](#bcounteach) - count as u64 each contiguous identical row by strcmp the first column
@@ -49,7 +48,7 @@ note: max is the maximum zero based index into the row, ie: `max = size(row) - 1
 - [bdedupe](#bdedupe) - dedupe identical contiguous rows by strcmp the first column, keeping the first
 - [bdropuntil](#bdropuntil) - drop until the first column is gte to VALUE
 - [bmerge](#bmerge) - merge sorted files from stdin
-- [bpartition](#bpartition) - split into multiple files by the first column value
+- [bpartition](#bpartition) - split into multiple files by consistent hash of the first column value
 - [brmerge](#brmerge) - merge reverse sorted files from stdin
 - [brsort](#brsort) - reverse timsort rows by strcmp the first column
 - [bschema](#bschema) - validate and convert column values. if filter violations are omitted, otherwise they error.
@@ -63,23 +62,6 @@ note: max is the maximum zero based index into the row, ie: `max = size(row) - 1
 - [btakeuntil](#btakeuntil) - take until the first column is gte to VALUE
 - [csv](#csv) - convert bsv to csv, numerics are treated as ascii
 - [xxh3](#xxh3) - xxh3_64 hash stdin. defaults to hex, can be --int. --stream to pass stdin through to stdout with hash on stderr
-
-### [bbucket](https://github.com/nathants/bsv/blob/master/src/bbucket.c)
-
-prefix each row with a u64 consistent hash of the first column
-
-usage: `... | bbucket NUM_BUCKETS`
-
-```
->> echo '
-a
-b
-c
-' | bsv | bbucket 100 | csv
-50,a
-39,b
-83,c
-```
 
 ### [bcat](https://github.com/nathants/bsv/blob/master/src/bcat.c)
 
@@ -219,19 +201,17 @@ f
 
 ### [bpartition](https://github.com/nathants/bsv/blob/master/src/bpartition.c)
 
-split into multiple files by the first column value
+split into multiple files by consistent hash of the first column value
 
-usage: `... | bbucket NUM_BUCKETS | bpartition NUM_BUCKETS [PREFIX]`
+usage: `... | bpartition NUM_BUCKETS [PREFIX]`
 
 ```
 >> echo '
-0,a
-1,b
-2,c
+a\b
+c
 ' | bsv | bpartition 10 prefix
-prefix00
-prefix01
-prefix02
+prefix03
+prefix06
 ```
 
 ### [brmerge](https://github.com/nathants/bsv/blob/master/src/brmerge.c)

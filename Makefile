@@ -1,6 +1,6 @@
 .PHONY: all clean test
 CFLAGS=-Wno-incompatible-pointer-types -Wno-discarded-qualifiers -Iutil -Ivendor -flto -O3 -march=native -mtune=native
-ALL=docs bbucket bcat bcopy bcounteach bcountrows bcut bdedupe bdropuntil bmerge bpartition brmerge brsort bschema bsort bsplit bsumeachf64 bsumeachu64 bsumu64 bsv btake btakeuntil _copy _csv csv _gen_bsv _gen_csv xxh3
+ALL=docs bcat bcopy bcounteach bcountrows bcut bdedupe bdropuntil bmerge bpartition brmerge brsort bschema bsort bsplit bsumeachf64 bsumeachu64 bsumu64 bsv btake btakeuntil _copy _csv csv _gen_bsv _gen_csv xxh3
 
 all: $(ALL)
 
@@ -15,9 +15,6 @@ docs:
 
 test: setup
 	tox
-
-bbucket: setup
-	gcc $(CFLAGS) src/bbucket.c -o bin/bbucket
 
 bcat: setup
 	gcc $(CFLAGS) src/bcat.c -o bin/bcat
