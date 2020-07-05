@@ -2,11 +2,9 @@
 
 it should be possible to process data at speeds approaching that of sequential io.
 
-sequential io is fast. cpu is the bottleneck. sequential only data access is the play.
-
 ## what
 
-a simple and efficient [data](https://github.com/nathants/bsv/blob/master/util/load.h) [format](https://github.com/nathants/bsv/blob/master/util/dump.h) for sequentially manipulating chunks of rows of columns without allocating or copying.
+a simple and efficient [data](https://github.com/nathants/bsv/blob/master/util/load.h) [format](https://github.com/nathants/bsv/blob/master/util/dump.h) for sequentially manipulating chunks of rows of columns while minimizing allocating and copying.
 
 [cli](https://github.com/nathants/bsv/blob/master/src) utilities based on [shared](https://github.com/nathants/bsv/blob/master/util) code.
 
@@ -29,6 +27,12 @@ note: row data cannot exceed chunk size.
 note: column bytes are always followed by a single nullbyte: `\0`
 
 note: max is the maximum zero based index into the row, ie: `max = size(row) - 1`
+
+## non goals
+
+supporting hardware other than little endian.
+
+explicit types and schemas.
 
 ## testing methodology
 
