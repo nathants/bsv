@@ -18,9 +18,9 @@ def teardown_module(m):
     shell.run('rm -rf', m.tempdir)
 
 def test_basic():
-    with pytest.raises(SystemExit):
+    with pytest.raises(Exception):
         shell.run('echo 1,2,3 | bsv | bschema 1,1,1,1 | csv')
-    with pytest.raises(SystemExit):
+    with pytest.raises(Exception):
         shell.run('echo 1,2,3 | bsv | bschema 1,2,1 | csv')
     assert '12593,12850,13107' == shell.run('echo 11,22,33 | bsv | bschema u16:a,u16:a,u16:a | csv')
     assert '1,2,3'    == shell.run('echo 1,2,3 | bsv | bschema 1,1,1 | csv')
@@ -30,7 +30,7 @@ def test_basic():
     assert '11,22' == shell.run('echo 11,22,33 | bsv | bschema *,* | csv')
     assert 'df,er' == shell.run('echo asdf,qwer,123 | bsv | bschema "*2,*2" | csv')
     assert 'as,qw' == shell.run('echo asdf,qwer,123 | bsv | bschema "2*,2*" | csv')
-    with pytest.raises(SystemExit):
+    with pytest.raises(Exception):
         shell.run('echo a,qwer,123 | bsv | bschema "2*,2*" | csv')
 
 def test_filtering():

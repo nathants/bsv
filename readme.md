@@ -55,18 +55,18 @@ explicit types and schemas.
 - [bpartition](#bpartition) - split into multiple files by consistent hash of the first column value
 - [brmerge](#brmerge) - merge reverse sorted files from stdin
 - [brsort](#brsort) - reverse timsort rows by strcmp the first column
-- [bschema](#bschema) - validate and convert column values. if filter violations are omitted, otherwise they error.
+- [bschema](#bschema) - validate and convert column values. if filter, violations are omitted, otherwise they error.
 - [bsort](#bsort) - timsort rows by strcmp the first column
 - [bsplit](#bsplit) - split a stream into multiple files
 - [bsumeachf64](#bsumeachf64) - sum as f64 the second colum of each contiguous identical row by strcmp the first column
 - [bsumeachu64](#bsumeachu64) - sum as u64 the second colum of each contiguous identical row by strcmp the first column
 - [bsumu64](#bsumu64) - u64 sum the first column
-- [bsv](#bsv) - convert csv to bsv, numerics remain ascii for faster parsing
+- [bsv](#bsv) - convert csv to bsv
 - [btake](#btake) - take while the first column is VALUE
 - [btakeuntil](#btakeuntil) - take until the first column is gte to VALUE
-- [bunzip](#bunzip) - combine single column rows into multi column rows
+- [bunzip](#bunzip) - split multi column rows into single column rows
 - [bzip](#bzip) - combine single column rows into multi column rows
-- [csv](#csv) - convert bsv to csv, numerics are treated as ascii
+- [csv](#csv) - convert bsv to csv
 - [xxh3](#xxh3) - xxh3_64 hash stdin. defaults to hex, can be --int. --stream to pass stdin through to stdout with hash on stderr
 
 ### [bcat](https://github.com/nathants/bsv/blob/master/src/bcat.c)
@@ -263,7 +263,7 @@ a
 
 ### [bschema](https://github.com/nathants/bsv/blob/master/src/bschema.c)
 
-validate and convert column values. if filter violations are omitted, otherwise they error.
+validate and convert column values. if filter, violations are omitted, otherwise they error.
 
 usage: `... | bschema SCHEMA [--filter]`
 
@@ -357,7 +357,7 @@ usage: `... | bsum`
 
 ### [bsv](https://github.com/nathants/bsv/blob/master/src/bsv.c)
 
-convert csv to bsv, numerics remain ascii for faster parsing
+convert csv to bsv
 
 usage: `... | bsv`
 
@@ -401,7 +401,7 @@ b
 
 ### [bunzip](https://github.com/nathants/bsv/blob/master/src/bunzip.c)
 
-combine single column rows into multi column rows
+split multi column rows into single column rows
 
 usage: `... | bunzip PREFIX`
 
@@ -418,20 +418,20 @@ a,c
 
 combine single column rows into multi column rows
 
-usage: `echo col_0 col_1 | bzip`
+usage: `ls column_* | bzip`
 
 ```
 >> echo '
 a,b,c
 1,2,3
-' | bsv | bunzip col && echo col_0 col_2 | bzip | csv
+' | bsv | bunzip column && ls column_* | bzip 1,3 | csv
 a,c
 1,3
 ```
 
 ### [csv](https://github.com/nathants/bsv/blob/master/src/csv.c)
 
-convert bsv to csv, numerics are treated as ascii
+convert bsv to csv
 
 usage: `... | csv`
 

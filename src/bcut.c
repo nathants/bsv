@@ -3,7 +3,7 @@
 #include "dump.h"
 
 #define DESCRIPTION "select some columns\n\n"
-#define USAGE "... | bcut FIELD1,...,FIELDN\n\n"
+#define USAGE "... | bcut COL1,...,COLN\n\n"
 #define EXAMPLE ">> echo a,b,c | bsv | bcut 3,3,3,2,2,1 | csv\nc,c,c,b,b,a\n"
 
 #define PARSE_ARGV()                                                                                                            \
