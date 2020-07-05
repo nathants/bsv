@@ -2,8 +2,8 @@
 #include "load.h"
 #include "dump.h"
 
-#define DESCRIPTION "validate and convert column values. if filter violations are omitted, otherwise they error.\n\n"
-#define USAGE "... | bschema SCHEMA [--filter]\n"
+#define DESCRIPTION "validate and convert column values. if filter, violations are omitted, otherwise they error.\n\n"
+#define USAGE "... | bschema SCHEMA [--filter]\n\n"
 #define EXAMPLE ">> echo aa,bbb,cccc | bsv | bschema 2,3,4 | csv\naa,bbb,cccc\n"
 
 static int isdigits(const char *s) {

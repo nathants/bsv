@@ -60,6 +60,8 @@ note: max is the maximum zero based index into the row, ie: `max = size(row) - 1
 - [bsv](#bsv) - convert csv to bsv, numerics remain ascii for faster parsing
 - [btake](#btake) - take while the first column is VALUE
 - [btakeuntil](#btakeuntil) - take until the first column is gte to VALUE
+- [bunzip](#bunzip) - combine single column rows into multi column rows
+- [bzip](#bzip) - combine single column rows into multi column rows
 - [csv](#csv) - convert bsv to csv, numerics are treated as ascii
 - [xxh3](#xxh3) - xxh3_64 hash stdin. defaults to hex, can be --int. --stream to pass stdin through to stdout with hash on stderr
 
@@ -391,6 +393,36 @@ d
 ' | bsv | btakeuntil c | csv
 a
 b
+```
+
+### [bunzip](https://github.com/nathants/bsv/blob/master/src/bunzip.c)
+
+combine single column rows into multi column rows
+
+usage: `... | bunzip PREFIX`
+
+```
+>> echo '
+a,b,c
+1,2,3
+' | bsv | bunzip col && echo col_0 col_2 | bzip | csv
+a,c
+1,3
+```
+
+### [bzip](https://github.com/nathants/bsv/blob/master/src/bzip.c)
+
+combine single column rows into multi column rows
+
+usage: `echo col_0 col_1 | bzip`
+
+```
+>> echo '
+a,b,c
+1,2,3
+' | bsv | bunzip col && echo col_0 col_2 | bzip | csv
+a,c
+1,3
 ```
 
 ### [csv](https://github.com/nathants/bsv/blob/master/src/csv.c)

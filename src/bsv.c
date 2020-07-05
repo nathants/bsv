@@ -1,7 +1,7 @@
 #include "csv.h"
 #include "dump.h"
 
-#define DESCRIPTION "convert csv to bsv, numerics remain ascii for faster parsing\n\n"
+#define DESCRIPTION "convert csv to bsv\n\n"
 #define USAGE "... | bsv\n\n"
 #define EXAMPLE ">> echo a,b,c | bsv | bcut 3,2,1 | csv\nc,b,a\n"
 

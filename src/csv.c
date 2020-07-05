@@ -1,7 +1,7 @@
 #include "load.h"
 #include "write_simple.h"
 
-#define DESCRIPTION "convert bsv to csv, numerics are treated as ascii\n\n"
+#define DESCRIPTION "convert bsv to csv\n\n"
 #define USAGE "... | csv\n\n"
 #define EXAMPLE ">> echo a,b,c | bsv | csv\na,b,c\n"
 

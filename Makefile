@@ -1,6 +1,6 @@
 .PHONY: all clean test
 CFLAGS=-Wno-incompatible-pointer-types -Wno-discarded-qualifiers -Iutil -Ivendor -flto -O3 -march=native -mtune=native
-ALL=docs bcat bcopy bcounteach bcountrows bcut bdedupe bdropuntil bmerge bpartition brmerge brsort bschema bsort bsplit bsumeachf64 bsumeachu64 bsumu64 bsv btake btakeuntil _copy _csv csv _gen_bsv _gen_csv xxh3
+ALL=docs bcat bcopy bcounteach bcountrows bcut bdedupe bdropuntil bmerge bpartition brmerge brsort bschema bsort bsplit bsumeachf64 bsumeachu64 bsumu64 bsv btake btakeuntil bunzip bzip _copy _csv csv _gen_bsv _gen_csv xxh3
 
 all: $(ALL)
 
@@ -75,6 +75,12 @@ btake: setup
 
 btakeuntil: setup
 	gcc $(CFLAGS) src/btakeuntil.c -o bin/btakeuntil
+
+bunzip: setup
+	gcc $(CFLAGS) src/bunzip.c -o bin/bunzip
+
+bzip: setup
+	gcc $(CFLAGS) src/bzip.c -o bin/bzip
 
 _copy: setup
 	gcc $(CFLAGS) src/_copy.c -o bin/_copy
