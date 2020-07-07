@@ -57,3 +57,11 @@ bsumu64
 bsumeachf64
 bunzip
 bzip
+bpartitionlz4
+bcompress
+bdecompress
+blz4
+blz4d
+bunziplz4
+bziplz4
+bcatlz4

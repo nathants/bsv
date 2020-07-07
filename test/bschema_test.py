@@ -17,7 +17,15 @@ def teardown_module(m):
     assert m.tempdir.startswith('/tmp/') or m.tempdir.startswith('/private/var/folders/')
     shell.run('rm -rf', m.tempdir)
 
+import pytest
+@pytest.mark.only
 def test_basic():
+    assert '1' == shell.run('echo 1 | bsv | bschema 1,... | csv')
+    assert '1,2,3' == shell.run('echo 1,2,3 | bsv | bschema 1,1,... | csv')
+    with pytest.raises(Exception):
+        shell.run('echo 1,2,3 | bsv | bschema fake,schema,errors | csv')
+    with pytest.raises(Exception):
+        shell.run('echo 1,2,3 | bsv | bschema 1,1 | csv')
     with pytest.raises(Exception):
         shell.run('echo 1,2,3 | bsv | bschema 1,1,1,1 | csv')
     with pytest.raises(Exception):
@@ -25,11 +33,10 @@ def test_basic():
     assert '12593,12850,13107' == shell.run('echo 11,22,33 | bsv | bschema u16:a,u16:a,u16:a | csv')
     assert '1,2,3'    == shell.run('echo 1,2,3 | bsv | bschema 1,1,1 | csv')
     assert '1,2,3'    == shell.run('echo 1,2,3 | bsv | bschema 1,... | csv')
-    assert '1,2'      == shell.run('echo 1,2,3 | bsv | bschema 1,1 | csv')
-    assert '1,2'      == shell.run('echo 1,2,3 | bsv | bschema *,* | csv')
-    assert '11,22' == shell.run('echo 11,22,33 | bsv | bschema *,* | csv')
-    assert 'df,er' == shell.run('echo asdf,qwer,123 | bsv | bschema "*2,*2" | csv')
-    assert 'as,qw' == shell.run('echo asdf,qwer,123 | bsv | bschema "2*,2*" | csv')
+    assert '1,2,3'      == shell.run('echo 1,2,3 | bsv | bschema *,*,... | csv')
+    assert '11,22,33' == shell.run('echo 11,22,33 | bsv | bschema *,*,... | csv')
+    assert 'df,er' == shell.run('echo asdf,qwer | bsv | bschema "*2,*2" | csv')
+    assert 'as,qw' == shell.run('echo asdf,qwer | bsv | bschema "2*,2*" | csv')
     with pytest.raises(Exception):
         shell.run('echo a,qwer,123 | bsv | bschema "2*,2*" | csv')
 

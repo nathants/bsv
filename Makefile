@@ -1,6 +1,6 @@
 .PHONY: all clean test
 CFLAGS=-Wno-incompatible-pointer-types -Wno-discarded-qualifiers -Iutil -Ivendor -flto -O3 -march=native -mtune=native
-ALL=docs bcat bcopy bcounteach bcountrows bcut bdedupe bdropuntil bmerge bpartition brmerge brsort bschema bsort bsplit bsumeachf64 bsumeachu64 bsumu64 bsv btake btakeuntil bunzip bzip _copy _csv csv _gen_bsv _gen_csv xxh3
+ALL=docs bcat bcatlz4 bcopy bcounteach bcountrows bcut bdedupe bdropuntil blz4 blz4d bmerge bpartition bpartitionlz4 brmerge brsort bschema bsort bsplit bsumeachf64 bsumeachu64 bsumu64 bsv btake btakeuntil bunzip bunziplz4 bzip bziplz4 _copy _csv csv _gen_bsv _gen_csv xxh3
 
 all: $(ALL)
 
@@ -18,6 +18,9 @@ test: setup
 
 bcat: setup
 	gcc $(CFLAGS) src/bcat.c -o bin/bcat
+
+bcatlz4: setup
+	gcc $(CFLAGS) vendor/lz4.c src/bcatlz4.c -o bin/bcatlz4
 
 bcopy: setup
 	gcc $(CFLAGS) src/bcopy.c -o bin/bcopy
@@ -37,11 +40,20 @@ bdedupe: setup
 bdropuntil: setup
 	gcc $(CFLAGS) src/bdropuntil.c -o bin/bdropuntil
 
+blz4: setup
+	gcc $(CFLAGS) vendor/lz4.c src/blz4.c -o bin/blz4
+
+blz4d: setup
+	gcc $(CFLAGS) vendor/lz4.c src/blz4d.c -o bin/blz4d
+
 bmerge: setup
 	gcc $(CFLAGS) src/bmerge.c -o bin/bmerge
 
 bpartition: setup
 	gcc $(CFLAGS) src/bpartition.c -o bin/bpartition
+
+bpartitionlz4: setup
+	gcc $(CFLAGS) vendor/lz4.c src/bpartitionlz4.c -o bin/bpartitionlz4
 
 brmerge: setup
 	gcc $(CFLAGS) src/brmerge.c -o bin/brmerge
@@ -79,8 +91,14 @@ btakeuntil: setup
 bunzip: setup
 	gcc $(CFLAGS) src/bunzip.c -o bin/bunzip
 
+bunziplz4: setup
+	gcc $(CFLAGS) vendor/lz4.c src/bunziplz4.c -o bin/bunziplz4
+
 bzip: setup
 	gcc $(CFLAGS) src/bzip.c -o bin/bzip
+
+bziplz4: setup
+	gcc $(CFLAGS) vendor/lz4.c src/bziplz4.c -o bin/bziplz4
 
 _copy: setup
 	gcc $(CFLAGS) src/_copy.c -o bin/_copy

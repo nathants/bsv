@@ -1,4 +1,6 @@
 import shell
+import sys
+import uuid
 import os
 
 with shell.climb_git_root():
@@ -14,8 +16,8 @@ def clone_source():
 
 def run(stdin, *args):
     with shell.climb_git_root():
-        stdinpath = 'stdin'
-        stdoutpath = 'stdout'
+        stdinpath = f'stdin.{uuid.uuid4()}'
+        stdoutpath = f'stdout.{uuid.uuid4()}'
         with open(stdinpath, 'w') as f:
             f.write(stdin)
         shell.run(*(('set -o pipefail; cat', stdinpath, '|') + args + ('>', stdoutpath)), stream=True)
@@ -24,8 +26,8 @@ def run(stdin, *args):
 
 def runb(stdin, *args):
     with shell.climb_git_root():
-        stdinpath = 'stdin'
-        stdoutpath = 'stdout'
+        stdinpath = f'stdin.{uuid.uuid4()}'
+        stdoutpath = f'stdout.{uuid.uuid4()}'
         if isinstance(stdin, str):
             with open(stdinpath, 'w') as f:
                 f.write(stdin)
@@ -47,8 +49,8 @@ def compile_buffer_sizes(name, buffers):
         shell.run('cp -f util/util.h util/util.h.bak')
         try:
             for i in buffers:
-                shell.run(f'cat util/util.h.bak | sed -E "s/#define BUFFER_SIZE.*/#define BUFFER_SIZE {i}/" > util/util.h')
-                print('compile:', name, i, shell.run('cat util/util.h | grep "define BUFFER_SIZE"'), flush=True)
+                shell.run(f'cat util/util.h.bak | sed -E "s/#define BUFFER_SIZE .*/#define BUFFER_SIZE {i}/" > util/util.h')
+                print('compile:', name, i, flush=True, file=sys.stderr)
                 shell.run('make', name)
                 shell.run(f'mv -f bin/{name} bin/{name}.{i}')
         finally:

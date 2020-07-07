@@ -1,14 +1,16 @@
 #include "util.h"
-#include "load.h"
 #include "write_simple.h"
 
-#define DESCRIPTION "cat some bsv files to csv\n\n"
-#define USAGE "bcat [--prefix] [--head NUM] FILE1 ... FILEN\n\n"
+#define LZ4
+#include "load.h"
+
+#define DESCRIPTION "cat some compressed bsv files to csv\n\n"
+#define USAGE "bcatlz4 [--prefix] [--head NUM] FILE1 ... FILEN\n\n"
 #define EXAMPLE                                     \
     ">> for char in a a b b c c; do\n"              \
-    "     echo $char | bsv >> /tmp/$char\n"         \
+    "     echo $char | bsv | blz4 >> /tmp/$char\n"  \
     "   done\n"                                     \
-    "\n>> bcat --head 1 --prefix /tmp/{a,b,c}\n"    \
+    "\n>> bcatlz4 --head 1 --prefix /tmp/{a,b,c}\n" \
     "/tmp/a:a\n"                                    \
     "/tmp/b:b\n"                                    \
     "/tmp/c:c\n"

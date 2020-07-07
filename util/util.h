@@ -61,8 +61,8 @@ void _sigpipe_handler(int signum) {
 // if you want to change it, you have to convert your data to bsv
 // again.
 #define BUFFER_SIZE 1024 * 1024 * 5
-
-#define DELIMITER ','
+#define BUFFER_SIZE_LZ4 BUFFER_SIZE + 1024 * 256
+#define LZ4_ACCELERATION 1
 
 #define ASSERT(cond, ...)                       \
     do {                                        \
@@ -71,6 +71,8 @@ void _sigpipe_handler(int signum) {
             exit(1);                            \
         }                                       \
     } while(0)
+
+#define DELIMITER ','
 
 #define MALLOC(dst, size)                                           \
     do {                                                            \
@@ -175,3 +177,12 @@ void _sigpipe_handler(int signum) {
     SIGPIPE_HANDLER();                          \
     INVARIANTS();                               \
     INCREASE_PIPE_SIZES();
+
+int isdigits(const char *s) {
+    while (*s != '\0') {
+        if (!isdigit(*s))
+            return 0;
+        s++;
+    }
+    return 1;
+}

@@ -1,6 +1,9 @@
 #pragma once
 
 #include "util.h"
+#ifdef LZ4
+    #include "lz4.h"
+#endif
 
 typedef struct readbuf_s {
     // public
@@ -13,6 +16,10 @@ typedef struct readbuf_s {
     i32 bytes_read;
     i32 *offset;
     i32 *chunk_size;
+    #ifdef LZ4
+        u8 *lz4_buf;
+        i32 lz4_size;
+    #endif
 } readbuf_t;
 
 void rbuf_init(readbuf_t *buf, FILE **files, i32 num_files) {
@@ -25,36 +32,50 @@ void rbuf_init(readbuf_t *buf, FILE **files, i32 num_files) {
       buf->offset[i] = BUFFER_SIZE;
       MALLOC(buf->buffers[i], BUFFER_SIZE);
     }
+    #ifdef LZ4
+        MALLOC(buf->lz4_buf, BUFFER_SIZE_LZ4);
+    #endif
 }
+
+#define DECOMPRESS(buf)                                                                                             \
+    do {                                                                                                            \
+        i32 decompressed_size = LZ4_decompress_safe(buf->lz4_buf, buf->buffers[file], buf->lz4_size, BUFFER_SIZE);  \
+        ASSERT(buf->chunk_size[file] == decompressed_size, "fatal: decompress size mismatch\n");                    \
+    } while(0)
 
 inlined void read_bytes(readbuf_t *buf, i32 size, i32 file) {
     buf->bytes_left = buf->chunk_size[file] - buf->offset[file]; // ------------------------------------ bytes left in the current chunk
     buf->bytes = size;
     ASSERT(buf->bytes_left >= 0, "fatal: negative bytes_left: %d\n", buf->bytes_left);
     if (buf->bytes_left == 0) { // --------------------------------------------------------------------- time to read the next chunk
-        buf->bytes_read = fread_unlocked(&buf->chunk_size[file], 1, sizeof(i32), buf->files[file]); // - read chunk header to get size of the new chunk
+        buf->bytes_read = fread_unlocked(&buf->chunk_size[file], 1, sizeof(i32), buf->files[file]); // - try read chunk size
         switch (buf->bytes_read) {
-            case sizeof(i32):
-                #ifdef READ_GROWING // hold all data in ram instead of just the current chunk
+            case sizeof(i32): // ----------------------------------------------------------------------- read chunk size succeeded
+                #ifdef READ_GROWING // when defined hold all data in ram for sorting
                     MALLOC(buf->buffers[file], buf->chunk_size[file]);
                 #endif
-                FREAD(buf->buffers[file], buf->chunk_size[file], buf->files[file]); // ----------------- read the chunk body
+                #ifdef LZ4
+                    FREAD(&buf->lz4_size, sizeof(i32), buf->files[file]); // --------------------------- read compressed size
+                    FREAD(buf->lz4_buf, buf->lz4_size, buf->files[file]); // --------------------------- read compressed chunk
+                    DECOMPRESS(buf);
+                #else
+                    FREAD(buf->buffers[file], buf->chunk_size[file], buf->files[file]); // ------------- read the chunk body
+                #endif
                 buf->offset[file] = 0; // -------------------------------------------------------------- start at the beggining of the new chunk
                 buf->bytes_left = buf->chunk_size[file]; // -------------------------------------------- bytes_left is the new chunk size
                 ASSERT(size <= buf->bytes_left, "fatal: diskread, not possible, chunk sizes are known\n");
                 break;
-            case 0:
+            case 0: // --------------------------------------------------------------------------------- read chunk size failed
                 ASSERT(!ferror_unlocked(buf->files[file]), "fatal: read error\n");
                 buf->chunk_size[file] = 0;
                 buf->offset[file] = 0;
                 buf->bytes = 0;
                 break;
             default:
-                ASSERT(0, "fatal: bytes_read should always be either 0 or what was expected\n");
+                ASSERT(0, "fatal: impossible\n");
         }
-    } else {
+    } else
         ASSERT(size <= buf->bytes_left, "fatal: ramread, not possible, chunk sizes are known\n");
-    }
     buf->buffer = buf->buffers[file] + buf->offset[file]; // ------------------------------------------- update the buffer position for the current read
     buf->offset[file] += buf->bytes; // ---------------------------------------------------------------- update the buffer offset
 }

@@ -26,11 +26,11 @@ note: row data cannot exceed chunk size.
 
 note: column bytes are always followed by a single nullbyte: `\0`
 
-note: max is the maximum zero based index into the row, ie: `max = size(row) - 1`
+note: max is the maximum zero based index into the row: `max = size(row) - 1`
 
 ## non goals
 
-supporting hardware other than little endian.
+support of hardware other than little endian.
 
 explicit types and schemas.
 
@@ -44,18 +44,22 @@ explicit types and schemas.
 
 ## utilities
 
-- [bcat](#bcat) - cat some bsv file to csv
+- [bcat](#bcat) - cat some bsv files to csv
+- [bcatlz4](#bcatlz4) - cat some compressed bsv files to csv
 - [bcopy](#bcopy) - pass through data, to benchmark load/dump performance
 - [bcounteach](#bcounteach) - count as u64 each contiguous identical row by strcmp the first column
 - [bcountrows](#bcountrows) - count rows as u64
 - [bcut](#bcut) - select some columns
 - [bdedupe](#bdedupe) - dedupe identical contiguous rows by strcmp the first column, keeping the first
 - [bdropuntil](#bdropuntil) - drop until the first column is gte to VALUE
+- [blz4](#blz4) - compress bsv data
+- [blz4d](#blz4d) - decompress bsv data
 - [bmerge](#bmerge) - merge sorted files from stdin
 - [bpartition](#bpartition) - split into multiple files by consistent hash of the first column value
+- [bpartitionlz4](#bpartitionlz4) - split into multiple compressed files by consistent hash of the first column value
 - [brmerge](#brmerge) - merge reverse sorted files from stdin
 - [brsort](#brsort) - reverse timsort rows by strcmp the first column
-- [bschema](#bschema) - validate and convert column values. if filter, violations are omitted, otherwise they error.
+- [bschema](#bschema) - validate and converts row data with a schema of columns
 - [bsort](#bsort) - timsort rows by strcmp the first column
 - [bsplit](#bsplit) - split a stream into multiple files
 - [bsumeachf64](#bsumeachf64) - sum as f64 the second colum of each contiguous identical row by strcmp the first column
@@ -64,14 +68,16 @@ explicit types and schemas.
 - [bsv](#bsv) - convert csv to bsv
 - [btake](#btake) - take while the first column is VALUE
 - [btakeuntil](#btakeuntil) - take until the first column is gte to VALUE
-- [bunzip](#bunzip) - split multi column rows into single column rows
-- [bzip](#bzip) - combine single column rows into multi column rows
+- [bunzip](#bunzip) - split a multi column input into single column outputs
+- [bunziplz4](#bunziplz4) - split a multi column input into compressed single column outputs
+- [bzip](#bzip) - combine single column inputs into a multi column output
+- [bziplz4](#bziplz4) - combine compressed single column inputs into a multi column output
 - [csv](#csv) - convert bsv to csv
 - [xxh3](#xxh3) - xxh3_64 hash stdin. defaults to hex, can be --int. --stream to pass stdin through to stdout with hash on stderr
 
 ### [bcat](https://github.com/nathants/bsv/blob/master/src/bcat.c)
 
-cat some bsv file to csv
+cat some bsv files to csv
 
 usage: `bcat [--prefix] [--head NUM] FILE1 ... FILEN`
 
@@ -81,6 +87,23 @@ usage: `bcat [--prefix] [--head NUM] FILE1 ... FILEN`
    done
 
 >> bcat --head 1 --prefix /tmp/{a,b,c}
+/tmp/a:a
+/tmp/b:b
+/tmp/c:c
+```
+
+### [bcatlz4](https://github.com/nathants/bsv/blob/master/src/bcatlz4.c)
+
+cat some compressed bsv files to csv
+
+usage: `bcatlz4 [--prefix] [--head NUM] FILE1 ... FILEN`
+
+```
+>> for char in a a b b c c; do
+     echo $char | bsv | blz4 >> /tmp/$char
+   done
+
+>> bcatlz4 --head 1 --prefix /tmp/{a,b,c}
 /tmp/a:a
 /tmp/b:b
 /tmp/c:c
@@ -137,7 +160,7 @@ usage: `... | bcountrows`
 
 select some columns
 
-usage: `... | bcut FIELD1,...,FIELDN`
+usage: `... | bcut COL1,...,COLN`
 
 ```
 >> echo a,b,c | bsv | bcut 3,3,3,2,2,1 | csv
@@ -181,6 +204,28 @@ c
 d
 ```
 
+### [blz4](https://github.com/nathants/bsv/blob/master/src/blz4.c)
+
+compress bsv data
+
+usage: `... | blz4`
+
+```
+>> echo a,b,c | bsv | blz4 | blz4d | csv
+a,b,c
+```
+
+### [blz4d](https://github.com/nathants/bsv/blob/master/src/blz4d.c)
+
+decompress bsv data
+
+usage: `... | blz4d`
+
+```
+>> echo a,b,c | bsv | blz4 | blz4d | csv
+a,b,c
+```
+
 ### [bmerge](https://github.com/nathants/bsv/blob/master/src/bmerge.c)
 
 merge sorted files from stdin
@@ -216,6 +261,22 @@ usage: `... | bpartition NUM_BUCKETS [PREFIX]`
 a\b
 c
 ' | bsv | bpartition 10 prefix
+prefix03
+prefix06
+```
+
+### [bpartitionlz4](https://github.com/nathants/bsv/blob/master/src/bpartitionlz4.c)
+
+split into multiple compressed files by consistent hash of the first column value
+
+usage: `... | bpartitionlz4 NUM_BUCKETS [PREFIX]`
+
+```
+>> echo '
+a
+b
+c
+' | bsv | bpartitionlz4 10 prefix
 prefix03
 prefix06
 ```
@@ -263,7 +324,7 @@ a
 
 ### [bschema](https://github.com/nathants/bsv/blob/master/src/bschema.c)
 
-validate and convert column values. if filter, violations are omitted, otherwise they error.
+validate and converts row data with a schema of columns
 
 usage: `... | bschema SCHEMA [--filter]`
 
@@ -401,7 +462,7 @@ b
 
 ### [bunzip](https://github.com/nathants/bsv/blob/master/src/bunzip.c)
 
-split multi column rows into single column rows
+split a multi column input into single column outputs
 
 usage: `... | bunzip PREFIX`
 
@@ -414,17 +475,47 @@ a,c
 1,3
 ```
 
+### [bunziplz4](https://github.com/nathants/bsv/blob/master/src/bunziplz4.c)
+
+split a multi column input into compressed single column outputs
+
+usage: `... | bunziplz4 PREFIX`
+
+```
+>> echo '
+a,b,c
+1,2,3
+' | bsv | bunziplz4 column && ls column_* | bziplz4 1,3 | csv
+a,c
+1,3
+```
+
 ### [bzip](https://github.com/nathants/bsv/blob/master/src/bzip.c)
 
-combine single column rows into multi column rows
+combine single column inputs into a multi column output
 
-usage: `ls column_* | bzip`
+usage: `ls column_* | bzip [COL1,...COLN]`
 
 ```
 >> echo '
 a,b,c
 1,2,3
 ' | bsv | bunzip column && ls column_* | bzip 1,3 | csv
+a,c
+1,3
+```
+
+### [bziplz4](https://github.com/nathants/bsv/blob/master/src/bziplz4.c)
+
+combine compressed single column inputs into a multi column output
+
+usage: `ls column_* | bziplz4 [COL1,...COLN]`
+
+```
+>> echo '
+a,b,c
+1,2,3
+' | bsv | bunziplz4 column && ls column_* | bziplz4 1,3 | csv
 a,c
 1,3
 ```

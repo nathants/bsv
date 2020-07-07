@@ -30,7 +30,12 @@ echo >> Makefile
 for path in src/*.c; do
     name=$(basename $path | cut -d. -f1)
     echo "$name: setup" >> Makefile
-    echo -e "\tgcc \$(CFLAGS) $path -o bin/$name" >> Makefile
+    if echo $name | grep lz4 &>/dev/null; then
+        echo -e "\tgcc \$(CFLAGS) vendor/lz4.c $path -o bin/$name" >> Makefile
+    else
+        echo -e "\tgcc \$(CFLAGS) $path -o bin/$name" >> Makefile
+    fi
+
     echo >> Makefile
     if ! cat .gitignore | grep ^$name &>/dev/null; then
         echo $name >> .gitignore

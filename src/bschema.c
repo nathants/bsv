@@ -2,17 +2,17 @@
 #include "load.h"
 #include "dump.h"
 
-#define DESCRIPTION "validate and convert column values. if filter, violations are omitted, otherwise they error.\n\n"
-#define USAGE "... | bschema SCHEMA [--filter]\n\n"
+#define DESCRIPTION "validate and converts row data with a schema of columns\n\n"
+#define USAGE "... | bschema SCHEMA [--filter]\n\n"                                               \
+    "  --filter remove any rows that down fit instead of erroring\n\n"                            \
+    "  example schemas:\n"                                                                        \
+    "    *,*,*             = 3 columns of any size\n"                                             \
+    "    8,*               = a column with 8 bytes followed by a column of any size\n"            \
+    "    8,*,...           = same as above, but allow any trailing columns\n"                     \
+    "    a:u16,a:i32,a:f64 = convert ascii to numerics\n"                                         \
+    "    u16:a,i32:a,f64:a = convert numerics to ascii\n"                                         \
+    "    4*,*4             = keep the first 4 bytes of column 1 and the last 4 of column 2\n\n"
 #define EXAMPLE ">> echo aa,bbb,cccc | bsv | bschema 2,3,4 | csv\naa,bbb,cccc\n"
-
-static int isdigits(const char *s) {
-    for (int i = 0; i < strlen(s); i++) {
-        if (!isdigit(s[i]))
-            return 0;
-    }
-    return 1;
-}
 
 #define FILTERING_ASSERT(cond, ...)             \
     do {                                        \
@@ -92,7 +92,7 @@ int main(int argc, const char **argv) {
     wbuf_init(&wbuf, out_files, 1);
 
     // setup state
-    i32 truncate = 1;
+    i32 exact = 1;
     row_t row;
     u8 *f;
     u8 f_butlast[1024];
@@ -148,8 +148,10 @@ int main(int argc, const char **argv) {
         else if (strcmp(f, "f32:a") == 0) { conversion[max] = F32_A; }
         else if (strcmp(f, "f64:a") == 0) { conversion[max] = F64_A; }
 
-        // don't truncate trailing columns
-        else if (strcmp(f, "...") == 0) { truncate = 0; break; }
+        // allow trailing columns
+        else if (strcmp(f, "...") == 0) { exact = 0; max--; break; }
+
+        else ASSERT(0, "fatal: bad schema: %s\n", f);
 
     }
 
@@ -179,7 +181,11 @@ int main(int argc, const char **argv) {
         if (row.stop)
             break;
 
-        FILTERING_ASSERT(max <= row.max, "fatal: row had %d columns, needed %d\n", row.max + 1, max + 1);
+        if (exact)
+            FILTERING_ASSERT(max == row.max, "fatal: row had %d columns, needed %d\n", row.max + 1, max + 1);
+        else
+            FILTERING_ASSERT(max <= row.max, "fatal: row had %d columns, needed %d\n", row.max + 1, max + 1);
+
         scratch_offset = 0;
         filtered = 0;
         for (i32 i = 0; i <= max; i++) {
@@ -222,7 +228,7 @@ int main(int argc, const char **argv) {
             continue;
         }
 
-        if (truncate)
+        if (exact)
             row.max = max;
 
         dump(&wbuf, &row, 0);
