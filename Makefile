@@ -1,6 +1,6 @@
 .PHONY: all clean test
 CFLAGS=-Wno-incompatible-pointer-types -Wno-discarded-qualifiers -Iutil -Ivendor -flto -O3 -march=native -mtune=native
-ALL=docs bcat bcatlz4 bcopy bcounteach bcountrows bcut bdedupe bdropuntil blz4 blz4d bmerge bpartition bpartitionlz4 brmerge brsort bschema bsort bsplit bsumeachf64 bsumeachu64 bsumu64 bsv btake btakeuntil bunzip bunziplz4 bzip bziplz4 _copy _csv csv _gen_bsv _gen_csv xxh3
+ALL=docs bcat bcatlz4 bcopy bcounteach bcountrows bcut bdedupe bdropuntil blz4 blz4d bmerge bmergelz4 bpartition bpartitionlz4 brmerge brmergelz4 brsort bschema bsort bsplit bsumeachf64 bsumeachu64 bsumu64 bsv btake btakeuntil bunzip bunziplz4 bzip bziplz4 _copy _csv csv _gen_bsv _gen_csv xxh3
 
 all: $(ALL)
 
@@ -49,6 +49,9 @@ blz4d: setup
 bmerge: setup
 	gcc $(CFLAGS) src/bmerge.c -o bin/bmerge
 
+bmergelz4: setup
+	gcc $(CFLAGS) vendor/lz4.c src/bmergelz4.c -o bin/bmergelz4
+
 bpartition: setup
 	gcc $(CFLAGS) src/bpartition.c -o bin/bpartition
 
@@ -57,6 +60,9 @@ bpartitionlz4: setup
 
 brmerge: setup
 	gcc $(CFLAGS) src/brmerge.c -o bin/brmerge
+
+brmergelz4: setup
+	gcc $(CFLAGS) vendor/lz4.c src/brmergelz4.c -o bin/brmergelz4
 
 brsort: setup
 	gcc $(CFLAGS) src/brsort.c -o bin/brsort

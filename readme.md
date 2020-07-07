@@ -55,9 +55,11 @@ explicit types and schemas.
 - [blz4](#blz4) - compress bsv data
 - [blz4d](#blz4d) - decompress bsv data
 - [bmerge](#bmerge) - merge sorted files from stdin
+- [bmergelz4](#bmergelz4) - merge compressed sorted files from stdin
 - [bpartition](#bpartition) - split into multiple files by consistent hash of the first column value
 - [bpartitionlz4](#bpartitionlz4) - split into multiple compressed files by consistent hash of the first column value
 - [brmerge](#brmerge) - merge reverse sorted files from stdin
+- [brmergelz4](#brmergelz4) - merge compressed reverse sorted files from stdin
 - [brsort](#brsort) - reverse timsort rows by strcmp the first column
 - [bschema](#bschema) - validate and converts row data with a schema of columns
 - [bsort](#bsort) - timsort rows by strcmp the first column
@@ -250,6 +252,30 @@ e
 f
 ```
 
+### [bmergelz4](https://github.com/nathants/bsv/blob/master/src/bmergelz4.c)
+
+merge compressed sorted files from stdin
+
+usage: `echo FILE1 ... FILEN | bmerge`
+
+```
+>> echo -e 'a
+c
+e
+' | bsv > a.bsv
+>> echo -e 'b
+d
+f
+' | bsv > b.bsv
+>> echo a.bsv b.bsv | bmerge
+a
+b
+c
+d
+e
+f
+```
+
 ### [bpartition](https://github.com/nathants/bsv/blob/master/src/bpartition.c)
 
 split into multiple files by consistent hash of the first column value
@@ -284,6 +310,30 @@ prefix06
 ### [brmerge](https://github.com/nathants/bsv/blob/master/src/brmerge.c)
 
 merge reverse sorted files from stdin
+
+usage: `echo FILE1 ... FILEN | brmerge`
+
+```
+>> echo -e 'e
+c
+a
+' | bsv > a.bsv
+>> echo -e 'f
+d
+b
+' | bsv > b.bsv
+>> echo a.bsv b.bsv | brmerge
+f
+e
+d
+c
+b
+a
+```
+
+### [brmergelz4](https://github.com/nathants/bsv/blob/master/src/brmergelz4.c)
+
+merge compressed reverse sorted files from stdin
 
 usage: `echo FILE1 ... FILEN | brmerge`
 
