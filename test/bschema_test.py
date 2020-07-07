@@ -17,8 +17,6 @@ def teardown_module(m):
     assert m.tempdir.startswith('/tmp/') or m.tempdir.startswith('/private/var/folders/')
     shell.run('rm -rf', m.tempdir)
 
-import pytest
-@pytest.mark.only
 def test_basic():
     assert '1' == shell.run('echo 1 | bsv | bschema 1,... | csv')
     assert '1,2,3' == shell.run('echo 1,2,3 | bsv | bschema 1,1,... | csv')

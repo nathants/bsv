@@ -48,6 +48,7 @@ explicit types and schemas.
 - [bcatlz4](#bcatlz4) - cat some compressed bsv files to csv
 - [bcopy](#bcopy) - pass through data, to benchmark load/dump performance
 - [bcounteach](#bcounteach) - count as u64 each contiguous identical row by strcmp the first column
+- [bcounteachhash](#bcounteachhash) - count as u64 by hashmap of the first column
 - [bcountrows](#bcountrows) - count rows as u64
 - [bcut](#bcut) - select some columns
 - [bdedupe](#bdedupe) - dedupe identical contiguous rows by strcmp the first column, keeping the first
@@ -140,6 +141,25 @@ a
 a,2
 b,3
 a,1
+```
+
+### [bcounteachhash](https://github.com/nathants/bsv/blob/master/src/bcounteachhash.c)
+
+count as u64 by hashmap of the first column
+
+usage: `... | bcounteachhash`
+
+```
+echo '
+a
+a
+b
+b
+b
+a
+' | bsv | bcounteach | bschema *,u64:a | bsort | csv
+a,3
+b,3
 ```
 
 ### [bcountrows](https://github.com/nathants/bsv/blob/master/src/bcountrows.c)

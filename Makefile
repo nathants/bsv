@@ -1,6 +1,6 @@
 .PHONY: all clean test
-CFLAGS=-Wno-incompatible-pointer-types -Wno-discarded-qualifiers -Iutil -Ivendor -flto -O3 -march=native -mtune=native
-ALL=docs bcat bcatlz4 bcopy bcounteach bcountrows bcut bdedupe bdropuntil blz4 blz4d bmerge bmergelz4 bpartition bpartitionlz4 brmerge brmergelz4 brsort bschema bsort bsplit bsumeachf64 bsumeachu64 bsumu64 bsv btake btakeuntil bunzip bunziplz4 bzip bziplz4 _copy _csv csv _gen_bsv _gen_csv xxh3
+CFLAGS=-Wno-int-conversion -Wno-incompatible-pointer-types -Wno-discarded-qualifiers -Iutil -Ivendor -flto -O3 -march=native -mtune=native
+ALL=docs bcat bcatlz4 bcopy bcounteach bcounteachhash bcountrows bcut bdedupe bdropuntil blz4 blz4d bmerge bmergelz4 bpartition bpartitionlz4 brmerge brmergelz4 brsort bschema bsort bsplit bsumeachf64 bsumeachu64 bsumu64 bsv btake btakeuntil bunzip bunziplz4 bzip bziplz4 _copy _csv csv _gen_bsv _gen_csv xxh3
 
 all: $(ALL)
 
@@ -27,6 +27,9 @@ bcopy: setup
 
 bcounteach: setup
 	gcc $(CFLAGS) src/bcounteach.c -o bin/bcounteach
+
+bcounteachhash: setup
+	gcc $(CFLAGS) src/bcounteachhash.c -o bin/bcounteachhash
 
 bcountrows: setup
 	gcc $(CFLAGS) src/bcountrows.c -o bin/bcountrows
