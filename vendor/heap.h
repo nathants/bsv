@@ -1,6 +1,6 @@
+/* based on: https://github.com/statsite/statsite/blob/bf68fa2d3d107edcface16571e90ce71d3ede0f8/src/heap.c */
 /**
  *
- * based on: https://github.com/statsite/statsite/blob/bf68fa2d3d107edcface16571e90ce71d3ede0f8/src/heap.c
  *
  * BSD 3-Clause
  * Copyright (c) 2012, Armon Dadgar
