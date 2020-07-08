@@ -66,6 +66,7 @@ explicit types and schemas.
 - [bsort](#bsort) - timsort rows by strcmp the first column
 - [bsplit](#bsplit) - split a stream into multiple files
 - [bsumeachf64](#bsumeachf64) - sum as f64 the second colum of each contiguous identical row by strcmp the first column
+- [bsumeachhashu64](#bsumeachhashu64) - sum as u64 the second colum by hashmap of the first column
 - [bsumeachu64](#bsumeachu64) - sum as u64 the second colum of each contiguous identical row by strcmp the first column
 - [bsumu64](#bsumu64) - u64 sum the first column
 - [bsv](#bsv) - convert csv to bsv
@@ -435,7 +436,7 @@ usage: `... | bsplit [chunks_per_file=1]`
 
 sum as f64 the second colum of each contiguous identical row by strcmp the first column
 
-usage: `... | bsumeach`
+usage: `... | bsumeachf64`
 
 ```
 echo '
@@ -451,11 +452,31 @@ b,12.300000
 a,6.100000
 ```
 
+### [bsumeachhashu64](https://github.com/nathants/bsv/blob/master/src/bsumeachhashu64.c)
+
+sum as u64 the second colum by hashmap of the first column
+
+usage: `... | bsumeachhashu64`
+
+```
+echo '
+a,1
+a,2
+b,3
+b,4
+b,5
+a,6
+' | bsv | bschema *,a:u64 | bsumeachu64 | bschema *,u64:a | csv
+a,3
+b,12
+a,6
+```
+
 ### [bsumeachu64](https://github.com/nathants/bsv/blob/master/src/bsumeachu64.c)
 
 sum as u64 the second colum of each contiguous identical row by strcmp the first column
 
-usage: `... | bsumeach`
+usage: `... | bsumeachu64`
 
 ```
 echo '
