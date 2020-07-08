@@ -13,8 +13,14 @@ cd $(dirname $(dirname $0))
 # push code
 aws-ec2-rsync . :bsv/ $name -y
 
+# reinstall bsv
+aws-ec2-ssh $name -yc "
+    cd ~/bsv
+    make -j && sudo mv -fv bin/* /usr/local/bin
+"
+
 # kill any running reloaders
-aws-ec2-ssh $name -yc "killall -r entr || true"
+aws-ec2-ssh $name -yc "(ps -ef | grep entr | grep make | grep -v grep | awk '{print \$2}' | xargs kill) || true"
 
 # setup the remote reloader
 aws-ec2-ssh $name --no-tty -yc "
