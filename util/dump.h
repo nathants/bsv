@@ -10,8 +10,8 @@ inlined void dump(writebuf_t *wbuf, const row_t *row, i32 file) {
     ASSERT_MAX_IS_VALID();
     i32 size = sizeof(u16) + (row->max + 1) * sizeof(u16); // -------------- init size with max:u16 + size1:u16,...sizen:u16
     for (i32 i = 0; i <= row->max; i++)
-        size += row->sizes[i] + 1; // -------------------------------------- content array, +1 for trailing \0
-    write_start(wbuf, size, file); // -------------------------------------- write start in case total size of writes would flush the buffer we want to flush it immediately
+        size += row->sizes[i] + 1; // -------------------------------------- update size with column size + \0
+    write_start(wbuf, size, file); // -------------------------------------- write start in case total size of writes would exceed the buffer
     write_bytes(wbuf, TO_UINT16(row->max), sizeof(u16), file); // ---------- write row->max
     for (i32 i = 0; i <= row->max; i++) {
         ASSERT_SIZE_IS_VALID();
