@@ -25,36 +25,36 @@ int main(int argc, const char **argv) {
 
     // setup state
     row_t row;
-    hashmap *map;
-    u64 count;
-    hashmap_entry *entry;
-    ASSERT(0 == hashmap_init(0, &map), "fatal: hashmap init\n");
+    u8 *key;
+    u64 *count;
+    void* element;
+    struct hashmap_s hashmap;
+    ASSERT(0 == hashmap_create(2, &hashmap), "fatal: hashmap init\n");
 
     // process input row by row
     while (1) {
         load_next(&rbuf, &row, 0);
         if (row.stop)
             break;
-        if (0 == hashmap_get(map, row.columns[0], &count)) {
-            count++;
-            hashmap_put(map, row.columns[0], count);
+        if (element = hashmap_get(&hashmap, row.columns[0], row.sizes[0])) {
+            *(u64*)element += 1;
         } else {
-            count = 1;
-            hashmap_put(map, row.columns[0], count);
+            MALLOC(key, row.sizes[0]);
+            strncpy(key, row.columns[0], row.sizes[0]);
+            MALLOC(count, sizeof(u64));
+            *count = 1;
+            ASSERT(0 == hashmap_put(&hashmap, key, row.sizes[0], count), "fatal: hashmap put\n");
         }
     }
 
-    // iterate over map and dump counts
-    for (i32 i = 0; i < map->table_size; i++) {
-        entry = map->table + i;
-        while (entry && entry->key) {
+    for (i32 i = 0; i < hashmap.table_size; i++) {
+        if (hashmap.data[i].in_use) {
             row.max = 1;
-            row.columns[0] = entry->key;
-            row.sizes[0] = strlen(entry->key);
-            row.columns[1] = &entry->value;
+            row.columns[0] = hashmap.data[i].key;
+            row.sizes[0] = hashmap.data[i].key_len;
+            row.columns[1] = hashmap.data[i].data;
             row.sizes[1] = sizeof(u64);
             dump(&wbuf, &row, 0);
-            entry = entry->next;
         }
     }
     dump_flush(&wbuf, 0);
