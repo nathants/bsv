@@ -61,7 +61,7 @@ void _sigpipe_handler(int signum) {
 // again.
 #define BUFFER_SIZE 1024 * 1024 * 5
 #define BUFFER_SIZE_LZ4 BUFFER_SIZE + 1024 * 256
-#define LZ4_ACCELERATION 1
+#define LZ4_ACCELERATION 2
 
 #define ASSERT(cond, ...)                       \
     do {                                        \
