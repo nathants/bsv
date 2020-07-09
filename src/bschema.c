@@ -4,11 +4,11 @@
 
 #define DESCRIPTION "validate and converts row data with a schema of columns\n\n"
 #define USAGE "... | bschema SCHEMA [--filter]\n\n"                                               \
-    "  --filter remove any rows that down fit instead of erroring\n\n"                            \
+    "  --filter remove bad rows instead of erroring\n\n"                                          \
     "  example schemas:\n"                                                                        \
     "    *,*,*             = 3 columns of any size\n"                                             \
     "    8,*               = a column with 8 bytes followed by a column of any size\n"            \
-    "    8,*,...           = same as above, but allow any trailing columns\n"                     \
+    "    8,*,...           = same as above, but ignore any trailing columns\n"                    \
     "    a:u16,a:i32,a:f64 = convert ascii to numerics\n"                                         \
     "    u16:a,i32:a,f64:a = convert numerics to ascii\n"                                         \
     "    4*,*4             = keep the first 4 bytes of column 1 and the last 4 of column 2\n\n"
@@ -64,6 +64,7 @@ enum conversion {
 #define N_TO_A(type, format)                                                                                        \
     FILTERING_ASSERT(sizeof(type) == row.sizes[i], "fatal: number->ascii didn't have the write number of bytes\n"); \
     SNNPRINTF(n, scratch + scratch_offset, BUFFER_SIZE - scratch_offset, format, *(type*)row.columns[i]);           \
+    ASSERT(scratch_offset + n < BUFFER_SIZE, "fatal: scratch overflow\n");                                          \
     row.columns[i] = scratch + scratch_offset;                                                                      \
     row.sizes[i] = n;                                                                                               \
     scratch_offset += n;
@@ -181,13 +182,19 @@ int main(int argc, const char **argv) {
         if (row.stop)
             break;
 
+        filtered = 0;
+
         if (exact)
             FILTERING_ASSERT(max == row.max, "fatal: row had %d columns, needed %d\n", row.max + 1, max + 1);
         else
-            FILTERING_ASSERT(max <= row.max, "fatal: row had %d columns, needed %d\n", row.max + 1, max + 1);
+            FILTERING_ASSERT(max <= row.max, "fatal: row had %d columns, needed at least %d\n", row.max + 1, max + 1);
+
+        if (filtered) {
+            num_filtered++;
+            continue;
+        }
 
         scratch_offset = 0;
-        filtered = 0;
         for (i32 i = 0; i <= max; i++) {
             switch (conversion[i]) {
 
@@ -228,12 +235,13 @@ int main(int argc, const char **argv) {
             continue;
         }
 
-        if (exact)
-            row.max = max;
+        row.max = max;
 
         dump(&wbuf, &row, 0);
     }
+
     dump_flush(&wbuf, 0);
+
     if (num_filtered > 0)
         DEBUG("filtered: %lu\n", num_filtered);
 }

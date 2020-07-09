@@ -19,7 +19,7 @@ def teardown_module(m):
 
 def test_basic():
     assert '1' == shell.run('echo 1 | bsv | bschema 1,... | csv')
-    assert '1,2,3' == shell.run('echo 1,2,3 | bsv | bschema 1,1,... | csv')
+    assert '1,2' == shell.run('echo 1,2,3 | bsv | bschema 1,1,... | csv')
     with pytest.raises(Exception):
         shell.run('echo 1,2,3 | bsv | bschema fake,schema,errors | csv')
     with pytest.raises(Exception):
@@ -30,15 +30,16 @@ def test_basic():
         shell.run('echo 1,2,3 | bsv | bschema 1,2,1 | csv')
     assert '12593,12850,13107' == shell.run('echo 11,22,33 | bsv | bschema u16:a,u16:a,u16:a | csv')
     assert '1,2,3'    == shell.run('echo 1,2,3 | bsv | bschema 1,1,1 | csv')
-    assert '1,2,3'    == shell.run('echo 1,2,3 | bsv | bschema 1,... | csv')
-    assert '1,2,3'      == shell.run('echo 1,2,3 | bsv | bschema *,*,... | csv')
-    assert '11,22,33' == shell.run('echo 11,22,33 | bsv | bschema *,*,... | csv')
+    assert '1'    == shell.run('echo 1,2,3 | bsv | bschema 1,... | csv')
+    assert '1,2'      == shell.run('echo 1,2,3 | bsv | bschema *,*,... | csv')
+    assert '11,22' == shell.run('echo 11,22,33 | bsv | bschema *,*,... | csv')
     assert 'df,er' == shell.run('echo asdf,qwer | bsv | bschema "*2,*2" | csv')
     assert 'as,qw' == shell.run('echo asdf,qwer | bsv | bschema "2*,2*" | csv')
     with pytest.raises(Exception):
         shell.run('echo a,qwer,123 | bsv | bschema "2*,2*" | csv')
 
 def test_filtering():
+    assert '1,1\n2,2' == shell.run('echo -e "1,1\n2,2\n3\n" | bsv | bschema 1,1 --filter | csv')
     assert '22\n33' == shell.run('echo -e "1\n22\n33\n" | bsv | bschema 2 --filter | csv')
     assert '12850\n13107' == shell.run('echo -e "1\n22\n33\n" | bsv | bschema u16:a --filter | csv')
     assert 'as\n12' == shell.run('echo -e "asdf\nq\n123\n" | bsv | bschema "2*" --filter | csv')
