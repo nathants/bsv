@@ -25,7 +25,7 @@ aws-ec2-ssh $name -yc "(ps -ef | grep entr | grep make | grep -v grep | awk '{pr
 # setup the remote reloader
 aws-ec2-ssh $name --no-tty -yc "
     cd ~/bsv
-    ((find -type f -name '*.c' -o -name '*.h' | entr -r bash -c 'make -j && sudo mv -fv bin/* /usr/local/bin') &> ~/bsv.log </dev/null) &
+    ((find -type f -name '*.c' -o -name '*.h' | entr -r bash -c 'rm -f /usr/local/bin/b* && make -j && sudo mv -fv bin/* /usr/local/bin') &> ~/bsv.log </dev/null) &
 "
 
 # run the local file pusher
