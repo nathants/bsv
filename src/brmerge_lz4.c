@@ -12,12 +12,12 @@
 #include "load.h"
 
 #define DESCRIPTION "merge compressed reverse sorted files from stdin\n\n"
-#define USAGE "echo FILE1 ... FILEN | brmerge\n\n"
-#define EXAMPLE                                 \
-    ">> echo -e 'e\nc\na\n' | bsv > a.bsv\n"    \
-    ">> echo -e 'f\nd\nb\n' | bsv > b.bsv\n"    \
-    ">> echo a.bsv b.bsv | brmerge\n"           \
-    "f\ne\nd\nc\nb\na\n"                        \
+#define USAGE "echo FILE1 ... FILEN | brmerge-lz4\n\n"
+#define EXAMPLE                                        \
+    ">> echo -e 'e\nc\na\n' | bsv | blz4 > a.bsv\n"    \
+    ">> echo -e 'f\nd\nb\n' | bsv | blz4 > b.bsv\n"    \
+    ">> echo a.bsv b.bsv | brmerge-lz4\n"              \
+    "f\ne\nd\nc\nb\na\n"                               \
 
 static inlined int rev_simd_strcmp(const void* s1, const void* s2) {
     return -simd_strcmp(s1, s2);

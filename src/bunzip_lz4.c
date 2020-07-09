@@ -5,8 +5,8 @@
 #include "dump.h"
 
 #define DESCRIPTION "split a multi column input into compressed single column outputs\n\n"
-#define USAGE "... | bunziplz4 PREFIX \n\n"
-#define EXAMPLE ">> echo '\na,b,c\n1,2,3\n' | bsv | bunziplz4 column && ls column_* | bziplz4 1,3 | csv\na,c\n1,3\n"
+#define USAGE "... | bunzip-lz4 PREFIX \n\n"
+#define EXAMPLE ">> echo '\na,b,c\n1,2,3\n' | bsv | bunzip-lz4 column && ls column_* | bzip-lz4 1,3 | csv\na,c\n1,3\n"
 
 int main(int argc, const char **argv) {
 
@@ -27,7 +27,7 @@ int main(int argc, const char **argv) {
     new.max = 0;
 
     // get prefix arg
-    ASSERT(argc == 2, "usage: ... | bunziplz4 PREFIX\n");
+    ASSERT(argc == 2, "usage: ... | bunzip-lz4 PREFIX\n");
     prefix = argv[1];
 
     // read first row to find the number of columns

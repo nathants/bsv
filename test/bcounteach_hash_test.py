@@ -13,7 +13,7 @@ def setup_module(m):
     m.path = os.environ['PATH']
     os.chdir(m.tempdir)
     os.environ['PATH'] = f'{os.getcwd()}/bin:/usr/bin:/usr/local/bin:/sbin:/usr/sbin:/bin'
-    shell.run('make clean && make bsv csv bsort bschema bcounteachhash', stream=True)
+    shell.run('make clean && make bsv csv bsort bschema bcounteach-hash', stream=True)
 
 def teardown_module(m):
     os.chdir(m.orig)
@@ -46,7 +46,7 @@ def expected(csv):
 def test_props(args):
     csv = args
     result = expected(csv)
-    assert result == run(csv, 'bsv | bcounteachhash | bschema *,u64:a | bsort | csv')
+    assert result == run(csv, 'bsv | bcounteach-hash | bschema *,u64:a | bsort | csv')
 
 def test_basic():
     stdin = """
@@ -61,4 +61,4 @@ def test_basic():
     a,4
     b,2
     """
-    assert rm_whitespace(stdout) + '\n' == run(rm_whitespace(stdin), 'bsv | bcounteachhash | bschema *,u64:a | bsort | csv')
+    assert rm_whitespace(stdout) + '\n' == run(rm_whitespace(stdin), 'bsv | bcounteach-hash | bschema *,u64:a | bsort | csv')

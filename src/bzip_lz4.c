@@ -6,8 +6,8 @@
 #include "load.h"
 
 #define DESCRIPTION "combine compressed single column inputs into a multi column output\n\n"
-#define USAGE "ls column_* | bziplz4 [COL1,...COLN]\n\n"
-#define EXAMPLE ">> echo '\na,b,c\n1,2,3\n' | bsv | bunziplz4 column && ls column_* | bziplz4 1,3 | csv\na,c\n1,3\n"
+#define USAGE "ls column_* | bzip-lz4 [COL1,...COLN]\n\n"
+#define EXAMPLE ">> echo '\na,b,c\n1,2,3\n' | bsv | bunzip-lz4 column && ls column_* | bzip-lz4 1,3 | csv\na,c\n1,3\n"
 
 int main(int argc, const char **argv) {
 

@@ -43,6 +43,8 @@ for path in co('ls src/*.c').splitlines():
         except:
             print(f'fatal: failed to parse docs in file: {name}.c')
             raise
+        if not name.startswith('_'):
+            name = name.replace('_', '-')
         before.append(f'- [{name}](#{name}) - {description}'.strip())
         after.append(f'\n### [{name}](https://github.com/nathants/bsv/blob/master/src/{name}.c)\n\n{description}usage: `{usage.strip()}`\n\n```\n{example.strip()}\n```')
 

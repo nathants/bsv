@@ -3,8 +3,8 @@
 #include "dump.h"
 
 #define DESCRIPTION "u64 sum the first column\n\n"
-#define USAGE "... | bsum \n\n"
-#define EXAMPLE ">> echo -e '1\n2\n3\n4\n' | bsv | bschema a:u64 | bsum | bschema u64:a | csv\n10\n"
+#define USAGE "... | bsum-u64 \n\n"
+#define EXAMPLE ">> echo -e '1\n2\n3\n4\n' | bsv | bschema a:u64 | bsum-u64 | bschema u64:a | csv\n10\n"
 
 int main(int argc, const char **argv) {
 

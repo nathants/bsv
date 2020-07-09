@@ -7,7 +7,7 @@
 #include "dump.h"
 
 void showusage() {
-    FPRINTF(stderr, "\nusage: $ gen-csv NUM_COLUMNS NUM_ROWS\n");
+    FPRINTF(stderr, "\nusage: $ _gen_bsv NUM_COLUMNS NUM_ROWS\n");
     exit(1);
 }
 

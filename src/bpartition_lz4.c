@@ -11,8 +11,8 @@
 #define SEED 0
 
 #define DESCRIPTION "split into multiple compressed files by consistent hash of the first column value\n\n"
-#define USAGE "\n... | bpartitionlz4 NUM_BUCKETS [PREFIX]\n\n"
-#define EXAMPLE ">> echo '\na\nb\nc\n' | bsv | bpartitionlz4 10 prefix\nprefix03\nprefix06\n"
+#define USAGE "\n... | bpartition-lz4 NUM_BUCKETS [PREFIX]\n\n"
+#define EXAMPLE ">> echo '\na\nb\nc\n' | bsv | bpartition-lz4 10 prefix\nprefix03\nprefix06\n"
 
 int empty_file(char *path) {
     struct stat st;

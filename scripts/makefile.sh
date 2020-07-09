@@ -4,7 +4,13 @@ cd $(dirname $(dirname $(realpath $0)))
 
 echo ".PHONY: all clean test" > Makefile
 echo "CFLAGS=-Wno-int-conversion -Wno-incompatible-pointer-types -Wno-discarded-qualifiers -Iutil -Ivendor -flto -O3 -march=native -mtune=native" >> Makefile
-echo ALL=docs $(for src in src/*.c; do basename $src | cut -d. -f1; done) >> Makefile
+echo ALL=docs $(for src in src/*.c; do
+                    if basename $src | grep ^_ &>/dev/null; then
+                        basename $src | cut -d. -f1
+                    else
+                        basename $src | cut -d. -f1 | tr '_' '-'
+                    fi
+                done) >> Makefile
 echo >> Makefile
 
 echo "all: \$(ALL)" >> Makefile
@@ -27,7 +33,11 @@ echo -e '\ttox' >> Makefile
 echo >> Makefile
 
 for path in src/*.c; do
-    name=$(basename $path | cut -d. -f1)
+    if basename $path | grep ^_ &>/dev/null; then
+        name=$(basename $path | cut -d. -f1)
+    else
+        name=$(basename $path | cut -d. -f1 | tr '_' '-')
+    fi
     echo "$name: setup" >> Makefile
     if echo $name | grep lz4 &>/dev/null; then
         echo -e "\tgcc \$(CFLAGS) vendor/lz4.c $path -o bin/$name" >> Makefile

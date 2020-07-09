@@ -5,14 +5,14 @@
 #include "load.h"
 
 #define DESCRIPTION "cat some compressed bsv files to csv\n\n"
-#define USAGE "bcatlz4 [--prefix] [--head NUM] FILE1 ... FILEN\n\n"
-#define EXAMPLE                                     \
-    ">> for char in a a b b c c; do\n"              \
-    "     echo $char | bsv | blz4 >> /tmp/$char\n"  \
-    "   done\n"                                     \
-    "\n>> bcatlz4 --head 1 --prefix /tmp/{a,b,c}\n" \
-    "/tmp/a:a\n"                                    \
-    "/tmp/b:b\n"                                    \
+#define USAGE "bcat-lz4 [--prefix] [--head NUM] FILE1 ... FILEN\n\n"
+#define EXAMPLE                                         \
+    ">> for char in a a b b c c; do\n"                  \
+    "     echo $char | bsv | blz4 >> /tmp/$char\n"      \
+    "   done\n"                                         \
+    "\n>> bcat-lz4 --head 1 --prefix /tmp/{a,b,c}\n"    \
+    "/tmp/a:a\n"                                        \
+    "/tmp/b:b\n"                                        \
     "/tmp/c:c\n"
 
 int main(int argc, const char **argv) {

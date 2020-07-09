@@ -12,12 +12,12 @@
 #include "load.h"
 
 #define DESCRIPTION "merge compressed sorted files from stdin\n\n"
-#define USAGE "echo FILE1 ... FILEN | bmerge\n\n"
-#define EXAMPLE                                 \
-    ">> echo -e 'a\nc\ne\n' | bsv > a.bsv\n"    \
-    ">> echo -e 'b\nd\nf\n' | bsv > b.bsv\n"    \
-    ">> echo a.bsv b.bsv | bmerge\n"            \
-    "a\nb\nc\nd\ne\nf\n"                        \
+#define USAGE "echo FILE1 ... FILEN | bmerge-lz4\n\n"
+#define EXAMPLE                                        \
+    ">> echo -e 'a\nc\ne\n' | bsv | blz4 > a.bsv\n"    \
+    ">> echo -e 'b\nd\nf\n' | bsv | blz4 > b.bsv\n"    \
+    ">> echo a.bsv b.bsv | bmerge-lz4\n"               \
+    "a\nb\nc\nd\ne\nf\n"                               \
 
 int main(int argc, const char **argv) {
 

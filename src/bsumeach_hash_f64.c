@@ -4,9 +4,9 @@
 #include "simd.h"
 #include "hashmap.h"
 
-#define DESCRIPTION "sum as u64 the second colum by hashmap of the first column\n\n"
-#define USAGE "... | bsumeachhashu64\n\n"
-#define EXAMPLE "echo '\na,1\na,2\nb,3\nb,4\nb,5\na,6\n' | bsv | bschema *,a:u64 | bsumeachu64 | bschema *,u64:a | csv\na,3\nb,12\na,6\n"
+#define DESCRIPTION "sum as f64 the second colum by hashmap of the first column\n\n"
+#define USAGE "... | bsumeach-hash-f64\n\n"
+#define EXAMPLE "echo '\na,1\na,2\nb,3\nb,4\nb,5\na,6\n' | bsv | bschema *,a:f64 | bsumeach-hash-f64 | bschema *,f64:a | csv\na,3\nb,12\na,6\n"
 
 int main(int argc, const char **argv) {
 
@@ -26,7 +26,7 @@ int main(int argc, const char **argv) {
     // setup state
     row_t row;
     u8 *key;
-    u64 *count;
+    f64 *sum;
     void* element;
     struct hashmap_s hashmap;
     ASSERT(0 == hashmap_create(2, &hashmap), "fatal: hashmap init\n");
@@ -37,16 +37,16 @@ int main(int argc, const char **argv) {
         if (row.stop)
             break;
         ASSERT(row.max >= 1, "fatal: need at least 2 columns\n");
-        ASSERT(row.sizes[1] == sizeof(u64), "fatal: needed u64 in column\n");
+        ASSERT(row.sizes[1] == sizeof(f64), "fatal: needed f64 in column\n");
 
         if (element = hashmap_get(&hashmap, row.columns[0], row.sizes[0])) {
-            *(u64*)element += *(u64*)row.columns[1];
+            *(f64*)element += *(f64*)row.columns[1];
         } else {
             MALLOC(key, row.sizes[0]);
             strncpy(key, row.columns[0], row.sizes[0]);
-            MALLOC(count, sizeof(u64));
-            *count = *(u64*)row.columns[1];
-            ASSERT(0 == hashmap_put(&hashmap, key, row.sizes[0], count), "fatal: hashmap put\n");
+            MALLOC(sum, sizeof(f64));
+            *sum = *(f64*)row.columns[1];
+            ASSERT(0 == hashmap_put(&hashmap, key, row.sizes[0], sum), "fatal: hashmap put\n");
         }
     }
 
@@ -56,7 +56,7 @@ int main(int argc, const char **argv) {
             row.columns[0] = hashmap.data[i].key;
             row.sizes[0] = hashmap.data[i].key_len;
             row.columns[1] = hashmap.data[i].data;
-            row.sizes[1] = sizeof(u64);
+            row.sizes[1] = sizeof(f64);
             dump(&wbuf, &row, 0);
         }
     }

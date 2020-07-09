@@ -45,10 +45,10 @@ explicit types and schemas.
 ## utilities
 
 - [bcat](#bcat) - cat some bsv files to csv
-- [bcatlz4](#bcatlz4) - cat some compressed bsv files to csv
+- [bcat-lz4](#bcat-lz4) - cat some compressed bsv files to csv
 - [bcopy](#bcopy) - pass through data, to benchmark load/dump performance
 - [bcounteach](#bcounteach) - count as u64 each contiguous identical row by strcmp the first column
-- [bcounteachhash](#bcounteachhash) - count as u64 by hashmap of the first column
+- [bcounteach-hash](#bcounteach-hash) - count as u64 by hashmap of the first column
 - [bcountrows](#bcountrows) - count rows as u64
 - [bcut](#bcut) - select some columns
 - [bdedupe](#bdedupe) - dedupe identical contiguous rows by strcmp the first column, keeping the first
@@ -56,26 +56,27 @@ explicit types and schemas.
 - [blz4](#blz4) - compress bsv data
 - [blz4d](#blz4d) - decompress bsv data
 - [bmerge](#bmerge) - merge sorted files from stdin
-- [bmergelz4](#bmergelz4) - merge compressed sorted files from stdin
+- [bmerge-lz4](#bmerge-lz4) - merge compressed sorted files from stdin
 - [bpartition](#bpartition) - split into multiple files by consistent hash of the first column value
-- [bpartitionlz4](#bpartitionlz4) - split into multiple compressed files by consistent hash of the first column value
+- [bpartition-lz4](#bpartition-lz4) - split into multiple compressed files by consistent hash of the first column value
 - [brmerge](#brmerge) - merge reverse sorted files from stdin
-- [brmergelz4](#brmergelz4) - merge compressed reverse sorted files from stdin
+- [brmerge-lz4](#brmerge-lz4) - merge compressed reverse sorted files from stdin
 - [brsort](#brsort) - reverse timsort rows by strcmp the first column
 - [bschema](#bschema) - validate and converts row data with a schema of columns
 - [bsort](#bsort) - timsort rows by strcmp the first column
 - [bsplit](#bsplit) - split a stream into multiple files
-- [bsumeachf64](#bsumeachf64) - sum as f64 the second colum of each contiguous identical row by strcmp the first column
-- [bsumeachhashu64](#bsumeachhashu64) - sum as u64 the second colum by hashmap of the first column
-- [bsumeachu64](#bsumeachu64) - sum as u64 the second colum of each contiguous identical row by strcmp the first column
-- [bsumu64](#bsumu64) - u64 sum the first column
+- [bsumeach-f64](#bsumeach-f64) - sum as f64 the second colum of each contiguous identical row by strcmp the first column
+- [bsumeach-hash-f64](#bsumeach-hash-f64) - sum as f64 the second colum by hashmap of the first column
+- [bsumeach-hash-u64](#bsumeach-hash-u64) - sum as u64 the second colum by hashmap of the first column
+- [bsumeach-u64](#bsumeach-u64) - sum as u64 the second colum of each contiguous identical row by strcmp the first column
+- [bsum-u64](#bsum-u64) - u64 sum the first column
 - [bsv](#bsv) - convert csv to bsv
 - [btake](#btake) - take while the first column is VALUE
 - [btakeuntil](#btakeuntil) - take until the first column is gte to VALUE
 - [bunzip](#bunzip) - split a multi column input into single column outputs
-- [bunziplz4](#bunziplz4) - split a multi column input into compressed single column outputs
+- [bunzip-lz4](#bunzip-lz4) - split a multi column input into compressed single column outputs
 - [bzip](#bzip) - combine single column inputs into a multi column output
-- [bziplz4](#bziplz4) - combine compressed single column inputs into a multi column output
+- [bzip-lz4](#bzip-lz4) - combine compressed single column inputs into a multi column output
 - [csv](#csv) - convert bsv to csv
 - [xxh3](#xxh3) - xxh3_64 hash stdin. defaults to hex, can be --int. --stream to pass stdin through to stdout with hash on stderr
 
@@ -96,18 +97,18 @@ usage: `bcat [--prefix] [--head NUM] FILE1 ... FILEN`
 /tmp/c:c
 ```
 
-### [bcatlz4](https://github.com/nathants/bsv/blob/master/src/bcatlz4.c)
+### [bcat-lz4](https://github.com/nathants/bsv/blob/master/src/bcat-lz4.c)
 
 cat some compressed bsv files to csv
 
-usage: `bcatlz4 [--prefix] [--head NUM] FILE1 ... FILEN`
+usage: `bcat-lz4 [--prefix] [--head NUM] FILE1 ... FILEN`
 
 ```
 >> for char in a a b b c c; do
      echo $char | bsv | blz4 >> /tmp/$char
    done
 
->> bcatlz4 --head 1 --prefix /tmp/{a,b,c}
+>> bcat-lz4 --head 1 --prefix /tmp/{a,b,c}
 /tmp/a:a
 /tmp/b:b
 /tmp/c:c
@@ -144,11 +145,11 @@ b,3
 a,1
 ```
 
-### [bcounteachhash](https://github.com/nathants/bsv/blob/master/src/bcounteachhash.c)
+### [bcounteach-hash](https://github.com/nathants/bsv/blob/master/src/bcounteach-hash.c)
 
 count as u64 by hashmap of the first column
 
-usage: `... | bcounteachhash`
+usage: `... | bcounteach-hash`
 
 ```
 echo '
@@ -158,7 +159,7 @@ b
 b
 b
 a
-' | bsv | bcounteach | bschema *,u64:a | bsort | csv
+' | bsv | bcounteach-hash | bschema *,u64:a | bsort | csv
 a,3
 b,3
 ```
@@ -273,22 +274,22 @@ e
 f
 ```
 
-### [bmergelz4](https://github.com/nathants/bsv/blob/master/src/bmergelz4.c)
+### [bmerge-lz4](https://github.com/nathants/bsv/blob/master/src/bmerge-lz4.c)
 
 merge compressed sorted files from stdin
 
-usage: `echo FILE1 ... FILEN | bmerge`
+usage: `echo FILE1 ... FILEN | bmerge-lz4`
 
 ```
 >> echo -e 'a
 c
 e
-' | bsv > a.bsv
+' | bsv | blz4 > a.bsv
 >> echo -e 'b
 d
 f
-' | bsv > b.bsv
->> echo a.bsv b.bsv | bmerge
+' | bsv | blz4 > b.bsv
+>> echo a.bsv b.bsv | bmerge-lz4
 a
 b
 c
@@ -312,18 +313,18 @@ prefix03
 prefix06
 ```
 
-### [bpartitionlz4](https://github.com/nathants/bsv/blob/master/src/bpartitionlz4.c)
+### [bpartition-lz4](https://github.com/nathants/bsv/blob/master/src/bpartition-lz4.c)
 
 split into multiple compressed files by consistent hash of the first column value
 
-usage: `... | bpartitionlz4 NUM_BUCKETS [PREFIX]`
+usage: `... | bpartition-lz4 NUM_BUCKETS [PREFIX]`
 
 ```
 >> echo '
 a
 b
 c
-' | bsv | bpartitionlz4 10 prefix
+' | bsv | bpartition-lz4 10 prefix
 prefix03
 prefix06
 ```
@@ -352,22 +353,22 @@ b
 a
 ```
 
-### [brmergelz4](https://github.com/nathants/bsv/blob/master/src/brmergelz4.c)
+### [brmerge-lz4](https://github.com/nathants/bsv/blob/master/src/brmerge-lz4.c)
 
 merge compressed reverse sorted files from stdin
 
-usage: `echo FILE1 ... FILEN | brmerge`
+usage: `echo FILE1 ... FILEN | brmerge-lz4`
 
 ```
 >> echo -e 'e
 c
 a
-' | bsv > a.bsv
+' | bsv | blz4 > a.bsv
 >> echo -e 'f
 d
 b
-' | bsv > b.bsv
->> echo a.bsv b.bsv | brmerge
+' | bsv | blz4 > b.bsv
+>> echo a.bsv b.bsv | brmerge-lz4
 f
 e
 d
@@ -432,11 +433,11 @@ usage: `... | bsplit [chunks_per_file=1]`
 1595793589_0000000000
 ```
 
-### [bsumeachf64](https://github.com/nathants/bsv/blob/master/src/bsumeachf64.c)
+### [bsumeach-f64](https://github.com/nathants/bsv/blob/master/src/bsumeach-f64.c)
 
 sum as f64 the second colum of each contiguous identical row by strcmp the first column
 
-usage: `... | bsumeachf64`
+usage: `... | bsumeach-f64`
 
 ```
 echo '
@@ -446,17 +447,37 @@ b,3.1
 b,4.1
 b,5.1
 a,6.1
-' | bsv | bschema *,a:f64 | bsumeachf64 | bschema *,f64:a | csv
+' | bsv | bschema *,a:f64 | bsumeach-f64 | bschema *,f64:a | csv
 a,3.200000
 b,12.300000
 a,6.100000
 ```
 
-### [bsumeachhashu64](https://github.com/nathants/bsv/blob/master/src/bsumeachhashu64.c)
+### [bsumeach-hash-f64](https://github.com/nathants/bsv/blob/master/src/bsumeach-hash-f64.c)
+
+sum as f64 the second colum by hashmap of the first column
+
+usage: `... | bsumeach-hash-f64`
+
+```
+echo '
+a,1
+a,2
+b,3
+b,4
+b,5
+a,6
+' | bsv | bschema *,a:f64 | bsumeach-hash-f64 | bschema *,f64:a | csv
+a,3
+b,12
+a,6
+```
+
+### [bsumeach-hash-u64](https://github.com/nathants/bsv/blob/master/src/bsumeach-hash-u64.c)
 
 sum as u64 the second colum by hashmap of the first column
 
-usage: `... | bsumeachhashu64`
+usage: `... | bsumeach-hash-u64`
 
 ```
 echo '
@@ -466,17 +487,17 @@ b,3
 b,4
 b,5
 a,6
-' | bsv | bschema *,a:u64 | bsumeachu64 | bschema *,u64:a | csv
+' | bsv | bschema *,a:u64 | bsumeach-hash-u64 | bschema *,u64:a | csv
 a,3
 b,12
 a,6
 ```
 
-### [bsumeachu64](https://github.com/nathants/bsv/blob/master/src/bsumeachu64.c)
+### [bsumeach-u64](https://github.com/nathants/bsv/blob/master/src/bsumeach-u64.c)
 
 sum as u64 the second colum of each contiguous identical row by strcmp the first column
 
-usage: `... | bsumeachu64`
+usage: `... | bsumeach-u64`
 
 ```
 echo '
@@ -486,24 +507,24 @@ b,3
 b,4
 b,5
 a,6
-' | bsv | bschema *,a:u64 | bsumeachu64 | bschema *,u64:a | csv
+' | bsv | bschema *,a:u64 | bsumeach-u64 | bschema *,u64:a | csv
 a,3
 b,12
 a,6
 ```
 
-### [bsumu64](https://github.com/nathants/bsv/blob/master/src/bsumu64.c)
+### [bsum-u64](https://github.com/nathants/bsv/blob/master/src/bsum-u64.c)
 
 u64 sum the first column
 
-usage: `... | bsum`
+usage: `... | bsum-u64`
 
 ```
 >> echo -e '1
 2
 3
 4
-' | bsv | bschema a:u64 | bsum | bschema u64:a | csv
+' | bsv | bschema a:u64 | bsum-u64 | bschema u64:a | csv
 10
 ```
 
@@ -566,17 +587,17 @@ a,c
 1,3
 ```
 
-### [bunziplz4](https://github.com/nathants/bsv/blob/master/src/bunziplz4.c)
+### [bunzip-lz4](https://github.com/nathants/bsv/blob/master/src/bunzip-lz4.c)
 
 split a multi column input into compressed single column outputs
 
-usage: `... | bunziplz4 PREFIX`
+usage: `... | bunzip-lz4 PREFIX`
 
 ```
 >> echo '
 a,b,c
 1,2,3
-' | bsv | bunziplz4 column && ls column_* | bziplz4 1,3 | csv
+' | bsv | bunzip-lz4 column && ls column_* | bzip-lz4 1,3 | csv
 a,c
 1,3
 ```
@@ -596,17 +617,17 @@ a,c
 1,3
 ```
 
-### [bziplz4](https://github.com/nathants/bsv/blob/master/src/bziplz4.c)
+### [bzip-lz4](https://github.com/nathants/bsv/blob/master/src/bzip-lz4.c)
 
 combine compressed single column inputs into a multi column output
 
-usage: `ls column_* | bziplz4 [COL1,...COLN]`
+usage: `ls column_* | bzip-lz4 [COL1,...COLN]`
 
 ```
 >> echo '
 a,b,c
 1,2,3
-' | bsv | bunziplz4 column && ls column_* | bziplz4 1,3 | csv
+' | bsv | bunzip-lz4 column && ls column_* | bzip-lz4 1,3 | csv
 a,c
 1,3
 ```
