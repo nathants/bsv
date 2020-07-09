@@ -28,4 +28,4 @@ def test_basic():
     stdout = """
     6
     """
-    assert rm_whitespace(stdout) + '\n' == run(rm_whitespace(stdin), 'bsv | bcountrows | bschema u64:a | csv')
+    assert rm_whitespace(stdout) + '\n' == run(rm_whitespace(stdin), 'bsv | bcountrows | bschema i64:a | csv')

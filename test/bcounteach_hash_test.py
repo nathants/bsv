@@ -46,7 +46,7 @@ def expected(csv):
 def test_props(args):
     csv = args
     result = expected(csv)
-    assert result == run(csv, 'bsv | bcounteach-hash | bschema *,u64:a | bsort | csv')
+    assert result == run(csv, 'bsv | bcounteach-hash | bschema *,i64:a | bsort | csv')
 
 def test_basic():
     stdin = """
@@ -61,4 +61,4 @@ def test_basic():
     a,4
     b,2
     """
-    assert rm_whitespace(stdout) + '\n' == run(rm_whitespace(stdin), 'bsv | bcounteach-hash | bschema *,u64:a | bsort | csv')
+    assert rm_whitespace(stdout) + '\n' == run(rm_whitespace(stdin), 'bsv | bcounteach-hash | bschema *,i64:a | bsort | csv')

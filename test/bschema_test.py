@@ -37,6 +37,8 @@ def test_basic():
     assert 'as,qw' == shell.run('echo asdf,qwer | bsv | bschema "2*,2*" | csv')
     with pytest.raises(Exception):
         shell.run('echo a,qwer,123 | bsv | bschema "2*,2*" | csv')
+    with pytest.raises(Exception):
+        shell.run('echo -1 | bsv | bschema "a:u64" | csv')
 
 def test_filtering():
     assert '1,1\n2,2' == shell.run('echo -e "1,1\n2,2\n3\n" | bsv | bschema 1,1 --filter | csv')

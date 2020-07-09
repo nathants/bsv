@@ -77,6 +77,16 @@ enum conversion {
     row.sizes[i] = sizeof(type);                                                        \
     scratch_offset += sizeof(type);
 
+#define A_TO_UN(type)                                                                       \
+    ASSERT(sizeof(type) < BUFFER_SIZE - scratch_offset, "fatal: scratch overflow\n");       \
+    tmpl = atol(row.columns[i]);                                                            \
+    ASSERT(tmpl >= 0, "fatal: cannot make unsigned integer from: %s\n", row.columns[i]);    \
+    _##type = tmpl;                                                                         \
+    memcpy(scratch + scratch_offset, &_##type, sizeof(type));                               \
+    row.columns[i] = scratch + scratch_offset;                                              \
+    row.sizes[i] = sizeof(type);                                                            \
+    scratch_offset += sizeof(type);
+
 int main(int argc, const char **argv) {
 
     // setup bsv
@@ -102,9 +112,10 @@ int main(int argc, const char **argv) {
     i32 max = -1;
     i32 conversion[MAX_COLUMNS];
     i32 args[MAX_COLUMNS];
-    u64 num_filtered = 0;
+    i64 num_filtered = 0;
     i32 filtered;
     i32 filtering = (argc == 3 && strcmp(argv[2], "--filter") == 0) ? 1 : 0;
+    i64 tmpl;
 
     // parse args
     while ((f = strsep(&fs, ","))) {
@@ -213,9 +224,9 @@ int main(int argc, const char **argv) {
                 case I64_A: N_TO_A(i64, "%ld"); break;
 
                 // uint
-                case A_U16: A_TO_N(u16, atol);  break;
-                case A_U32: A_TO_N(u32, atol);  break;
-                case A_U64: A_TO_N(u64, atol);  break;
+                case A_U16: A_TO_UN(u16);  break;
+                case A_U32: A_TO_UN(u32);  break;
+                case A_U64: A_TO_UN(u64);  break;
                 case U16_A: N_TO_A(u16, "%lu"); break;
                 case U32_A: N_TO_A(u32, "%lu"); break;
                 case U64_A: N_TO_A(u64, "%lu"); break;

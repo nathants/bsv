@@ -20,8 +20,8 @@ int main(int argc, const char **argv) {
     // setup state
     i32 prefix_mode = 0;
     i32 ran = 0;
-    u64 head = 0;
-    u64 line;
+    i64 head = 0;
+    i64 line;
     while (1) {
         if (argc > 1 && strcmp(argv[1], "--prefix") == 0) {
             prefix_mode = 1;

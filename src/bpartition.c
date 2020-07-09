@@ -35,8 +35,8 @@ int main(int argc, const char **argv) {
     u8 num_buckets_str[16];
     u8 path[1024];
     i32 empty;
-    u64 file_num;
     i32 num_buckets;
+    u64 file_num;
     u64 hash;
 
     // parse args

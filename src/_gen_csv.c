@@ -15,7 +15,7 @@ int main(int argc, const char **argv) {
     if (argc < 3)
         showusage();
     i32 num_columns = atoi(argv[1]);
-    u64 num_rows = atol(argv[2]);
+    i64 num_rows = atol(argv[2]);
     ASSERT(num_columns >= 0, "fatal: num_columns < 0");
     ASSERT(num_rows >= 0, "fatal: num_rows < 0");
     i32 num_words, add_delimiter;

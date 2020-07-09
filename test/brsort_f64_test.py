@@ -1,10 +1,11 @@
+import pytest
 import os
 import string
 import shell
 from hypothesis.database import ExampleDatabase
 from hypothesis import given, settings
-from hypothesis.strategies import text, lists, composite, integers
-from test_util import run, clone_source
+from hypothesis.strategies import text, lists, composite, integers, floats
+from test_util import run, rm_whitespace, clone_source
 
 def setup_module(m):
     m.tempdir = clone_source()
@@ -12,7 +13,7 @@ def setup_module(m):
     m.path = os.environ['PATH']
     os.chdir(m.tempdir)
     os.environ['PATH'] = f'{os.getcwd()}/bin:/usr/bin:/usr/local/bin:/sbin:/usr/sbin:/bin'
-    shell.run('make clean && make bsv csv bschema bsum-u64 bcut', stream=True)
+    shell.run('make clean && make bsv csv bcut brsort-f64 bschema', stream=True)
 
 def teardown_module(m):
     os.chdir(m.orig)
@@ -22,32 +23,21 @@ def teardown_module(m):
 
 @composite
 def inputs(draw):
-    num_columns = draw(integers(min_value=1, max_value=64))
-    column = text(string.digits, min_size=1, max_size=16)
+    num_columns = draw(integers(min_value=1, max_value=3))
+    column = floats(allow_nan=False, allow_infinity=False)
     line = lists(column, min_size=num_columns, max_size=num_columns)
     lines = draw(lists(line))
-    csv = '\n'.join([','.join(x) for x in lines]) + '\n'
-    return csv
+    lines = [','.join(map(str, line)) for line in lines]
+    return '\n'.join(lines) + '\n'
 
 def expected(csv):
-    val = 0
-    for line in csv.splitlines():
-        col = line.split(',')[0]
-        if col:
-            val += int(col)
-    return val
+    xs = csv.splitlines()
+    xs = [float(x.split(',')[0]) for x in xs if x]
+    xs = sorted(xs, reverse=True)
+    return [round(x, 5) for x in xs]
 
 @given(inputs())
 @settings(database=ExampleDatabase(':memory:'), max_examples=100 * int(os.environ.get('TEST_FACTOR', 1)), deadline=os.environ.get("TEST_DEADLINE", 1000 * 60)) # type: ignore
-def test_props(args):
-    csv = args
+def test_props(csv):
     result = expected(csv)
-    assert result == int(run(csv, 'bsv | bschema a:u64,... | bsum-u64 | bcut 1 | bschema u64:a | csv'))
-
-def test1():
-    stdin = """
-    1
-    1
-    1
-    """
-    assert '3' == shell.run('bsv | bschema a:u64 | bsum-u64 | bschema u64:a | csv', stdin=stdin)
+    assert result == [round(float(x), 5) for x in run(csv, 'bsv | bschema a:f64,... | brsort-f64 | bcut 1 | bschema f64:a | csv').splitlines() if x]

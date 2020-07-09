@@ -185,3 +185,15 @@ int isdigits(const char *s) {
     }
     return 1;
 }
+
+inline int cmp_f64(const f64 *v1, const f64 *v2) {
+        if      (*v1 < *v2) return -1;
+        else if (*v1 > *v2) return 1;
+        else                return 0;
+}
+
+inline int cmp_i64(const i64 *v1, const i64 *v2) {
+        if      (*v1 < *v2) return -1;
+        else if (*v1 > *v2) return 1;
+        else                return 0;
+}

@@ -95,3 +95,11 @@ bzip-lz4
 -gen-csv
 bcat-lz4
 bsumeach-hash-f64
+bsort-f64
+brsort-f64
+bsort-u64
+bsort-i64
+bsumeach-hash-i64
+bsumeach-i64
+bsum-i64
+brsort-i64

@@ -5,13 +5,13 @@
 #include "array.h"
 #include "simd.h"
 
-#define DESCRIPTION "reverse timsort rows by strcmp the first column\n\n"
-#define USAGE "... | brsort\n\n"
-#define EXAMPLE ">> echo '\na\nb\nc\n' | bsv | brsort | csv\nc\nb\na\n\n"
+#define DESCRIPTION "reverse timsort rows by i64 compare the first column\n\n"
+#define USAGE "... | bsort-i64\n\n"
+#define EXAMPLE ">> echo '\n1\n2\n3\n' | bsv | bschema a:i64 | brsort-i64 | bschema i64:a | csv\n3\n2\n1\n\n"
 
 #define SORT_NAME row
 #define SORT_TYPE raw_row_t *
-#define SORT_CMP(x, y) -simd_strcmp((x)->buffer, (y)->buffer)
+#define SORT_CMP(x, y) -cmp_i64((x)->buffer, (y)->buffer)
 #include "sort.h"
 
 int main(int argc, const char **argv) {

@@ -8,7 +8,7 @@ def setup_module(m):
     m.path = os.environ['PATH']
     os.chdir(m.tempdir)
     os.environ['PATH'] = f'{os.getcwd()}/bin:/usr/bin:/usr/local/bin:/sbin:/usr/sbin:/bin'
-    shell.run('make clean && make bsv csv bschema bsumeach-u64', stream=True)
+    shell.run('make clean && make bsv csv bschema bsumeach-i64', stream=True)
 
 def teardown_module(m):
     os.chdir(m.orig)
@@ -30,4 +30,4 @@ def test_basic():
     b,9
     a,6
     """
-    assert rm_whitespace(stdout) + '\n' == run(rm_whitespace(stdin), 'bsv | bschema *,a:u64 | bsumeach-u64 | bschema *,u64:a | csv')
+    assert rm_whitespace(stdout) + '\n' == run(rm_whitespace(stdin), 'bsv | bschema *,a:i64 | bsumeach-i64 | bschema *,i64:a | csv')

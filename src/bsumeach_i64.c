@@ -3,9 +3,9 @@
 #include "dump.h"
 #include "simd.h"
 
-#define DESCRIPTION "sum as u64 the second colum of each contiguous identical row by strcmp the first column\n\n"
-#define USAGE "... | bsumeach-u64\n\n"
-#define EXAMPLE "echo '\na,1\na,2\nb,3\nb,4\nb,5\na,6\n' | bsv | bschema *,a:u64 | bsumeach-u64 | bschema *,u64:a | csv\na,3\nb,12\na,6\n"
+#define DESCRIPTION "sum as i64 the second colum of each contiguous identical row by strcmp the first column\n\n"
+#define USAGE "... | bsumeach-i64\n\n"
+#define EXAMPLE "echo '\na,1\na,2\nb,3\nb,4\nb,5\na,6\n' | bsv | bschema *,a:i64 | bsumeach-i64 | bschema *,i64:a | csv\na,3\nb,12\na,6\n"
 
 #define DUMP_SUMS()                                                     \
     do {                                                                \
@@ -13,7 +13,7 @@
             new.columns[0] = buffer;                                    \
             new.sizes[0] = size;                                        \
             new.columns[1] = &sum;                                      \
-            new.sizes[1] = sizeof(u64);                                 \
+            new.sizes[1] = sizeof(i64);                                 \
             new.max = 1;                                                \
             dump(&wbuf, &new, 0);                                       \
         }                                                               \
@@ -35,7 +35,7 @@ int main(int argc, const char **argv) {
     wbuf_init(&wbuf, out_files, 1);
 
     // setup state
-    u64 sum = 0;
+    i64 sum = 0;
     i32 size = 0;
     u8 *buffer;
     row_t row;
@@ -48,14 +48,14 @@ int main(int argc, const char **argv) {
         if (row.stop)
             break;
         ASSERT(row.max >= 1, "fatal: need at least 2 columns\n");
-        ASSERT(row.sizes[1] == sizeof(u64), "fatal: needed u64 in column\n");
+        ASSERT(row.sizes[1] == sizeof(i64), "fatal: needed i64 in column\n");
         if (simd_strcmp(buffer, row.columns[0]) != 0) {
             DUMP_SUMS();
             memcpy(buffer, row.columns[0], row.sizes[0] + 1); // +1 for the trailing \0
             size = row.sizes[0];
             sum = 0;
         }
-        sum += *(u64*)row.columns[1];
+        sum += *(i64*)row.columns[1];
     }
 
     // flush last value

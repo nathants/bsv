@@ -3,9 +3,9 @@
 #include "dump.h"
 #include "simd.h"
 
-#define DESCRIPTION "count as u64 each contiguous identical row by strcmp the first column\n\n"
+#define DESCRIPTION "count as i64 each contiguous identical row by strcmp the first column\n\n"
 #define USAGE "... | bcounteach\n\n"
-#define EXAMPLE "echo '\na\na\nb\nb\nb\na\n' | bsv | bcounteach | bschema *,u64:a | csv\na,2\nb,3\na,1\n"
+#define EXAMPLE "echo '\na\na\nb\nb\nb\na\n' | bsv | bcounteach | bschema *,i64:a | csv\na,2\nb,3\na,1\n"
 
 #define DUMP_COUNT()                                                    \
     do {                                                                \
@@ -13,7 +13,7 @@
             new.columns[0] = buffer;                                    \
             new.sizes[0] = size;                                        \
             new.columns[1] = &count;                                    \
-            new.sizes[1] = sizeof(u64);                                 \
+            new.sizes[1] = sizeof(i64);                                 \
             new.max = 1;                                                \
             dump(&wbuf, &new, 0);                                       \
         }                                                               \
@@ -35,7 +35,7 @@ int main(int argc, const char **argv) {
     wbuf_init(&wbuf, out_files, 1);
 
     // setup state
-    u64 count = 0;
+    i64 count = 0;
     i32 size = 0;
     u8 *buffer;
     row_t row;
