@@ -40,7 +40,7 @@ int main(int argc, const char **argv) {
     FILE *files[unzip_max + 1];
     SNPRINTF(num_columns_str, sizeof(num_columns_str), "%d", unzip_max + 1);
     for (i32 i = 0; i <= unzip_max; i++) {
-        SNPRINTF(path, sizeof(path), "%s_%0*d", prefix, strlen(num_columns_str), i);
+        SNPRINTF(path, sizeof(path), "%s_%0*d", prefix, strlen(num_columns_str), i + 1);
         FOPEN(files[i], path, "wb");
     }
 
@@ -73,7 +73,7 @@ int main(int argc, const char **argv) {
     for (i32 i = 0; i <= unzip_max; i++) {
         dump_flush(&wbuf, i);
         ASSERT(fclose(files[i]) != EOF, "fatal: failed to close files\n");
-        SNPRINTF(path, sizeof(path), "%s_%0*d", prefix, strlen(num_columns_str), i);
+        SNPRINTF(path, sizeof(path), "%s_%0*d", prefix, strlen(num_columns_str), i + 1);
         FPRINTF(stdout, "%s\n", path);
     }
 
