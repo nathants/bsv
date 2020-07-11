@@ -1,6 +1,6 @@
 .PHONY: all clean test
 CFLAGS=-Wno-int-conversion -Wno-incompatible-pointer-types -Wno-discarded-qualifiers -Iutil -Ivendor -flto -O3 -march=native -mtune=native
-ALL=docs bcat bcat-lz4 bcopy bcounteach bcounteach-hash bcountrows bcut bdedupe bdropuntil blz4 blz4d bmerge bmerge-lz4 bpartition bpartition-lz4 brmerge brmerge-lz4 brsort brsort-f64 brsort-i64 bschema bsort bsort-f64 bsort-i64 bsplit bsumeach-f64 bsumeach-hash-f64 bsumeach-hash-i64 bsumeach-i64 bsum-i64 bsv btake btakeuntil bunzip bunzip-lz4 bzip bzip-lz4 _copy _csv csv _gen_bsv _gen_csv xxh3
+ALL=docs bcat bcat-lz4 bcopy bcounteach bcounteach-hash bcountrows bcut bdedupe bdropuntil blz4 blz4d bmerge bmerge-lz4 bpartition bpartition-lz4 bschema bsort bsplit bsum bsumeach bsumeach-hash bsv btake btakeuntil bunzip bunzip-lz4 bzip bzip-lz4 _copy _csv csv _gen_bsv _gen_csv xxh3
 
 all: $(ALL)
 
@@ -61,50 +61,23 @@ bpartition: setup
 bpartition-lz4: setup
 	gcc $(CFLAGS) vendor/lz4.c src/bpartition_lz4.c -o bin/bpartition-lz4
 
-brmerge: setup
-	gcc $(CFLAGS) src/brmerge.c -o bin/brmerge
-
-brmerge-lz4: setup
-	gcc $(CFLAGS) vendor/lz4.c src/brmerge_lz4.c -o bin/brmerge-lz4
-
-brsort: setup
-	gcc $(CFLAGS) src/brsort.c -o bin/brsort
-
-brsort-f64: setup
-	gcc $(CFLAGS) src/brsort_f64.c -o bin/brsort-f64
-
-brsort-i64: setup
-	gcc $(CFLAGS) src/brsort_i64.c -o bin/brsort-i64
-
 bschema: setup
 	gcc $(CFLAGS) src/bschema.c -o bin/bschema
 
 bsort: setup
 	gcc $(CFLAGS) src/bsort.c -o bin/bsort
 
-bsort-f64: setup
-	gcc $(CFLAGS) src/bsort_f64.c -o bin/bsort-f64
-
-bsort-i64: setup
-	gcc $(CFLAGS) src/bsort_i64.c -o bin/bsort-i64
-
 bsplit: setup
 	gcc $(CFLAGS) src/bsplit.c -o bin/bsplit
 
-bsumeach-f64: setup
-	gcc $(CFLAGS) src/bsumeach_f64.c -o bin/bsumeach-f64
+bsum: setup
+	gcc $(CFLAGS) src/bsum.c -o bin/bsum
 
-bsumeach-hash-f64: setup
-	gcc $(CFLAGS) src/bsumeach_hash_f64.c -o bin/bsumeach-hash-f64
+bsumeach: setup
+	gcc $(CFLAGS) src/bsumeach.c -o bin/bsumeach
 
-bsumeach-hash-i64: setup
-	gcc $(CFLAGS) src/bsumeach_hash_i64.c -o bin/bsumeach-hash-i64
-
-bsumeach-i64: setup
-	gcc $(CFLAGS) src/bsumeach_i64.c -o bin/bsumeach-i64
-
-bsum-i64: setup
-	gcc $(CFLAGS) src/bsum_i64.c -o bin/bsum-i64
+bsumeach-hash: setup
+	gcc $(CFLAGS) src/bsumeach_hash.c -o bin/bsumeach-hash
 
 bsv: setup
 	gcc $(CFLAGS) src/bsv.c -o bin/bsv

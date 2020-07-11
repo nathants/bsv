@@ -2,10 +2,6 @@
 #include "simd.h"
 #include "heap.h"
 #include "array.h"
-
-#define ROW_META
-#include "row.h"
-
 #include "dump.h"
 
 #define LZ4

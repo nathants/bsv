@@ -13,7 +13,7 @@ def setup_module(m):
     m.path = os.environ['PATH']
     os.chdir(m.tempdir)
     os.environ['PATH'] = f'{os.getcwd()}/bin:/usr/bin:/usr/local/bin:/sbin:/usr/sbin:/bin'
-    shell.run('make clean && make bsv csv bcut bsort', stream=True)
+    shell.run('make clean && make bsv csv bschema bcut bsort', stream=True)
 
 def teardown_module(m):
     os.chdir(m.orig)

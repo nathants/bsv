@@ -2,15 +2,11 @@
 #include "simd.h"
 #include "heap.h"
 #include "array.h"
-
-#define ROW_META
-#include "row.h"
-
 #include "load.h"
 #include "dump.h"
 
 #define DESCRIPTION "merge sorted files from stdin\n\n"
-#define USAGE "echo FILE1 ... FILEN | bmerge\n\n"
+#define USAGE "echo FILE1 ... FILEN | bmerge [TYPE] [-r|--reversed]\n\n"
 #define EXAMPLE                                 \
     ">> echo -e 'a\nc\ne\n' | bsv > a.bsv\n"    \
     ">> echo -e 'b\nd\nf\n' | bsv > b.bsv\n"    \
@@ -51,11 +47,69 @@ int main(int argc, const char **argv) {
     writebuf_t wbuf;
     wbuf_init(&wbuf, out_files, 1);
 
+    i32 reversed = 0;
+    if (strcmp(argv[argc - 1], "--reversed") == 0 || strcmp(argv[argc - 1], "-r") == 0) {
+        reversed = 1;
+        argc--;
+    }
+
+    i32 value_type;
+    if (argc == 1)
+        if (reversed)
+            value_type = R_STR;
+        else
+            value_type = STR;
+    else {
+        ASSERT(argc == 2, "usage: bsort [TYPE] [-r|--reversed]\n");
+        if (reversed) {
+            if      (strcmp(argv[1], "i64") == 0) value_type = R_I64;
+            else if (strcmp(argv[1], "i32") == 0) value_type = R_I32;
+            else if (strcmp(argv[1], "i16") == 0) value_type = R_I16;
+            else if (strcmp(argv[1], "u64") == 0) value_type = R_U64;
+            else if (strcmp(argv[1], "u32") == 0) value_type = R_U32;
+            else if (strcmp(argv[1], "u16") == 0) value_type = R_U16;
+            else if (strcmp(argv[1], "f64") == 0) value_type = R_F64;
+            else if (strcmp(argv[1], "f32") == 0) value_type = R_F32;
+            else ASSERT(0, "fatal: bad type %s\n", argv[1]);
+        } else {
+            if      (strcmp(argv[1], "i64") == 0) value_type = I64;
+            else if (strcmp(argv[1], "i32") == 0) value_type = I32;
+            else if (strcmp(argv[1], "i16") == 0) value_type = I16;
+            else if (strcmp(argv[1], "u64") == 0) value_type = U64;
+            else if (strcmp(argv[1], "u32") == 0) value_type = U32;
+            else if (strcmp(argv[1], "u16") == 0) value_type = U16;
+            else if (strcmp(argv[1], "f64") == 0) value_type = F64;
+            else if (strcmp(argv[1], "f32") == 0) value_type = F32;
+            else ASSERT(0, "fatal: bad type %s\n", argv[1]);
+        }
+    }
+
     // setup state
     row_t row;
     raw_row_t *raw_row;
     heap h;
-    heap_create(&h, ARRAY_SIZE(files), simd_strcmp);
+    switch (value_type) {
+        // normal
+        case STR: heap_create(&h, ARRAY_SIZE(files), compare_str); break;
+        case I64: heap_create(&h, ARRAY_SIZE(files), compare_i64); break;
+        case I32: heap_create(&h, ARRAY_SIZE(files), compare_i32); break;
+        case I16: heap_create(&h, ARRAY_SIZE(files), compare_i16); break;
+        case U64: heap_create(&h, ARRAY_SIZE(files), compare_u64); break;
+        case U32: heap_create(&h, ARRAY_SIZE(files), compare_u32); break;
+        case U16: heap_create(&h, ARRAY_SIZE(files), compare_u16); break;
+        case F64: heap_create(&h, ARRAY_SIZE(files), compare_f64); break;
+        case F32: heap_create(&h, ARRAY_SIZE(files), compare_f32); break;
+        // reverse
+        case R_STR: heap_create(&h, ARRAY_SIZE(files), compare_r_str); break;
+        case R_I64: heap_create(&h, ARRAY_SIZE(files), compare_r_i64); break;
+        case R_I32: heap_create(&h, ARRAY_SIZE(files), compare_r_i32); break;
+        case R_I16: heap_create(&h, ARRAY_SIZE(files), compare_r_i16); break;
+        case R_U64: heap_create(&h, ARRAY_SIZE(files), compare_r_u64); break;
+        case R_U32: heap_create(&h, ARRAY_SIZE(files), compare_r_u32); break;
+        case R_U16: heap_create(&h, ARRAY_SIZE(files), compare_r_u16); break;
+        case R_F64: heap_create(&h, ARRAY_SIZE(files), compare_r_f64); break;
+        case R_F32: heap_create(&h, ARRAY_SIZE(files), compare_r_f32); break;
+    }
 
     // seed the heap with the first row of each input
     for (i32 i = 0; i < ARRAY_SIZE(files); i++) {

@@ -13,7 +13,7 @@ def setup_module(m):
     m.path = os.environ['PATH']
     os.chdir(m.tempdir)
     os.environ['PATH'] = f'{os.getcwd()}/bin:/usr/bin:/usr/local/bin:/sbin:/usr/sbin:/bin'
-    shell.run('make clean && make bsv csv bcut brsort-f64 bschema', stream=True)
+    shell.run('make clean && make bsv csv bcut bsort bschema', stream=True)
 
 def teardown_module(m):
     os.chdir(m.orig)
@@ -40,4 +40,4 @@ def expected(csv):
 @settings(database=ExampleDatabase(':memory:'), max_examples=100 * int(os.environ.get('TEST_FACTOR', 1)), deadline=os.environ.get("TEST_DEADLINE", 1000 * 60)) # type: ignore
 def test_props(csv):
     result = expected(csv)
-    assert result == [round(float(x), 5) for x in run(csv, 'bsv | bschema a:f64,... | brsort-f64 | bcut 1 | bschema f64:a | csv').splitlines() if x]
+    assert result == [round(float(x), 5) for x in run(csv, 'bsv | bschema a:f64,... | bsort f64 -r | bcut 1 | bschema f64:a | csv').splitlines() if x]

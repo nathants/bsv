@@ -59,21 +59,12 @@ explicit types and schemas.
 - [bmerge-lz4](#bmerge-lz4) - merge compressed sorted files from stdin
 - [bpartition](#bpartition) - split into multiple files by consistent hash of the first column value
 - [bpartition-lz4](#bpartition-lz4) - split into multiple compressed files by consistent hash of the first column value
-- [brmerge](#brmerge) - merge reverse sorted files from stdin
-- [brmerge-lz4](#brmerge-lz4) - merge compressed reverse sorted files from stdin
-- [brsort](#brsort) - reverse timsort rows by strcmp the first column
-- [brsort-f64](#brsort-f64) - timsort rows by f64 compare the first column
-- [brsort-i64](#brsort-i64) - reverse timsort rows by i64 compare the first column
 - [bschema](#bschema) - validate and converts row data with a schema of columns
-- [bsort](#bsort) - timsort rows by strcmp the first column
-- [bsort-f64](#bsort-f64) - timsort rows by f64 compare the first column
-- [bsort-i64](#bsort-i64) - timsort rows by i64 compare the first column
+- [bsort](#bsort) - timsort rows by compare the first column
 - [bsplit](#bsplit) - split a stream into multiple files
-- [bsumeach-f64](#bsumeach-f64) - sum as f64 the second colum of each contiguous identical row by strcmp the first column
-- [bsumeach-hash-f64](#bsumeach-hash-f64) - sum as f64 the second colum by hashmap of the first column
-- [bsumeach-hash-i64](#bsumeach-hash-i64) - sum as i64 the second colum by hashmap of the first column
-- [bsumeach-i64](#bsumeach-i64) - sum as i64 the second colum of each contiguous identical row by strcmp the first column
-- [bsum-i64](#bsum-i64) - i64 sum the first column
+- [bsum](#bsum) - sum the first column
+- [bsumeach](#bsumeach) - sum the second colum of each contiguous identical row by strcmp the first column
+- [bsumeach-hash](#bsumeach-hash) - sum as i64 the second colum by hashmap of the first column
 - [bsv](#bsv) - convert csv to bsv
 - [btake](#btake) - take while the first column is VALUE
 - [btakeuntil](#btakeuntil) - take until the first column is gte to VALUE
@@ -258,7 +249,7 @@ a,b,c
 
 merge sorted files from stdin
 
-usage: `echo FILE1 ... FILEN | bmerge`
+usage: `echo FILE1 ... FILEN | bmerge [TYPE] [-r|--reversed]`
 
 ```
 >> echo -e 'a
@@ -333,105 +324,6 @@ prefix03
 prefix06
 ```
 
-### [brmerge](https://github.com/nathants/bsv/blob/master/src/brmerge.c)
-
-merge reverse sorted files from stdin
-
-usage: `echo FILE1 ... FILEN | brmerge`
-
-```
->> echo -e 'e
-c
-a
-' | bsv > a.bsv
->> echo -e 'f
-d
-b
-' | bsv > b.bsv
->> echo a.bsv b.bsv | brmerge
-f
-e
-d
-c
-b
-a
-```
-
-### [brmerge-lz4](https://github.com/nathants/bsv/blob/master/src/brmerge-lz4.c)
-
-merge compressed reverse sorted files from stdin
-
-usage: `echo FILE1 ... FILEN | brmerge-lz4`
-
-```
->> echo -e 'e
-c
-a
-' | bsv | blz4 > a.bsv
->> echo -e 'f
-d
-b
-' | bsv | blz4 > b.bsv
->> echo a.bsv b.bsv | brmerge-lz4
-f
-e
-d
-c
-b
-a
-```
-
-### [brsort](https://github.com/nathants/bsv/blob/master/src/brsort.c)
-
-reverse timsort rows by strcmp the first column
-
-usage: `... | brsort`
-
-```
->> echo '
-a
-b
-c
-' | bsv | brsort | csv
-c
-b
-a
-```
-
-### [brsort-f64](https://github.com/nathants/bsv/blob/master/src/brsort-f64.c)
-
-timsort rows by f64 compare the first column
-
-usage: `... | brsort-f64`
-
-```
->> echo '
-1.0
-2.0
-3.0
-' | bsv | bschema a:f64 | brsort-f64 | bschema f64:a | csv
-3.000000
-2.000000
-1.000000
-```
-
-### [brsort-i64](https://github.com/nathants/bsv/blob/master/src/brsort-i64.c)
-
-reverse timsort rows by i64 compare the first column
-
-usage: `... | bsort-i64`
-
-```
->> echo '
-1
-2
-3
-' | bsv | bschema a:i64 | brsort-i64 | bschema i64:a | csv
-3
-2
-1
-```
-
 ### [bschema](https://github.com/nathants/bsv/blob/master/src/bschema.c)
 
 validate and converts row data with a schema of columns
@@ -445,50 +337,16 @@ aa,bbb,cccc
 
 ### [bsort](https://github.com/nathants/bsv/blob/master/src/bsort.c)
 
-timsort rows by strcmp the first column
+timsort rows by compare the first column
 
-usage: `... | bsort`
-
-```
->> echo '
-c
-b
-a
-' | bsv | bsort | csv
-a
-b
-c
-```
-
-### [bsort-f64](https://github.com/nathants/bsv/blob/master/src/bsort-f64.c)
-
-timsort rows by f64 compare the first column
-
-usage: `... | bsort-f64`
-
-```
->> echo '
-3.0
-2.0
-1.0
-' | bsv | bschema a:f64 | bsort-f64 | bschema f64:a | csv
-1.000000
-2.000000
-3.000000
-```
-
-### [bsort-i64](https://github.com/nathants/bsv/blob/master/src/bsort-i64.c)
-
-timsort rows by i64 compare the first column
-
-usage: `... | bsort-i64`
+usage: `... | bsort [TYPE] [-r|--reversed]`
 
 ```
 >> echo '
 3
 2
 1
-' | bsv | bschema a:i64 | bsort-i64 | bschema i64:a | csv
+' | bsv | bschema a:i64 | bsort i64 | bschema i64:a | csv
 1
 2
 3
@@ -505,99 +363,59 @@ usage: `... | bsplit [chunks_per_file=1]`
 1595793589_0000000000
 ```
 
-### [bsumeach-f64](https://github.com/nathants/bsv/blob/master/src/bsumeach-f64.c)
+### [bsum](https://github.com/nathants/bsv/blob/master/src/bsum.c)
 
-sum as f64 the second colum of each contiguous identical row by strcmp the first column
+sum the first column
 
-usage: `... | bsumeach-f64`
-
-```
-echo '
-a,1.1
-a,2.1
-b,3.1
-b,4.1
-b,5.1
-a,6.1
-' | bsv | bschema *,a:f64 | bsumeach-f64 | bschema *,f64:a | csv
-a,3.200000
-b,12.300000
-a,6.100000
-```
-
-### [bsumeach-hash-f64](https://github.com/nathants/bsv/blob/master/src/bsumeach-hash-f64.c)
-
-sum as f64 the second colum by hashmap of the first column
-
-usage: `... | bsumeach-hash-f64`
-
-```
-echo '
-a,1
-a,2
-b,3
-b,4
-b,5
-a,6
-' | bsv | bschema *,a:f64 | bsumeach-hash-f64 | bschema *,f64:a | csv
-a,3
-b,12
-a,6
-```
-
-### [bsumeach-hash-i64](https://github.com/nathants/bsv/blob/master/src/bsumeach-hash-i64.c)
-
-sum as i64 the second colum by hashmap of the first column
-
-usage: `... | bsumeach-hash-i64`
-
-```
-echo '
-a,1
-a,2
-b,3
-b,4
-b,5
-a,6
-' | bsv | bschema *,a:i64 | bsumeach-hash-i64 | bschema *,i64:a | csv
-a,3
-b,12
-a,6
-```
-
-### [bsumeach-i64](https://github.com/nathants/bsv/blob/master/src/bsumeach-i64.c)
-
-sum as i64 the second colum of each contiguous identical row by strcmp the first column
-
-usage: `... | bsumeach-i64`
-
-```
-echo '
-a,1
-a,2
-b,3
-b,4
-b,5
-a,6
-' | bsv | bschema *,a:i64 | bsumeach-i64 | bschema *,i64:a | csv
-a,3
-b,12
-a,6
-```
-
-### [bsum-i64](https://github.com/nathants/bsv/blob/master/src/bsum-i64.c)
-
-i64 sum the first column
-
-usage: `... | bsum-i64`
+usage: `... | bsum TYPE`
 
 ```
 >> echo -e '1
 2
 3
 4
-' | bsv | bschema a:i64 | bsum-i64 | bschema i64:a | csv
+' | bsv | bschema a:i64 | bsum i64 | bschema i64:a | csv
 10
+```
+
+### [bsumeach](https://github.com/nathants/bsv/blob/master/src/bsumeach.c)
+
+sum the second colum of each contiguous identical row by strcmp the first column
+
+usage: `... | bsumeach TYPE`
+
+```
+echo '
+a,1
+a,2
+b,3
+b,4
+b,5
+a,6
+' | bsv | bschema *,a:i64 | bsumeach i64 | bschema *,i64:a | csv
+a,3
+b,12
+a,6
+```
+
+### [bsumeach-hash](https://github.com/nathants/bsv/blob/master/src/bsumeach-hash.c)
+
+sum as i64 the second colum by hashmap of the first column
+
+usage: `... | bsumeach-hash i64`
+
+```
+echo '
+a,1
+a,2
+b,3
+b,4
+b,5
+a,6
+' | bsv | bschema *,a:i64 | bsumeach-hash i64 | bschema *,i64:a | csv
+a,3
+b,12
+a,6
 ```
 
 ### [bsv](https://github.com/nathants/bsv/blob/master/src/bsv.c)

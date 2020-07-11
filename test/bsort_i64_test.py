@@ -13,7 +13,7 @@ def setup_module(m):
     m.path = os.environ['PATH']
     os.chdir(m.tempdir)
     os.environ['PATH'] = f'{os.getcwd()}/bin:/usr/bin:/usr/local/bin:/sbin:/usr/sbin:/bin'
-    shell.run('make clean && make bsv csv bcut bsort-i64 bschema', stream=True)
+    shell.run('make clean && make bsv csv bcut bsort bschema', stream=True)
 
 def teardown_module(m):
     os.chdir(m.orig)
@@ -36,10 +36,13 @@ def expected(csv):
     xs = sorted(xs)
     return '\n'.join(map(str, xs)) + '\n'
 
-import pytest
-@pytest.mark.only
 @given(inputs())
 @settings(database=ExampleDatabase(':memory:'), max_examples=100 * int(os.environ.get('TEST_FACTOR', 1)), deadline=os.environ.get("TEST_DEADLINE", 1000 * 60)) # type: ignore
 def test_props(csv):
     result = expected(csv)
-    assert result == run(csv, 'bsv | bschema a:i64,... | bsort-i64 | bcut 1 | bschema i64:a | csv')
+    assert result == run(csv, 'bsv | bschema a:i64,... | bsort i64 | bcut 1 | bschema i64:a | csv')
+
+@given(inputs())
+@settings(database=ExampleDatabase(':memory:'), max_examples=100 * int(os.environ.get('TEST_FACTOR', 1)), deadline=os.environ.get("TEST_DEADLINE", 1000 * 60)) # type: ignore
+def test_props_compatability(csv):
+    assert run(csv, 'LC_ALL=C sort -n -k1,1 | cut -d, -f1') == run(csv, 'bsv | bschema a:i64,... | bsort i64 | bcut 1 | bschema i64:a | csv')

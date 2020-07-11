@@ -13,7 +13,7 @@ def setup_module(m):
     m.path = os.environ['PATH']
     os.chdir(m.tempdir)
     os.environ['PATH'] = f'{os.getcwd()}/bin:/usr/bin:/usr/local/bin:/sbin:/usr/sbin:/bin'
-    shell.run('make clean && make bsv csv brsort bcut', stream=True)
+    shell.run('make clean && make bsv csv bsort bcut', stream=True)
 
 def teardown_module(m):
     os.chdir(m.orig)
@@ -41,15 +41,15 @@ def expected(csv):
 def test_props(csv):
     result = expected(csv)
     if result:
-        assert result == run(csv, 'bsv | brsort | bcut 1 | csv')
+        assert result == run(csv, 'bsv | bsort -r | bcut 1 | csv')
     else:
         with pytest.raises(AssertionError):
-            run(csv, 'bsv | brsort | bcut 1 | csv')
+            run(csv, 'bsv | bsort -r | bcut 1 | csv')
 
 @given(inputs())
 @settings(database=ExampleDatabase(':memory:'), max_examples=100 * int(os.environ.get('TEST_FACTOR', 1)), deadline=os.environ.get("TEST_DEADLINE", 1000 * 60)) # type: ignore
 def test_props_compatability(csv):
-    assert run(csv, 'LC_ALL=C sort -r -k1,1 | cut -d, -f1') == run(csv, 'bsv | brsort | bcut 1 | csv')
+    assert run(csv, 'LC_ALL=C sort -r -k1,1 | cut -d, -f1') == run(csv, 'bsv | bsort --reversed | bcut 1 | csv')
 
 def test_compatability():
     stdin = """
@@ -62,4 +62,4 @@ def test_compatability():
     b
     a
     """
-    assert rm_whitespace(stdout) + '\n' == run(rm_whitespace(stdin), 'bsv | brsort | csv')
+    assert rm_whitespace(stdout) + '\n' == run(rm_whitespace(stdin), 'bsv | bsort --reversed | csv')
