@@ -69,22 +69,37 @@ enum conversion {
     row.sizes[i] = n;                                                                                               \
     scratch_offset += n;
 
-#define A_TO_N(type, conversion)                                                        \
+#define A_TO_L(type, min, max)                                                                          \
+    ASSERT(sizeof(type) < BUFFER_SIZE - scratch_offset, "fatal: scratch overflow\n");                   \
+    tmpl = strtol(row.columns[i], NULL, 10);                                                            \
+    ASSERT(tmpl > LONG_MIN, "fatal: above max value: %ld > %ld\n", tmpl, LONG_MIN);                     \
+    ASSERT(tmpl < LONG_MAX, "fatal: above max value: %ld > %ld\n", tmpl, LONG_MAX);                     \
+    ASSERT(tmpl >= (i64)min, "fatal: below min value: %ld < %ld\n", tmpl, (i64)min);                    \
+    ASSERT(tmpl <= (i64)max, "fatal: above max value: %ld > %ld\n", tmpl, (i64)max);                    \
+    _##type = tmpl;                                                                                     \
+    memcpy(scratch + scratch_offset, &_##type, sizeof(type));                                           \
+    row.columns[i] = scratch + scratch_offset;                                                          \
+    row.sizes[i] = sizeof(type);                                                                        \
+    scratch_offset += sizeof(type);
+
+#define A_TO_UL(type, max)                                                                              \
+    ASSERT(sizeof(type) < BUFFER_SIZE - scratch_offset, "fatal: scratch overflow\n");                   \
+    ASSERT(compare_str(row.columns[i], "0") > 0, "fatal: unsigned value cannot be below zero\n");       \
+    tmpul = strtoul(row.columns[i], NULL, 10);                                                          \
+    _##type = tmpul;                                                                                    \
+    ASSERT(tmpul < ULONG_MAX, "fatal: above max value: %lu > %lu\n", tmpul, ULONG_MAX);                 \
+    ASSERT(tmpul <= (u64)max, "fatal: above max value: %lu > %lu\n", tmpul, (u64)max);                  \
+    memcpy(scratch + scratch_offset, &_##type, sizeof(type));                                           \
+    row.columns[i] = scratch + scratch_offset;                                                          \
+    row.sizes[i] = sizeof(type);                                                                        \
+    scratch_offset += sizeof(type);
+
+#define A_TO_F(type)                                                                    \
     ASSERT(sizeof(type) < BUFFER_SIZE - scratch_offset, "fatal: scratch overflow\n");   \
-    _##type = conversion(row.columns[i]);                                               \
+    _##type = atof(row.columns[i]);                                                     \
     memcpy(scratch + scratch_offset, &_##type, sizeof(type));                           \
     row.columns[i] = scratch + scratch_offset;                                          \
     row.sizes[i] = sizeof(type);                                                        \
-    scratch_offset += sizeof(type);
-
-#define A_TO_UN(type)                                                                       \
-    ASSERT(sizeof(type) < BUFFER_SIZE - scratch_offset, "fatal: scratch overflow\n");       \
-    tmpl = atol(row.columns[i]);                                                            \
-    ASSERT(tmpl >= 0, "fatal: cannot make unsigned integer from: %s\n", row.columns[i]);    \
-    _##type = tmpl;                                                                         \
-    memcpy(scratch + scratch_offset, &_##type, sizeof(type));                               \
-    row.columns[i] = scratch + scratch_offset;                                              \
-    row.sizes[i] = sizeof(type);                                                            \
     scratch_offset += sizeof(type);
 
 int main(int argc, const char **argv) {
@@ -116,6 +131,7 @@ int main(int argc, const char **argv) {
     i32 filtered;
     i32 filtering = (argc == 3 && strcmp(argv[2], "--filter") == 0) ? 1 : 0;
     i64 tmpl;
+    u64 tmpul;
 
     // parse args
     while ((f = strsep(&fs, ","))) {
@@ -216,25 +232,25 @@ int main(int argc, const char **argv) {
                 case TAIL: FILTERING_ASSERT(row.sizes[i] >= args[i], "fatal: column %d was size %d, needed to be %d\n", i, row.sizes[i], args[i]); row.columns[i] = row.columns[i] + (row.sizes[i] - args[i]); row.sizes[i] = args[i]; break;
 
                 // int
-                case A_I16: A_TO_N(i16, atol);  break;
-                case A_I32: A_TO_N(i32, atol);  break;
-                case A_I64: A_TO_N(i64, atol);  break;
-                case I16_A: N_TO_A(i16, "%ld"); break;
-                case I32_A: N_TO_A(i32, "%ld"); break;
+                case A_I16: A_TO_L(i16, SHRT_MIN, SHRT_MAX); break;
+                case A_I32: A_TO_L(i32, INT_MIN, INT_MAX); break;
+                case A_I64: A_TO_L(i64, LONG_MIN, LONG_MAX); break;
+                case I16_A: N_TO_A(i16, "%d"); break;
+                case I32_A: N_TO_A(i32, "%d"); break;
                 case I64_A: N_TO_A(i64, "%ld"); break;
 
                 // uint
-                case A_U16: A_TO_UN(u16);  break;
-                case A_U32: A_TO_UN(u32);  break;
-                case A_U64: A_TO_UN(u64);  break;
-                case U16_A: N_TO_A(u16, "%lu"); break;
-                case U32_A: N_TO_A(u32, "%lu"); break;
+                case A_U16: A_TO_UL(u16, USHRT_MAX); break;
+                case A_U32: A_TO_UL(u32, UINT_MAX); break;
+                case A_U64: A_TO_UL(u64, ULONG_MAX); break;
+                case U16_A: N_TO_A(u16, "%u"); break;
+                case U32_A: N_TO_A(u32, "%u"); break;
                 case U64_A: N_TO_A(u64, "%lu"); break;
 
                 // float
-                case A_F32: A_TO_N(f32, atof);  break;
-                case A_F64: A_TO_N(f64, atof);  break;
-                case F32_A: N_TO_A(f32, "%lf"); break;
+                case A_F32: A_TO_F(f32); break;
+                case A_F64: A_TO_F(f64); break;
+                case F32_A: N_TO_A(f32, "%f"); break;
                 case F64_A: N_TO_A(f64, "%lf"); break;
 
                 default: ASSERT(0, "not possible\n");
