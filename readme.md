@@ -6,7 +6,7 @@ it should be simple and easy to process data at the speed of sequential io.
 
 a simple and efficient [data](https://github.com/nathants/bsv/blob/master/util/load.h) [format](https://github.com/nathants/bsv/blob/master/util/dump.h) for sequentially manipulating chunks of rows of columns while minimizing allocations and copies.
 
-minimal cli [tools](https://github.com/nathants/bsv#utilities) for rapidly composing performant data flow pipelines.
+minimal cli [tools](https://github.com/nathants/bsv#tools) for rapidly composing performant data flow pipelines.
 
 ## how
 
