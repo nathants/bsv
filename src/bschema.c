@@ -1,10 +1,11 @@
-#include "argh.h"
 #include "util.h"
+#include "argh.h"
 #include "load.h"
 #include "dump.h"
 
 #define DESCRIPTION "validate and converts row data with a schema of columns\n\n"
-#define USAGE "... | bschema SCHEMA [--filter]\n\n"                                               \
+#define USAGE "... | bschema SCHEMA [--filter]\n\n"
+#define EXAMPLE                                                                                   \
     "  --filter remove bad rows instead of erroring\n\n"                                          \
     "  example schemas:\n"                                                                        \
     "    *,*,*             = 3 columns of any size\n"                                             \
@@ -12,8 +13,8 @@
     "    8,*,...           = same as above, but ignore any trailing columns\n"                    \
     "    a:u16,a:i32,a:f64 = convert ascii to numerics\n"                                         \
     "    u16:a,i32:a,f64:a = convert numerics to ascii\n"                                         \
-    "    4*,*4             = keep the first 4 bytes of column 1 and the last 4 of column 2\n\n"
-#define EXAMPLE ">> echo aa,bbb,cccc | bsv | bschema 2,3,4 | csv\naa,bbb,cccc\n"
+    "    4*,*4             = keep the first 4 bytes of column 1 and the last 4 of column 2\n\n"   \
+    ">> echo aa,bbb,cccc | bsv | bschema 2,3,4 | csv\naa,bbb,cccc\n"
 
 #define FILTERING_ASSERT(cond, ...)             \
     do {                                        \

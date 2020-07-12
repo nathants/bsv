@@ -273,6 +273,16 @@ validate and converts row data with a schema of columns
 usage: `... | bschema SCHEMA [--filter]`
 
 ```
+  --filter remove bad rows instead of erroring
+
+  example schemas:
+    *,*,*             = 3 columns of any size
+    8,*               = a column with 8 bytes followed by a column of any size
+    8,*,...           = same as above, but ignore any trailing columns
+    a:u16,a:i32,a:f64 = convert ascii to numerics
+    u16:a,i32:a,f64:a = convert numerics to ascii
+    4*,*4             = keep the first 4 bytes of column 1 and the last 4 of column 2
+
 >> echo aa,bbb,cccc | bsv | bschema 2,3,4 | csv
 aa,bbb,cccc
 ```
@@ -452,6 +462,10 @@ xxh3_64 hash stdin
 usage: `... | xxh3 [--stream|--int]`
 
 ```
+  --stream pass stdin through to stdout with hash on stderr
+
+  --int output hash as int not hash
+
 >> echo abc | xxh3
 B5CA312E51D77D64
 ```

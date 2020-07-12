@@ -5,10 +5,11 @@
 #include "xxh3.h"
 
 #define DESCRIPTION "xxh3_64 hash stdin\n\n"
-#define USAGE "... | xxh3 [--stream|--int]\n\n"                       \
+#define USAGE "... | xxh3 [--stream|--int]\n\n"
+#define EXAMPLE                                                       \
     "  --stream pass stdin through to stdout with hash on stderr\n\n" \
-    "  --int output hash as int not hash\n\n"
-#define EXAMPLE ">> echo abc | xxh3\nB5CA312E51D77D64\n"
+    "  --int output hash as int not hash\n\n"                         \
+    ">> echo abc | xxh3\nB5CA312E51D77D64\n"
 
 int main(int argc, char **argv) {
 
