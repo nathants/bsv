@@ -1,12 +1,12 @@
 ## why
 
-it should be possible to process data at speeds approaching that of sequential io.
+it should be simple and easy to process data at the speed of sequential io.
 
 ## what
 
-a simple and efficient [data](https://github.com/nathants/bsv/blob/master/util/load.h) [format](https://github.com/nathants/bsv/blob/master/util/dump.h) for sequentially manipulating chunks of rows of columns while minimizing allocating and copying.
+a simple and efficient [data](https://github.com/nathants/bsv/blob/master/util/load.h) [format](https://github.com/nathants/bsv/blob/master/util/dump.h) for sequentially manipulating chunks of rows of columns while minimizing allocations and copies.
 
-[cli](https://github.com/nathants/bsv/blob/master/src) utilities based on [shared](https://github.com/nathants/bsv/blob/master/util) code.
+minimal cli [tools](https://github.com/nathants/bsv#utilities) for rapidly composing performant data flow pipelines.
 
 ## how
 
@@ -36,13 +36,17 @@ explicit types and schemas.
 
 ## testing methodology
 
-[quickcheck](https://hypothesis.readthedocs.io/en/latest/) style [testing](https://github.com/nathants/bsv/blob/master/test) with python implementations of every utility to verify correct behavior for arbitrary inputs and varying buffer sizes.
+[quickcheck](https://hypothesis.readthedocs.io/en/latest/) style [testing](https://github.com/nathants/bsv/blob/master/test) with python implementations to verify correct behavior for arbitrary inputs and varying buffer sizes.
 
 ## experiments
 
 [performance](https://github.com/nathants/bsv/blob/master/experiments/readme.md) experiments and alternate implementations.
 
-## utilities
+## related work
+
+[s4](https://github.com/nathants/s4) - a storage cluster that is cheap and fast, with data local compute and efficient shuffle.
+
+## tools
 
 - [bcat](#bcat) - cat some bsv files to csv
 - [bcopy](#bcopy) - pass through data, to benchmark load/dump performance
