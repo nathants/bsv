@@ -19,7 +19,7 @@
         }                                                               \
     } while(0)
 
-int main(int argc, const char **argv) {
+int main(int argc, char **argv) {
 
     // setup bsv
     SETUP();

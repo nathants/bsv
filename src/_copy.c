@@ -1,6 +1,6 @@
 #include "util.h"
 
-int main(int argc, const char **argv) {
+int main(int argc, char **argv) {
     INCREASE_PIPE_SIZES();
     u8 *buff;
     i32 size = 1024 * 16;

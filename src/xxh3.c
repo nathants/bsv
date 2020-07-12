@@ -10,7 +10,7 @@
     "  --int output hash as int not hash\n\n"
 #define EXAMPLE ">> echo abc | xxh3\nB5CA312E51D77D64\n"
 
-int main(int argc, const char **argv) {
+int main(int argc, char **argv) {
 
     // setup bsv
     SETUP();

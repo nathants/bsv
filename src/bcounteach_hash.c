@@ -8,7 +8,7 @@
 #define USAGE "... | bcounteach-hash\n\n"
 #define EXAMPLE "echo '\na\na\nb\nb\nb\na\n' | bsv | bcounteach-hash | bschema *,i64:a | bsort | csv\na,3\nb,3\n"
 
-int main(int argc, const char **argv) {
+int main(int argc, char **argv) {
 
     // setup bsv
     SETUP();

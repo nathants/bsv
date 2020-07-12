@@ -6,7 +6,7 @@
 #define USAGE "... | bsum TYPE \n\n"
 #define EXAMPLE ">> echo -e '1\n2\n3\n4\n' | bsv | bschema a:i64 | bsum i64 | bschema i64:a | csv\n10\n"
 
-int main(int argc, const char **argv) {
+int main(int argc, char **argv) {
 
     // setup bsv
     SETUP();

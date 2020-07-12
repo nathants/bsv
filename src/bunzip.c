@@ -7,7 +7,7 @@
 #define USAGE "... | bunzip PREFIX \n\n"
 #define EXAMPLE ">> echo '\na,b,c\n1,2,3\n' | bsv | bunzip col && echo col_0 col_2 | bzip | csv\na,c\n1,3\n"
 
-int main(int argc, const char **argv) {
+int main(int argc, char **argv) {
 
     // setup bsv
     SETUP();

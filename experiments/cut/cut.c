@@ -17,7 +17,7 @@
         }                                                                           \
     } while (0)
 
-int main(int argc, const char **argv) {
+int main(int argc, char **argv) {
     // setup io
     CSV_INIT();
     FILE *files[1] = {stdout};

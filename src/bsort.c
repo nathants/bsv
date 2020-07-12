@@ -14,7 +14,7 @@
 #define SORT_CMP(x, y) compare((x)->meta, (x)->buffer, (y)->buffer)
 #include "sort.h"
 
-int main(int argc, const char **argv) {
+int main(int argc, char **argv) {
 
     // setup bsv
     SETUP();

@@ -1,7 +1,7 @@
 #include "csv.h"
 #include "util.h"
 
-int main(int argc, const char **argv) {
+int main(int argc, char **argv) {
     SIGPIPE_HANDLER();
     CSV_INIT();
     while (1) {

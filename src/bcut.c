@@ -35,7 +35,7 @@ u8 *join_comma(row_t *row) {
     return buffer;
 }
 
-int main(int argc, const char **argv) {
+int main(int argc, char **argv) {
 
     // setup bsv
     SETUP();

@@ -5,7 +5,7 @@
 #define USAGE "... | csv\n\n"
 #define EXAMPLE ">> echo a,b,c | bsv | csv\na,b,c\n"
 
-int main(int argc, const char **argv) {
+int main(int argc, char **argv) {
     // setup bsv
     SETUP();
 

@@ -8,7 +8,7 @@
 #define USAGE "... | bsplit [chunks_per_file=1] \n\n"
 #define EXAMPLE ">> echo -n a,b,c | bsv | bsplit\n1595793589_0000000000\n"
 
-int main(int argc, const char **argv) {
+int main(int argc, char **argv) {
     // setup bsv
     SETUP();
 

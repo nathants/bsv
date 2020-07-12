@@ -103,7 +103,7 @@ enum conversion {
     row.sizes[i] = sizeof(type);                                                        \
     scratch_offset += sizeof(type);
 
-int main(int argc, const char **argv) {
+int main(int argc, char **argv) {
 
     // setup bsv
     SETUP();

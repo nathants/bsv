@@ -6,7 +6,7 @@
 #define USAGE "... | bcountrows\n\n"
 #define EXAMPLE ">> echo '\n1\n2\n3\n4.1\n' | bsv | bcountrows | csv\n4\n\n"
 
-int main(int argc, const char **argv) {
+int main(int argc, char **argv) {
 
     // setup bsv
     SETUP();

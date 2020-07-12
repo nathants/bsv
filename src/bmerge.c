@@ -14,7 +14,7 @@
     ">> echo a.bsv b.bsv | bmerge\n"            \
     "a\nb\nc\nd\ne\nf\n"                        \
 
-int main(int argc, const char **argv) {
+int main(int argc, char **argv) {
 
     // setup bsv
     SETUP();

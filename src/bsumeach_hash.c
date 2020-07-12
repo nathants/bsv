@@ -8,7 +8,7 @@
 #define USAGE "... | bsumeach-hash i64\n\n"
 #define EXAMPLE "echo '\na,1\na,2\nb,3\nb,4\nb,5\na,6\n' | bsv | bschema *,a:i64 | bsumeach-hash i64 | bschema *,i64:a | csv\na,3\nb,12\na,6\n"
 
-int main(int argc, const char **argv) {
+int main(int argc, char **argv) {
 
     // setup bsv
     SETUP();

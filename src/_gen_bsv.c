@@ -11,7 +11,7 @@ void showusage() {
     exit(1);
 }
 
-int main(int argc, const char **argv) {
+int main(int argc, char **argv) {
     SIGPIPE_HANDLER();
     if (argc < 3)
         showusage();
