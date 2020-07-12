@@ -3,7 +3,7 @@
 #include "dump.h"
 #include "simd.h"
 
-#define DESCRIPTION "take until the first column is gte to VALUE\n\n"
+#define DESCRIPTION "take until the first column is strcmp gte to VALUE\n\n"
 #define USAGE "... | btakeuntil VALUE\n\n"
 #define EXAMPLE ">> echo '\na\nb\nc\nd\n' | bsv | btakeuntil c | csv\na\nb\n\n"
 

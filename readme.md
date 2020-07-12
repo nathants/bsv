@@ -51,7 +51,7 @@ explicit types and schemas.
 - [bcountrows](#bcountrows) - count rows as i64
 - [bcut](#bcut) - select some columns
 - [bdedupe](#bdedupe) - dedupe identical contiguous rows by strcmp the first column, keeping the first
-- [bdropuntil](#bdropuntil) - drop until the first column is gte to VALUE
+- [bdropuntil](#bdropuntil) - drop until the first column is strcmp gte to VALUE
 - [blz4](#blz4) - compress bsv data
 - [blz4d](#blz4d) - decompress bsv data
 - [bmerge](#bmerge) - merge sorted files from stdin
@@ -64,7 +64,7 @@ explicit types and schemas.
 - [bsumeach-hash](#bsumeach-hash) - sum as i64 the second colum by hashmap of the first column
 - [bsv](#bsv) - convert csv to bsv
 - [btake](#btake) - take while the first column is VALUE
-- [btakeuntil](#btakeuntil) - take until the first column is gte to VALUE
+- [btakeuntil](#btakeuntil) - take until the first column is strcmp gte to VALUE
 - [bunzip](#bunzip) - split a multi column input into single column outputs
 - [bzip](#bzip) - combine single column inputs into a multi column output
 - [csv](#csv) - convert bsv to csv
@@ -186,7 +186,7 @@ a
 
 ### [bdropuntil](https://github.com/nathants/bsv/blob/master/src/bdropuntil.c)
 
-drop until the first column is gte to VALUE
+drop until the first column is strcmp gte to VALUE
 
 usage: `... | bdropuntil VALUE`
 
@@ -385,7 +385,7 @@ c
 
 ### [btakeuntil](https://github.com/nathants/bsv/blob/master/src/btakeuntil.c)
 
-take until the first column is gte to VALUE
+take until the first column is strcmp gte to VALUE
 
 usage: `... | btakeuntil VALUE`
 

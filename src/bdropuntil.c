@@ -4,7 +4,7 @@
 #include "dump.h"
 #include "simd.h"
 
-#define DESCRIPTION "drop until the first column is gte to VALUE\n\n"
+#define DESCRIPTION "drop until the first column is strcmp gte to VALUE\n\n"
 #define USAGE "... | bdropuntil VALUE\n\n"
 #define EXAMPLE ">> echo '\na\nb\nc\nd\n' | bsv | bdropuntil c | csv\nc\nd\n\n"
 
