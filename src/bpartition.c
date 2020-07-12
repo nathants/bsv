@@ -71,14 +71,28 @@ int main(int argc, char **argv) {
     writebuf_t wbuf;
     wbuf_init(&wbuf, files, num_buckets, lz4);
 
-    // process input row by row
-    while (1) {
-        load_next(&rbuf, &row, 0);
-        if (row.stop)
-            break;
-        hash = XXH3_64bits(row.columns[0], row.sizes[0]);
-        file_num = hash % num_buckets;
-        dump(&wbuf, &row, file_num);
+    // for 1 bucket, pipe the data straight through
+    if (num_buckets == 1) {
+        i32 rbytes;
+        i32 wbytes;
+        while (1) {
+            rbytes = fread_unlocked(rbuf.buffers[0], 1, BUFFER_SIZE, rbuf.files[0]);
+            wbytes = fwrite_unlocked(rbuf.buffers[0], 1, rbytes, wbuf.files[0]);
+            ASSERT(wbytes == rbytes, "fatal: bad write\n");
+            if (rbytes != BUFFER_SIZE)
+                break;
+        }
+
+    // for more than 1 bucket, process input row by row
+    } else {
+        while (1) {
+            load_next(&rbuf, &row, 0);
+            if (row.stop)
+                break;
+            hash = XXH3_64bits(row.columns[0], row.sizes[0]);
+            file_num = hash % num_buckets;
+            dump(&wbuf, &row, file_num);
+        }
     }
 
     // flush and close
