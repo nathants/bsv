@@ -23,7 +23,7 @@ int main(int argc, const char **argv) {
     // setup output
     FILE *out_files[1] = {stdout};
     writebuf_t wbuf;
-    wbuf_init(&wbuf, out_files, 1);
+    wbuf_init(&wbuf, out_files, 1, false);
 
     const u8 *words[] = {
         "Abelson",

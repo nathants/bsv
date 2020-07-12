@@ -3,9 +3,10 @@
 #include "dump.h"
 #include "array.h"
 #include "simd.h"
+#include "argh.h"
 
 #define DESCRIPTION "timsort rows by compare the first column\n\n"
-#define USAGE "... | bsort [TYPE] [-r|--reversed]\n\n"
+#define USAGE "... | bsort [-r|--reversed] [TYPE]\n\n"
 #define EXAMPLE ">> echo '\n3\n2\n1\n' | bsv | bschema a:i64 | bsort i64 | bschema i64:a | csv\n1\n2\n3\n\n"
 
 #define SORT_NAME row
@@ -21,12 +22,12 @@ int main(int argc, const char **argv) {
     // setup input
     FILE *in_files[1] = {stdin};
     readbuf_t rbuf;
-    rbuf_init(&rbuf, in_files, 1);
+    rbuf_init(&rbuf, in_files, 1, false);
 
     // setup output
     FILE *out_files[1] = {stdout};
     writebuf_t wbuf;
-    wbuf_init(&wbuf, out_files, 1);
+    wbuf_init(&wbuf, out_files, 1, false);
 
     // setup state
     row_t row;
@@ -34,40 +35,40 @@ int main(int argc, const char **argv) {
     ARRAY_INIT(array, raw_row_t*);
 
     // parse args
-    i32 reversed = 0;
-    if (strcmp(argv[argc - 1], "--reversed") == 0 || strcmp(argv[argc - 1], "-r") == 0) {
-        reversed = 1;
-        argc--;
+    bool reversed = false;
+    ARGH_PARSE {
+        ARGH_NEXT();
+        if ARGH_BOOL("-r", "--reversed") { reversed = true; }
     }
 
     i32 value_type;
-    if (argc == 1)
+    if (!ARGH_ARGC)
         if (reversed)
             value_type = R_STR;
         else
             value_type = STR;
     else {
-        ASSERT(argc == 2, "usage: bsort [TYPE] [-r|--reversed]\n");
+        ASSERT(ARGH_ARGC == 1, "usage: %s", USAGE);
         if (reversed) {
-            if      (strcmp(argv[1], "i64") == 0) value_type = R_I64;
-            else if (strcmp(argv[1], "i32") == 0) value_type = R_I32;
-            else if (strcmp(argv[1], "i16") == 0) value_type = R_I16;
-            else if (strcmp(argv[1], "u64") == 0) value_type = R_U64;
-            else if (strcmp(argv[1], "u32") == 0) value_type = R_U32;
-            else if (strcmp(argv[1], "u16") == 0) value_type = R_U16;
-            else if (strcmp(argv[1], "f64") == 0) value_type = R_F64;
-            else if (strcmp(argv[1], "f32") == 0) value_type = R_F32;
-            else ASSERT(0, "fatal: bad type %s\n", argv[1]);
+            if      (strcmp(ARGH_ARGV[0], "i64") == 0) value_type = R_I64;
+            else if (strcmp(ARGH_ARGV[0], "i32") == 0) value_type = R_I32;
+            else if (strcmp(ARGH_ARGV[0], "i16") == 0) value_type = R_I16;
+            else if (strcmp(ARGH_ARGV[0], "u64") == 0) value_type = R_U64;
+            else if (strcmp(ARGH_ARGV[0], "u32") == 0) value_type = R_U32;
+            else if (strcmp(ARGH_ARGV[0], "u16") == 0) value_type = R_U16;
+            else if (strcmp(ARGH_ARGV[0], "f64") == 0) value_type = R_F64;
+            else if (strcmp(ARGH_ARGV[0], "f32") == 0) value_type = R_F32;
+            else ASSERT(0, "fatal: bad type %s\n", ARGH_ARGV[0]);
         } else {
-            if      (strcmp(argv[1], "i64") == 0) value_type = I64;
-            else if (strcmp(argv[1], "i32") == 0) value_type = I32;
-            else if (strcmp(argv[1], "i16") == 0) value_type = I16;
-            else if (strcmp(argv[1], "u64") == 0) value_type = U64;
-            else if (strcmp(argv[1], "u32") == 0) value_type = U32;
-            else if (strcmp(argv[1], "u16") == 0) value_type = U16;
-            else if (strcmp(argv[1], "f64") == 0) value_type = F64;
-            else if (strcmp(argv[1], "f32") == 0) value_type = F32;
-            else ASSERT(0, "fatal: bad type %s\n", argv[1]);
+            if      (strcmp(ARGH_ARGV[0], "i64") == 0) value_type = I64;
+            else if (strcmp(ARGH_ARGV[0], "i32") == 0) value_type = I32;
+            else if (strcmp(ARGH_ARGV[0], "i16") == 0) value_type = I16;
+            else if (strcmp(ARGH_ARGV[0], "u64") == 0) value_type = U64;
+            else if (strcmp(ARGH_ARGV[0], "u32") == 0) value_type = U32;
+            else if (strcmp(ARGH_ARGV[0], "u16") == 0) value_type = U16;
+            else if (strcmp(ARGH_ARGV[0], "f64") == 0) value_type = F64;
+            else if (strcmp(ARGH_ARGV[0], "f32") == 0) value_type = F32;
+            else ASSERT(0, "fatal: bad type %s\n", ARGH_ARGV[0]);
         }
     }
 

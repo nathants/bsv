@@ -16,12 +16,12 @@ int main(int argc, const char **argv) {
     // setup input
     FILE *in_files[1] = {stdin};
     readbuf_t rbuf;
-    rbuf_init(&rbuf, in_files, 1);
+    rbuf_init(&rbuf, in_files, 1, false);
 
     // setup output
     FILE *out_files[1] = {stdout};
     writebuf_t wbuf;
-    wbuf_init(&wbuf, out_files, 1);
+    wbuf_init(&wbuf, out_files, 1, false);
 
     // setup state
     row_t row;
@@ -40,7 +40,7 @@ int main(int argc, const char **argv) {
     i32 value_type;
 
     // parse args
-    ASSERT(argc == 2, "usage: bsumeach-hash TYPE\n");
+    ASSERT(argc == 2, "usage: %s", USAGE);
     if      (strcmp(argv[1], "i64") == 0) value_type = I64;
     else if (strcmp(argv[1], "i32") == 0) value_type = I32;
     else if (strcmp(argv[1], "i16") == 0) value_type = I16;

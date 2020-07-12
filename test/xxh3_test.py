@@ -23,5 +23,15 @@ def test_int():
     assert '545890807144117451' == shell.run('echo abc | xxh3 --int')
 
 def test_stream():
-    assert 'abc' == shell.run('echo abc | xxh3 --stream')
-    assert '079364cbfdf9f4cb' == shell.run('echo abc | xxh3 --stream 2>&1 1>/dev/null')
+    assert {
+        'cmd': 'set -eou pipefail; echo abc | xxh3 --stream',
+        'exitcode': 0,
+        'stderr': '079364cbfdf9f4cb',
+        'stdout': 'abc',
+    } == shell.run('echo abc | xxh3 --stream', warn=True)
+    assert {
+        'cmd': 'set -eou pipefail; echo abc | xxh3 --stream --int',
+        'exitcode': 0,
+        'stderr': '545890807144117451',
+        'stdout': 'abc',
+    } == shell.run('echo abc | xxh3 --stream --int', warn=True)

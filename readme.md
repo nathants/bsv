@@ -45,7 +45,6 @@ explicit types and schemas.
 ## utilities
 
 - [bcat](#bcat) - cat some bsv files to csv
-- [bcat-lz4](#bcat-lz4) - cat some compressed bsv files to csv
 - [bcopy](#bcopy) - pass through data, to benchmark load/dump performance
 - [bcounteach](#bcounteach) - count as i64 each contiguous identical row by strcmp the first column
 - [bcounteach-hash](#bcounteach-hash) - count as i64 by hashmap of the first column
@@ -56,9 +55,7 @@ explicit types and schemas.
 - [blz4](#blz4) - compress bsv data
 - [blz4d](#blz4d) - decompress bsv data
 - [bmerge](#bmerge) - merge sorted files from stdin
-- [bmerge-lz4](#bmerge-lz4) - merge compressed sorted files from stdin
 - [bpartition](#bpartition) - split into multiple files by consistent hash of the first column value
-- [bpartition-lz4](#bpartition-lz4) - split into multiple compressed files by consistent hash of the first column value
 - [bschema](#bschema) - validate and converts row data with a schema of columns
 - [bsort](#bsort) - timsort rows by compare the first column
 - [bsplit](#bsplit) - split a stream into multiple files
@@ -69,9 +66,7 @@ explicit types and schemas.
 - [btake](#btake) - take while the first column is VALUE
 - [btakeuntil](#btakeuntil) - take until the first column is gte to VALUE
 - [bunzip](#bunzip) - split a multi column input into single column outputs
-- [bunzip-lz4](#bunzip-lz4) - split a multi column input into compressed single column outputs
 - [bzip](#bzip) - combine single column inputs into a multi column output
-- [bzip-lz4](#bzip-lz4) - combine compressed single column inputs into a multi column output
 - [csv](#csv) - convert bsv to csv
 - [xxh3](#xxh3) - xxh3_64 hash stdin. defaults to hex, can be --int. --stream to pass stdin through to stdout with hash on stderr
 
@@ -79,7 +74,7 @@ explicit types and schemas.
 
 cat some bsv files to csv
 
-usage: `bcat [--prefix] [--head NUM] FILE1 ... FILEN`
+usage: `bcat [-l|--lz4] [-p|--prefix] [-h N|--head N] FILE1 ... FILEN`
 
 ```
 >> for char in a a b b c c; do
@@ -87,23 +82,6 @@ usage: `bcat [--prefix] [--head NUM] FILE1 ... FILEN`
    done
 
 >> bcat --head 1 --prefix /tmp/{a,b,c}
-/tmp/a:a
-/tmp/b:b
-/tmp/c:c
-```
-
-### [bcat-lz4](https://github.com/nathants/bsv/blob/master/src/bcat-lz4.c)
-
-cat some compressed bsv files to csv
-
-usage: `bcat-lz4 [--prefix] [--head NUM] FILE1 ... FILEN`
-
-```
->> for char in a a b b c c; do
-     echo $char | bsv | blz4 >> /tmp/$char
-   done
-
->> bcat-lz4 --head 1 --prefix /tmp/{a,b,c}
 /tmp/a:a
 /tmp/b:b
 /tmp/c:c
@@ -269,30 +247,6 @@ e
 f
 ```
 
-### [bmerge-lz4](https://github.com/nathants/bsv/blob/master/src/bmerge-lz4.c)
-
-merge compressed sorted files from stdin
-
-usage: `echo FILE1 ... FILEN | bmerge-lz4`
-
-```
->> echo -e 'a
-c
-e
-' | bsv | blz4 > a.bsv
->> echo -e 'b
-d
-f
-' | bsv | blz4 > b.bsv
->> echo a.bsv b.bsv | bmerge-lz4
-a
-b
-c
-d
-e
-f
-```
-
 ### [bpartition](https://github.com/nathants/bsv/blob/master/src/bpartition.c)
 
 split into multiple files by consistent hash of the first column value
@@ -304,22 +258,6 @@ usage: `... | bpartition NUM_BUCKETS [PREFIX]`
 a\b
 c
 ' | bsv | bpartition 10 prefix
-prefix03
-prefix06
-```
-
-### [bpartition-lz4](https://github.com/nathants/bsv/blob/master/src/bpartition-lz4.c)
-
-split into multiple compressed files by consistent hash of the first column value
-
-usage: `... | bpartition-lz4 NUM_BUCKETS [PREFIX]`
-
-```
->> echo '
-a
-b
-c
-' | bsv | bpartition-lz4 10 prefix
 prefix03
 prefix06
 ```
@@ -339,7 +277,7 @@ aa,bbb,cccc
 
 timsort rows by compare the first column
 
-usage: `... | bsort [TYPE] [-r|--reversed]`
+usage: `... | bsort [-r|--reversed] [TYPE]`
 
 ```
 >> echo '
@@ -477,21 +415,6 @@ a,c
 1,3
 ```
 
-### [bunzip-lz4](https://github.com/nathants/bsv/blob/master/src/bunzip-lz4.c)
-
-split a multi column input into compressed single column outputs
-
-usage: `... | bunzip-lz4 PREFIX`
-
-```
->> echo '
-a,b,c
-1,2,3
-' | bsv | bunzip-lz4 column && ls column_* | bzip-lz4 1,3 | csv
-a,c
-1,3
-```
-
 ### [bzip](https://github.com/nathants/bsv/blob/master/src/bzip.c)
 
 combine single column inputs into a multi column output
@@ -503,21 +426,6 @@ usage: `ls column_* | bzip [COL1,...COLN]`
 a,b,c
 1,2,3
 ' | bsv | bunzip column && ls column_* | bzip 1,3 | csv
-a,c
-1,3
-```
-
-### [bzip-lz4](https://github.com/nathants/bsv/blob/master/src/bzip-lz4.c)
-
-combine compressed single column inputs into a multi column output
-
-usage: `ls column_* | bzip-lz4 [COL1,...COLN]`
-
-```
->> echo '
-a,b,c
-1,2,3
-' | bsv | bunzip-lz4 column && ls column_* | bzip-lz4 1,3 | csv
 a,c
 1,3
 ```

@@ -1,6 +1,7 @@
 #include "util.h"
 #include "read_simple.h"
 #include "write_simple.h"
+#include "argh.h"
 #include "xxh3.h"
 
 #define DESCRIPTION "xxh3_64 hash stdin. defaults to hex, can be --int. --stream to pass stdin through to stdout with hash on stderr\n\n"
@@ -22,16 +23,24 @@ int main(int argc, const char **argv) {
     writebuf_t wbuf;
     wbuf_init(&wbuf, out_files, 1);
 
+    // parse args
+    bool int_out = false;
+    bool stream = false;
+    ARGH_PARSE {
+        ARGH_NEXT();
+        if      ARGH_BOOL("-i", "--int")    { int_out = true; }
+        else if ARGH_BOOL("-s", "--stream") { stream = true; }
+    }
+
     // setup state
     XXH3_state_t state;
     ASSERT(XXH3_64bits_reset(&state) != XXH_ERROR, "xxh3 reset failed\n");
-    i32 stream_mode = argc > 1 && strcmp(argv[1], "--stream") == 0;
 
     // process input row by row
     while (1) {
         read_bytes(&rbuf, BUFFER_SIZE, 0);
         ASSERT(XXH3_64bits_update(&state, rbuf.buffer, rbuf.bytes) != XXH_ERROR, "xxh3 update failed\n");
-        if (stream_mode)
+        if (stream)
             write_bytes(&wbuf, rbuf.buffer, rbuf.bytes, 0);
         if (BUFFER_SIZE != rbuf.bytes)
             break;
@@ -39,11 +48,11 @@ int main(int argc, const char **argv) {
 
     //
     u64 hash = XXH3_64bits_digest(&state);
-    FILE *out = (stream_mode) ? stderr : stdout;
-    if (argc > 1 && strcmp(argv[1], "--int") == 0)
+    FILE *out = (stream) ? stderr : stdout;
+    if (int_out)
         FPRINTF(out, "%lu\n", hash);
     else
         FPRINTF(out, "%08x%08x\n", (i32)(hash>>32), (i32)hash);
-    if (argc > 1 && strcmp(argv[1], "--stream") == 0)
+    if (stream)
         write_flush(&wbuf, 0);
 }

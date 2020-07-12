@@ -24,9 +24,9 @@ def setup_module(m):
     compile_buffer_sizes('csv', buffers)
     compile_buffer_sizes('bsv', buffers)
     compile_buffer_sizes('blz4', buffers)
-    compile_buffer_sizes('bzip-lz4', buffers)
-    compile_buffer_sizes('bunzip-lz4', buffers)
-    shell.run('make bsv csv blz4 bzip-lz4 bunzip-lz4', stream=True)
+    compile_buffer_sizes('bzip', buffers)
+    compile_buffer_sizes('bunzip', buffers)
+    shell.run('make bsv csv blz4 bzip bunzip', stream=True)
 
 def teardown_module(m):
     os.chdir(m.orig)
@@ -63,30 +63,30 @@ def test_props(args):
     result = expected(zipcols, csv)
     cols = ','.join(str(i + 1) for i in zipcols)
     prefix = str(uuid.uuid4())
-    assert result == run(csv, f'bsv.{buffer} | bunzip-lz4.{buffer} {prefix} >/dev/null && ls {prefix}_* | bzip-lz4.{buffer} {cols} | csv.{buffer}')
+    assert result == run(csv, f'bsv.{buffer} | bunzip.{buffer} -l {prefix} >/dev/null && ls {prefix}_* | bzip.{buffer} -l {cols} | csv.{buffer}')
 
 def test_selection():
     shell.run('echo -e "a\nb\n" | bsv | blz4 > a')
     shell.run('echo -e "1\n2\n" | bsv | blz4 > b')
-    assert '1,a\n2,b' == shell.run('echo a b | bzip-lz4 2,1 | csv')
-    assert 'a,1\nb,2' == shell.run('echo a b | bzip-lz4 1,2 | csv')
-    assert 'a\nb' == shell.run('echo a b | bzip-lz4 1 | csv')
-    assert '1\n2' == shell.run('echo a b | bzip-lz4 2 | csv')
+    assert '1,a\n2,b' == shell.run('echo a b | bzip -l 2,1 | csv')
+    assert 'a,1\nb,2' == shell.run('echo a b | bzip -l 1,2 | csv')
+    assert 'a\nb' == shell.run('echo a b | bzip -l 1 | csv')
+    assert '1\n2' == shell.run('echo a b | bzip -l 2 | csv')
     with pytest.raises(Exception):
-        assert '1\n2' == shell.run('echo a b | bzip-lz4 0 | csv')
+        assert '1\n2' == shell.run('echo a b | bzip -l 0 | csv')
     with pytest.raises(Exception):
-        assert '1\n2' == shell.run('echo a b | bzip-lz4 3 | csv')
+        assert '1\n2' == shell.run('echo a b | bzip -l 3 | csv')
     with pytest.raises(Exception):
-        assert '1\n2' == shell.run('echo a b | bzip-lz4 1,1 | csv')
+        assert '1\n2' == shell.run('echo a b | bzip -l 1,1 | csv')
 
 def test_different_lengths():
     shell.run('echo -e "a\nb\nc\n" | bsv | blz4 > a')
     shell.run('echo -e "a\nb\n" | bsv | blz4 > b')
     with pytest.raises(Exception):
-        shell.run('echo a b | bzip-lz4')
+        shell.run('echo a b | bzip -l')
 
 def test_more_than_1_column():
     shell.run('echo -e "a\nb\nc\n" | bsv | blz4 > a')
     shell.run('echo -e "a\nb\nc,c\n" | bsv | blz4 > b')
     with pytest.raises(Exception):
-        shell.run('echo a b | bzip-lz4')
+        shell.run('echo a b | bzip -l')

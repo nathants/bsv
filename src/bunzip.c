@@ -1,4 +1,5 @@
 #include "util.h"
+#include "argh.h"
 #include "load.h"
 #include "dump.h"
 
@@ -14,7 +15,7 @@ int main(int argc, const char **argv) {
     // setup input
     FILE *in_files[1] = {stdin};
     readbuf_t rbuf;
-    rbuf_init(&rbuf, in_files, 1);
+    rbuf_init(&rbuf, in_files, 1, false);
 
     // setup state
     u8 num_columns_str[16];
@@ -24,9 +25,14 @@ int main(int argc, const char **argv) {
     row_t new;
     new.max = 0;
 
-    // get prefix arg
-    ASSERT(argc == 2, "usage: ... | bunzip PREFIX\n");
-    prefix = argv[1];
+    // parse args
+    bool lz4 = false;
+    ARGH_PARSE {
+        ARGH_NEXT();
+        if ARGH_BOOL("-l", "--lz4") { lz4 = true; }
+    }
+    ASSERT(ARGH_ARGC == 1, "usage: %s", USAGE);
+    prefix = ARGH_ARGV[0];
 
     // read first row to find the number of columns
     load_next(&rbuf, &row, 0);
@@ -44,7 +50,7 @@ int main(int argc, const char **argv) {
 
     // setup output
     writebuf_t wbuf;
-    wbuf_init(&wbuf, files, unzip_max + 1);
+    wbuf_init(&wbuf, files, unzip_max + 1, lz4);
 
     // output first row
     for (i32 i = 0; i <= unzip_max; i++) {

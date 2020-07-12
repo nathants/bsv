@@ -1,3 +1,4 @@
+#include "argh.h"
 #include "util.h"
 #include "load.h"
 #include "dump.h"
@@ -18,7 +19,7 @@
     do {                                        \
         if (!(cond)) {                          \
             if (filtering) {                    \
-                filtered = 1;                   \
+                filtered = true;                \
             } else {                            \
                 fprintf(stderr, ##__VA_ARGS__); \
                 exit(1);                        \
@@ -110,30 +111,36 @@ int main(int argc, const char **argv) {
     // setup input
     FILE *in_files[1] = {stdin};
     readbuf_t rbuf;
-    rbuf_init(&rbuf, in_files, 1);
+    rbuf_init(&rbuf, in_files, 1, false);
 
     // setup output
     FILE *out_files[1] = {stdout};
     writebuf_t wbuf;
-    wbuf_init(&wbuf, out_files, 1);
+    wbuf_init(&wbuf, out_files, 1, false);
 
     // setup state
     i32 exact = 1;
     row_t row;
     u8 *f;
     u8 f_butlast[1024];
-    ASSERT(argc >= 2, "fatal: usage: bschema SCHEMA [--filter]\n");
-    u8 *fs = argv[1];
     i32 max = -1;
     i32 conversion[MAX_COLUMNS];
     i32 args[MAX_COLUMNS];
     i64 num_filtered = 0;
-    i32 filtered;
-    i32 filtering = (argc == 3 && strcmp(argv[2], "--filter") == 0) ? 1 : 0;
+    bool filtered;
     i64 tmpl;
     u64 tmpul;
 
     // parse args
+    bool filtering = false;
+    ARGH_PARSE {
+        ARGH_NEXT();
+        if ARGH_BOOL("-f", "--filter") { filtering = true; }
+    }
+    ASSERT(ARGH_ARGC == 1, "usage: %s", USAGE);
+    u8 *fs = ARGH_ARGV[0];
+
+    // parse schema
     while ((f = strsep(&fs, ","))) {
         args[++max] = -1;
         ASSERT(strlen(f) < sizeof(f_butlast), "fatal: schema too large\n");
@@ -209,7 +216,7 @@ int main(int argc, const char **argv) {
         if (row.stop)
             break;
 
-        filtered = 0;
+        filtered = false;
 
         if (exact)
             FILTERING_ASSERT(max == row.max, "fatal: row had %d columns, needed %d\n", row.max + 1, max + 1);

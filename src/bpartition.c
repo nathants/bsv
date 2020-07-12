@@ -1,4 +1,5 @@
 #include "util.h"
+#include "argh.h"
 #include "load.h"
 #include "dump.h"
 #include "xxh3.h"
@@ -27,7 +28,7 @@ int main(int argc, const char **argv) {
     // setup input
     FILE *in_files[1] = {stdin};
     readbuf_t rbuf;
-    rbuf_init(&rbuf, in_files, 1);
+    rbuf_init(&rbuf, in_files, 1, false);
 
     // setup state
     row_t row;
@@ -40,11 +41,17 @@ int main(int argc, const char **argv) {
     u64 hash;
 
     // parse args
-    ASSERT(strlen(argv[1]) <= 8, "NUM_BUCKETS must be less than 1e8, got: %s\n", argv[1]);
-    num_buckets = atoi(argv[1]);
+    bool lz4 = false;
+    ARGH_PARSE {
+        ARGH_NEXT();
+        if ARGH_BOOL("-l", "--lz4") { lz4 = true; }
+    }
+    ASSERT(ARGH_ARGC >= 1, "usage: %s", USAGE);
+    ASSERT(strlen(ARGH_ARGV[0]) <= 8, "NUM_BUCKETS must be less than 1e8, got: %s\n", argv[1]);
+    num_buckets = atoi(ARGH_ARGV[0]);
     ASSERT(num_buckets > 0, "NUM_BUCKETS must be positive, got: %d\n", num_buckets);
-    if (argc == 3) {
-        prefix = argv[2];
+    if (ARGH_ARGC == 2) {
+        prefix = ARGH_ARGV[1];
     } else {
         prefix = "";
     }
@@ -62,7 +69,7 @@ int main(int argc, const char **argv) {
 
     // setup output
     writebuf_t wbuf;
-    wbuf_init(&wbuf, files, num_buckets);
+    wbuf_init(&wbuf, files, num_buckets, lz4);
 
     // process input row by row
     while (1) {

@@ -12,7 +12,7 @@ def setup_module(m):
     m.path = os.environ['PATH']
     os.chdir(m.tempdir)
     os.environ['PATH'] = f'{os.getcwd()}/bin:/usr/bin:/usr/local/bin:/sbin:/usr/sbin:/bin'
-    shell.run('make clean && make bsv csv bunzip-lz4 blz4d', stream=True)
+    shell.run('make clean && make bsv csv bunzip blz4d', stream=True)
 
 def teardown_module(m):
     os.chdir(m.orig)
@@ -37,6 +37,6 @@ def test_props(args):
     zipcols, csv = args
     just = max(len(str(zipcol)) for zipcol in zipcols)
     zipcols = [str(i).rjust(just, '0') for i in zipcols]
-    for i, column in enumerate(run(csv, 'bsv | bunzip-lz4 prefix').splitlines()):
+    for i, column in enumerate(run(csv, 'bsv | bunzip -l prefix').splitlines()):
         result = '\n'.join(row.split(',')[i] for row in csv.splitlines())
         assert result == shell.run(f'< {column} blz4d | csv')

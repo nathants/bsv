@@ -1,14 +1,15 @@
+#include "argh.h"
 #include "util.h"
 #include "load.h"
 #include "write_simple.h"
 
 #define DESCRIPTION "cat some bsv files to csv\n\n"
-#define USAGE "bcat [--prefix] [--head NUM] FILE1 ... FILEN\n\n"
+#define USAGE "bcat [-l|--lz4] [-p|--prefix] [-h N|--head N] FILE1 ... FILEN\n\n"
 #define EXAMPLE                                     \
     ">> for char in a a b b c c; do\n"              \
     "     echo $char | bsv >> /tmp/$char\n"         \
-    "   done\n"                                     \
-    "\n>> bcat --head 1 --prefix /tmp/{a,b,c}\n"    \
+    "   done\n\n"                                   \
+    ">> bcat --head 1 --prefix /tmp/{a,b,c}\n"      \
     "/tmp/a:a\n"                                    \
     "/tmp/b:b\n"                                    \
     "/tmp/c:c\n"
@@ -18,31 +19,28 @@ int main(int argc, const char **argv) {
     SETUP();
 
     // setup state
-    i32 prefix_mode = 0;
     i32 ran = 0;
-    i64 head = 0;
     i64 line;
-    while (1) {
-        if (argc > 1 && strcmp(argv[1], "--prefix") == 0) {
-            prefix_mode = 1;
-            argv = argv + 1;
-            argc -= 1;
-        } else if (argc > 2 && strcmp(argv[1], "--head") == 0) {
-            ASSERT(isdigits(argv[2]), "fatal: should have been `--head INT`, not `--head %s`\n", argv[2]);
-            head = atoi(argv[2]);
-            argv = argv + 2;
-            argc -= 2;
-        } else {
-            break;
-        }
+
+    // parse args
+    bool prefix = false;
+    bool lz4 = false;
+    i64 head = 0;
+    ARGH_PARSE {
+        ARGH_NEXT();
+        if      ARGH_BOOL("-p", "--prefix") { prefix = true; }
+        else if ARGH_BOOL("-l", "--lz4")    { lz4 = true; }
+        else if ARGH_FLAG("-h", "--head")   { ASSERT(isdigits(ARGH_VAL()), "fatal: should have been `--head INT`, not `--head %s`\n", ARGH_VAL());
+                                              head = atol(ARGH_VAL());}
     }
 
     // setup input
-    FILE *files[argc - 1];
-    for (i32 i = 1; i < argc; i++)
-        FOPEN(files[i - 1], argv[i], "rb");
+    ASSERT(ARGH_ARGC > 0, "usage: %s", USAGE);
+    FILE *files[ARGH_ARGC];
+    for (i32 i = 0; i < ARGH_ARGC; i++)
+        FOPEN(files[i], ARGH_ARGV[i], "rb");
     readbuf_t rbuf;
-    rbuf_init(&rbuf, files, argc - 1);
+    rbuf_init(&rbuf, files, ARGH_ARGC, lz4);
     row_t row;
 
     // setup output
@@ -51,17 +49,17 @@ int main(int argc, const char **argv) {
     wbuf_init(&wbuf, out_files, 1);
 
     // process input row by row
-    for (i32 i = 1; i < argc; i++) {
+    for (i32 i = 0; i < ARGH_ARGC; i++) {
         line = 0;
         while (1) {
             line++;
-            load_next(&rbuf, &row, i - 1);
+            load_next(&rbuf, &row, i);
             if (row.stop)
                 break;
             if (head != 0 && line > head)
                 break;
-            if (prefix_mode) {
-                write_bytes(&wbuf, argv[i], strlen(argv[i]), 0);
+            if (prefix) {
+                write_bytes(&wbuf, ARGH_ARGV[i], strlen(ARGH_ARGV[i]), 0);
                 write_bytes(&wbuf, ":", 1, 0);
             }
             for (i32 j = 0; j <= row.max; j++) {

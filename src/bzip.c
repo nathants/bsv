@@ -1,4 +1,5 @@
 #include "util.h"
+#include "argh.h"
 #include "load.h"
 #include "array.h"
 #include "dump.h"
@@ -11,6 +12,13 @@ int main(int argc, const char **argv) {
 
     // setup bsv
     SETUP();
+
+    // parse args
+    bool lz4 = false;
+    ARGH_PARSE {
+        ARGH_NEXT();
+        if ARGH_BOOL("-l", "--lz4") { lz4 = true; }
+    }
 
     // setup input, filenames come in on stdin
     ARRAY_INIT(files, FILE*);
@@ -34,21 +42,21 @@ int main(int argc, const char **argv) {
         }
     }
     readbuf_t rbuf;
-    rbuf_init(&rbuf, files, ARRAY_SIZE(files));
+    rbuf_init(&rbuf, files, ARRAY_SIZE(files), lz4);
 
-    // parse args and maybe select columns
+    // parse selection
     ARRAY_INIT(selected, i32);
     u8 *f;
     i32 column;
-    switch (argc) {
+    switch (ARGH_ARGC) {
         // default is all columns
-        case 1:
+        case 0:
             for (i32 i = 0; i < ARRAY_SIZE(files); i++)
                 ARRAY_APPEND(selected, i, i32);
             break;
         // otherwise choose columns
-        case 2:
-            while ((f = strsep(&argv[1], ","))) {
+        case 1:
+            while ((f = strsep(&ARGH_ARGV[0], ","))) {
                 column = atoi(f);
                 ASSERT(column > 0, "fatal: bad column selection, should be like: '1,2,3' and cannot select below column 1.\n");
                 ASSERT(column <= ARRAY_SIZE(files), "fatal: bad column selection, should be like: '1,2,3' and cannot select above column %d.\n", ARRAY_SIZE(files));
@@ -79,7 +87,7 @@ int main(int argc, const char **argv) {
     // setup output
     FILE *out_files[1] = {stdout};
     writebuf_t wbuf;
-    wbuf_init(&wbuf, out_files, 1);
+    wbuf_init(&wbuf, out_files, 1, false);
 
     // process input row by row
     while (1) {

@@ -5,14 +5,15 @@
 #include <fcntl.h>
 #endif
 
-#include <unistd.h>
-#include <stdint.h>
+#include <ctype.h>
 #include <limits.h>
+#include <signal.h>
+#include <stdbool.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <ctype.h>
-#include <signal.h>
+#include <unistd.h>
 #include "simd.h"
 
 typedef int8_t   i8;
@@ -179,7 +180,7 @@ void _sigpipe_handler(int signum) {
     INCREASE_PIPE_SIZES();
 
 int isdigits(const char *s) {
-    while (*s != '\0') {
+    while (s != NULL && *s != '\0') {
         if (!isdigit(*s))
             return 0;
         s++;

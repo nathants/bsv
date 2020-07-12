@@ -14,7 +14,7 @@ def setup_module(m):
     m.path = os.environ['PATH']
     os.chdir(m.tempdir)
     os.environ['PATH'] = f'{os.getcwd()}/bin:/usr/bin:/usr/local/bin:/sbin:/usr/sbin:/bin'
-    shell.run('make clean && make bsv csv blz4d bcat-lz4 bpartition-lz4', stream=True)
+    shell.run('make clean && make bsv csv blz4d bcat bpartition', stream=True)
 
 def teardown_module(m):
     os.chdir(m.orig)
@@ -52,8 +52,8 @@ def test_props(args):
     result = expected(num_buckets, csv)
     with shell.tempdir():
         stdout = '\n'.join(sorted({l.split(':')[0] for l in result.splitlines()}))
-        assert stdout == shell.run(f'bsv | bpartition-lz4 {num_buckets} prefix', stdin=csv, echo=True)
-        assert result == shell.run('bcat-lz4 --prefix prefix*')
+        assert stdout == shell.run(f'bsv | bpartition -l {num_buckets} prefix', stdin=csv, echo=True)
+        assert result == shell.run('bcat -l -p prefix*')
 
 def test_without_prefix():
     with shell.tempdir():
@@ -67,7 +67,7 @@ def test_without_prefix():
         06
         08
         """
-        assert rm_whitespace(unindent(stdout)) == shell.run('bsv | bpartition-lz4 10', stdin=unindent(stdin))
+        assert rm_whitespace(unindent(stdout)) == shell.run('bsv | bpartition -l 10', stdin=unindent(stdin))
 
 def test_basic():
     with shell.tempdir():
@@ -81,13 +81,13 @@ def test_basic():
         prefix_06
         prefix_08
         """
-        assert rm_whitespace(unindent(stdout)) == shell.run('bsv | bpartition-lz4 10 prefix', stdin=unindent(stdin))
+        assert rm_whitespace(unindent(stdout)) == shell.run('bsv | bpartition -l 10 prefix', stdin=unindent(stdin))
         stdout = """
         prefix_04:e,f,g
         prefix_06:h,i,j
         prefix_08:b,c,d
         """
-        assert unindent(stdout).strip() == shell.run('bcat-lz4 --prefix prefix*')
+        assert unindent(stdout).strip() == shell.run('bcat -l -p prefix*')
         stdout = """
         prefix_04
         prefix_06
@@ -107,8 +107,8 @@ def test_appends():
         prefix_06
         prefix_08
         """
-        assert rm_whitespace(unindent(stdout)) == shell.run('bsv | bpartition-lz4 10 prefix', stdin=unindent(stdin))
-        assert rm_whitespace(unindent(stdout)) == shell.run('bsv | bpartition-lz4 10 prefix', stdin=unindent(stdin))
+        assert rm_whitespace(unindent(stdout)) == shell.run('bsv | bpartition -l 10 prefix', stdin=unindent(stdin))
+        assert rm_whitespace(unindent(stdout)) == shell.run('bsv | bpartition -l 10 prefix', stdin=unindent(stdin))
         stdout = """
         prefix_04:e,f,g
         prefix_04:e,f,g
@@ -117,7 +117,7 @@ def test_appends():
         prefix_08:b,c,d
         prefix_08:b,c,d
         """
-        assert unindent(stdout).strip() == shell.run('bcat-lz4 --prefix prefix*')
+        assert unindent(stdout).strip() == shell.run('bcat -l -p prefix*')
         stdout = """
         prefix_04
         prefix_06
