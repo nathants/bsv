@@ -8,6 +8,7 @@
 
 #define PARSE_ARGV()                                                                                                            \
     do {                                                                                                                        \
+        ASSERT(argc == 2, "usage: %s", USAGE);                                                                                  \
         char *f;                                                                                                                \
         char *fs = (char*)argv[1];                                                                                              \
         while ((f = strsep(&fs, ","))) {                                                                                        \
