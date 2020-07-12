@@ -36,15 +36,13 @@ inlined void write_bytes(writebuf_t *buf, u8 *bytes, i32 size, i32 file) {
 
 inlined void write_flush(writebuf_t *buf, i32 file) {
     if (buf->offset[file]) { // ------------------------------------------------ flush with an empty buffer is a nop
+        FWRITE(&buf->offset[file], sizeof(i32), buf->files[file]); // ---------- write chunk size
         if (buf->lz4) {
             i32 lz4_size = COMPRESS(buf); // ----------------------------------- compress chunk
-            FWRITE(&buf->offset[file], sizeof(i32), buf->files[file]); // ------ write chunk size
             FWRITE(&lz4_size, sizeof(i32), buf->files[file]);          // ------ write compressed size
             FWRITE(buf->lz4_buf, lz4_size, buf->files[file]);          // ------ write compressed chunk
-        } else {
-            FWRITE(&buf->offset[file], sizeof(i32), buf->files[file]); // ------ write chunk size
+        } else
             FWRITE(buf->buffer[file], buf->offset[file], buf->files[file]); // - write chunk
-        }
         buf->offset[file] = 0; // ---------------------------------------------- reset the buffer to prepare for the next write
     }
 }
