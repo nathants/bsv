@@ -1,6 +1,5 @@
 #pragma once
 
-#include "util.h"
 #include <stdbool.h>
 
 //
@@ -27,34 +26,28 @@
     char *ARGH_ARGV[argc];                      \
     char *argh_name;                            \
     int ARGH_ARGC = 0;                          \
-    int argh_strlen_diff = 0;                   \
+    int argh_diff = 0;                          \
     int argh_offset = 0;                        \
     while(argh_offset < argc)
 
 #define ARGH_BOOL(short_name, long_name)            \
-    ((0 == strcmp(argv[argh_offset], short_name)    \
+    ((   0 == strcmp(argv[argh_offset], short_name) \
       || 0 == strcmp(argv[argh_offset], long_name)) \
-     ? (argh_used = true,                           \
-        true)                                       \
+     ? argh_used = true                             \
      : false)
 
-#define ARGH_FLAG(short_name, long_name)                                        \
-    (argh_name = long_name,                                                     \
-     ((argh_strlen_diff = (strlen(argv[argh_offset]) != strlen(short_name))     \
-          ? strlen(short_name)                                                  \
-          : 0,                                                                  \
-          0 == strncmp(argv[argh_offset], short_name, strlen(short_name)))      \
-      || (argh_strlen_diff = (strlen(argv[argh_offset]) != strlen(long_name))   \
-          ? strlen(long_name)                                                   \
-          : 0,                                                                  \
-          0 == strncmp(argv[argh_offset], long_name,  strlen(long_name))))      \
-     ? (argh_used = true,                                                       \
-        true)                                                                   \
+#define ARGH_FLAG(short_name, long_name)                                                                    \
+    (argh_name = long_name,                                                                                 \
+     (   (argh_diff = strlen(argv[argh_offset]) != strlen(short_name) ? strlen(short_name) : 0,             \
+          0 == strncmp(argv[argh_offset], short_name, strlen(short_name)))                                  \
+      || (argh_diff = strlen(argv[argh_offset]) != strlen(long_name)  ? strlen(long_name) : 0,              \
+          0 == strncmp(argv[argh_offset], long_name,  strlen(long_name))))                                  \
+     ? argh_used = true                                                                                     \
      : false)
 
 #define ARGH_VAL()                                                                  \
-    (argh_strlen_diff                                                               \
-     ? (argv[argh_offset] + argh_strlen_diff)                                       \
+    (argh_diff                                                                      \
+     ? (argv[argh_offset] + argh_diff)                                              \
      : ((argh_offset < argc - 1)                                                    \
         ? (argh_val = true, argv[argh_offset + 1])                                  \
         : (fprintf(stderr, "fatal: needs value %s\n", argh_name), exit(1), NULL)))
