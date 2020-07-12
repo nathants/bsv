@@ -68,7 +68,7 @@ explicit types and schemas.
 - [bunzip](#bunzip) - split a multi column input into single column outputs
 - [bzip](#bzip) - combine single column inputs into a multi column output
 - [csv](#csv) - convert bsv to csv
-- [xxh3](#xxh3) - xxh3_64 hash stdin. defaults to hex, can be --int. --stream to pass stdin through to stdout with hash on stderr
+- [xxh3](#xxh3) - xxh3_64 hash stdin
 
 ### [bcat](https://github.com/nathants/bsv/blob/master/src/bcat.c)
 
@@ -443,7 +443,7 @@ a,b,c
 
 ### [xxh3](https://github.com/nathants/bsv/blob/master/src/xxh3.c)
 
-xxh3_64 hash stdin. defaults to hex, can be --int. --stream to pass stdin through to stdout with hash on stderr
+xxh3_64 hash stdin
 
 usage: `... | xxh3 [--stream|--int]`
 
