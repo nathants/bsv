@@ -1,36 +1,24 @@
+/* source: https://github.com/nathants/c-argh/raw/d32113e538b8be503e5c483e86a1b77de8f57835/argh.h */
 #pragma once
 
 #include <stdbool.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
-//
-// /* usage: bcat [-l|--lz4] [-h N|--head N] [-p|--prefix] FILE1 ... FILEN */
-//
-// int main(int argc, char **argv) {
-//     bool prefix = false;
-//     bool lz4 = false;
-//     int head = 0;
-//     ARGH_PARSE {
-//         ARGH_SETUP();
-//         if      ARGH_BOOL("-p", "--prefix") { prefix = true;}
-//         else if ARGH_BOOL("-l", "--lz4")    { lz4 = true; }
-//         else if ARGH_FLAG("-h", "--head")   { ASSERT(isdigits(ARGH_VAL()), "fatal: should have been `--head INT`, not `--head %s`\n", ARGH_VAL());
-//                                              head = atol(ARGH_VAL()); }
-//     }
-//     printf("head: %d, prefix: %d, lz4: %d\n", head, prefix, lz4);
-//     for (int i = 0; i < ARGH_ARGC; i++)
-//         printf("positional arg %d: %s\n", i, ARGH_ARGV[i]);
-// }
-//
-
-#define ARGH_PARSE                              \
-    bool argh_used = true;                      \
-    bool argh_repeat = false;                   \
-    bool argh_val = false;                      \
-    char *ARGH_ARGV[argc];                      \
-    char *argh_name;                            \
-    int ARGH_ARGC = 0;                          \
-    int argh_diff = 0;                          \
-    int argh_offset = 0;                        \
+#define ARGH_PARSE                                                                      \
+    if (strcmp(argv[argc - 1], "-h") == 0 || strcmp(argv[argc - 1], "--help") == 0) {   \
+        fprintf(stderr, "usage: %s\n", USAGE);                                          \
+        exit(1);                                                                        \
+    }                                                                                   \
+    bool argh_used = true;                                                              \
+    bool argh_repeat = false;                                                           \
+    bool argh_val = false;                                                              \
+    char *ARGH_ARGV[argc];                                                              \
+    char *argh_name;                                                                    \
+    int ARGH_ARGC = 0;                                                                  \
+    int argh_diff = 0;                                                                  \
+    int argh_offset = 0;                                                                \
     while(argh_offset < argc)
 
 // check for a flag which is either present or not
