@@ -19,22 +19,6 @@
         ASSERT(num_fields <= MAX_COLUMNS, "fatal: cannot select more than %d indices\n", MAX_COLUMNS);                          \
     } while (0)
 
-// print as csv for fatal error message
-u8 *join_comma(row_t *row) {
-    u8 *buffer;
-    MALLOC(buffer, BUFFER_SIZE);
-    u8 *head = buffer;
-    for (i32 i = 0; i <= row->max; i++) {
-        memcpy(head, row->columns[i], row->sizes[i]);
-        head[row->sizes[i]] = ',';
-        head += row->sizes[i] + 1;
-        ASSERT(head - buffer < BUFFER_SIZE, "fatal: overflow\n");
-    }
-    if (head != buffer)
-        head[-1] = '\0';
-    return buffer;
-}
-
 int main(int argc, char **argv) {
 
     // setup bsv
@@ -65,7 +49,7 @@ int main(int argc, char **argv) {
             break;
         for (i32 i = 0; i < num_fields; i++) {
             index = indices[i];
-            ASSERT(index <= row.max, "fatal: line without %d columns: %s\n", index + 1, join_comma(&row));
+            ASSERT(index <= row.max, "fatal: line with %d columns, needed %d\n", row.max + 1, index + 1);
             new.columns[i] = row.columns[index];
             new.sizes[i] = row.sizes[index];
         }

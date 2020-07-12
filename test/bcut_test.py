@@ -247,7 +247,7 @@ def test_fails_when_not_enough_columns():
     with shell.climb_git_root():
         stdin = 'a,b,c'
         res = shell.run('bsv | bcut 4', stdin=stdin, warn=True)
-        assert 'fatal: line without 4 columns: a,b,c' == res['stderr']
+        assert 'fatal: line with 3 columns, needed 4' == res['stderr']
         assert res['exitcode'] == 1
 
 def test_fails_when_non_positive_fields():
