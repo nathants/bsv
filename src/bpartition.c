@@ -74,13 +74,15 @@ int main(int argc, char **argv) {
     // for 1 bucket, pipe the data straight through
     if (num_buckets == 1) {
         i32 rbytes;
-        i32 wbytes;
+        i32 chunk_size;
         while (1) {
-            rbytes = fread_unlocked(rbuf.buffers[0], 1, BUFFER_SIZE, rbuf.files[0]);
-            wbytes = fwrite_unlocked(rbuf.buffers[0], 1, rbytes, wbuf.files[0]);
-            ASSERT(wbytes == rbytes, "fatal: bad write\n");
-            if (rbytes != BUFFER_SIZE)
+            rbytes = fread_unlocked(&chunk_size, 1, sizeof(i32), rbuf.files[0]);
+            ASSERT(rbytes == 0 || rbytes == sizeof(i32), "fatal: bad bpartition chunk read %d\n", rbytes);
+            if (rbytes != sizeof(i32))
                 break;
+            FREAD(wbuf.buffer[0], chunk_size, rbuf.files[0]);
+            wbuf.offset[0] = chunk_size;
+            write_flush(&wbuf, 0);
         }
 
     // for more than 1 bucket, process input row by row
