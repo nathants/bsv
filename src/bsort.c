@@ -5,7 +5,7 @@
 #include "simd.h"
 #include "argh.h"
 
-#define DESCRIPTION "timsort rows by compare the first column\n\n"
+#define DESCRIPTION "timsort rows by the first column\n\n"
 #define USAGE "... | bsort [-r|--reversed] [TYPE]\n\n"
 #define EXAMPLE ">> echo '\n3\n2\n1\n' | bsv | bschema a:i64 | bsort i64 | bschema i64:a | csv\n1\n2\n3\n\n"
 

@@ -15,6 +15,7 @@
 #include <string.h>
 #include <unistd.h>
 #include "simd.h"
+#include "version.h"
 
 typedef int8_t   i8;
 typedef int16_t  i16;
@@ -152,6 +153,15 @@ void _sigpipe_handler(int signum) {
         exit(1);                                                                                                \
     }
 
+#define VERSION()                                                                   \
+    if (!strcmp(argv[argc - 1], "-v") || !strcmp(argv[argc - 1], "--version")) {    \
+        fprintf(stderr, "%s\n", VERSION_GIT_HASH);                                  \
+        fprintf(stderr, "%s\n", VERSION_DATE);                                      \
+        fprintf(stderr, "%s\n", VERSION_COMPILER);                                  \
+        fprintf(stderr, "%s\n", VERSION_ARCH);                                      \
+        exit(1);                                                                    \
+    }
+
 #define TO_UINT16(src) (_u16 = (u16)(src), (u8*)&_u16)
 #define FROM_UINT16(src) (*(u16*)(src))
 
@@ -175,6 +185,7 @@ void _sigpipe_handler(int signum) {
 
 #define SETUP()                                 \
     HELP();                                     \
+    VERSION();                                  \
     SIGPIPE_HANDLER();                          \
     INVARIANTS();                               \
     INCREASE_PIPE_SIZES();

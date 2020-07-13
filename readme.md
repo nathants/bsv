@@ -62,7 +62,7 @@ explicit types and schemas.
 - [bmerge](#bmerge) - merge sorted files from stdin
 - [bpartition](#bpartition) - split into multiple files by consistent hash of the first column value
 - [bschema](#bschema) - validate and converts row data with a schema of columns
-- [bsort](#bsort) - timsort rows by compare the first column
+- [bsort](#bsort) - timsort rows by the first column
 - [bsplit](#bsplit) - split a stream into multiple files
 - [bsum](#bsum) - sum the first column
 - [bsumeach](#bsumeach) - sum the second colum of each contiguous identical row by strcmp the first column
@@ -301,7 +301,7 @@ aa,bbb,cccc
 
 ### [bsort](https://github.com/nathants/bsv/blob/master/src/bsort.c)
 
-timsort rows by compare the first column
+timsort rows by the first column
 
 usage: `... | bsort [-r|--reversed] [TYPE]`
 

@@ -106,3 +106,4 @@ brsort-i64
 bcut
 bsumeach-hash
 bcombine
+version.h
