@@ -105,3 +105,4 @@ bsum-i64
 brsort-i64
 bcut
 bsumeach-hash
+bcombine

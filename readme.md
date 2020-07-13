@@ -49,6 +49,7 @@ explicit types and schemas.
 ## tools
 
 - [bcat](#bcat) - cat some bsv files to csv
+- [bcombine](#bcombine) - prepend a new column by combining values from existing columns
 - [bcopy](#bcopy) - pass through data, to benchmark load/dump performance
 - [bcounteach](#bcounteach) - count as i64 each contiguous identical row by strcmp the first column
 - [bcounteach-hash](#bcounteach-hash) - count as i64 by hashmap of the first column
@@ -89,6 +90,17 @@ usage: `bcat [-l|--lz4] [-p|--prefix] [-h N|--head N] FILE1 ... FILEN`
 /tmp/a:a
 /tmp/b:b
 /tmp/c:c
+```
+
+### [bcombine](https://github.com/nathants/bsv/blob/master/src/bcombine.c)
+
+prepend a new column by combining values from existing columns
+
+usage: `... | bcombine COL1,...,COLN`
+
+```
+>> echo a,b,c | bsv | bcombine 3,2 | csv
+b:a,a,b,c
 ```
 
 ### [bcopy](https://github.com/nathants/bsv/blob/master/src/bcopy.c)

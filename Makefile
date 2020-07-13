@@ -1,6 +1,6 @@
 .PHONY: all clean test
 CFLAGS=-Wno-int-conversion -Wno-incompatible-pointer-types -Wno-discarded-qualifiers -Iutil -Ivendor -flto -O3 -march=native -mtune=native
-ALL=clean docs bcat bcopy bcounteach bcounteach-hash bcountrows bcut bdedupe bdropuntil blz4 blz4d bmerge bpartition bschema bsort bsplit bsum bsumeach bsumeach-hash bsv btake btakeuntil bunzip bzip _copy _csv csv _gen_bsv _gen_csv xxh3
+ALL=clean docs bcat bcombine bcopy bcounteach bcounteach-hash bcountrows bcut bdedupe bdropuntil blz4 blz4d bmerge bpartition bschema bsort bsplit bsum bsumeach bsumeach-hash bsv btake btakeuntil bunzip bzip _copy _csv csv _gen_bsv _gen_csv xxh3
 
 all: $(ALL)
 
@@ -18,6 +18,9 @@ test: setup
 
 bcat: setup
 	gcc $(CFLAGS) vendor/lz4.c src/bcat.c -o bin/bcat
+
+bcombine: setup
+	gcc $(CFLAGS) vendor/lz4.c src/bcombine.c -o bin/bcombine
 
 bcopy: setup
 	gcc $(CFLAGS) vendor/lz4.c src/bcopy.c -o bin/bcopy

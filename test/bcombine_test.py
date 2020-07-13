@@ -1,0 +1,57 @@
+import pytest
+import os
+import string
+import shell
+from hypothesis.database import ExampleDatabase
+from hypothesis import given, settings
+from hypothesis.strategies import text, lists, composite, integers
+from test_util import run, rm_whitespace, rm_whitespace, max_columns, clone_source
+
+def setup_module(m):
+    m.tempdir = clone_source()
+    m.orig = os.getcwd()
+    m.path = os.environ['PATH']
+    os.chdir(m.tempdir)
+    os.environ['PATH'] = f'{os.getcwd()}/bin:/usr/bin:/usr/local/bin:/sbin:/usr/sbin:/bin'
+    shell.run('make clean && make bsv csv bcombine', stream=True)
+
+def teardown_module(m):
+    os.chdir(m.orig)
+    os.environ['PATH'] = m.path
+    assert m.tempdir.startswith('/tmp/') or m.tempdir.startswith('/private/var/folders/')
+    shell.run('rm -rf', m.tempdir)
+
+def test_basic1():
+    stdin = """
+    a,b,c,d
+    1,2,3
+    x,y
+    """
+    stdout = """
+    ab,a,b,c,d
+    12,1,2,3
+    xy,x,y
+    """
+    assert rm_whitespace(stdout) + '\n' == run(rm_whitespace(stdin), 'bsv | bcombine 1,2 | csv')
+
+def test_basic2():
+    stdin = """
+    a,b,c,d
+    1,2,3
+    x,y
+    """
+    stdout = """
+    ba,a,b,c,d
+    21,1,2,3
+    yx,x,y
+    """
+    assert rm_whitespace(stdout) + '\n' == run(rm_whitespace(stdin), 'bsv | bcombine 2,1 | csv')
+
+def test_basic3():
+    stdin = """
+    a,b,c,d
+    1,2,3
+    x
+    """
+    with pytest.raises(Exception):
+        run(rm_whitespace(stdin), 'bsv | bcombine 2,1 | csv')
