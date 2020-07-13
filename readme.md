@@ -164,7 +164,7 @@ usage: `... | bcountrows`
 1
 2
 3
-4.1
+4
 ' | bsv | bcountrows | csv
 4
 ```
@@ -271,7 +271,8 @@ usage: `... | bpartition NUM_BUCKETS [PREFIX]`
 
 ```
 >> echo '
-a\b
+a
+b
 c
 ' | bsv | bpartition 10 prefix
 prefix03
