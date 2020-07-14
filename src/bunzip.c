@@ -5,7 +5,7 @@
 
 #define DESCRIPTION "split a multi column input into single column outputs\n\n"
 #define USAGE "... | bunzip PREFIX \n\n"
-#define EXAMPLE ">> echo '\na,b,c\n1,2,3\n' | bsv | bunzip col && echo col_0 col_2 | bzip | csv\na,c\n1,3\n"
+#define EXAMPLE ">> echo '\na,b,c\n1,2,3\n' | bsv | bunzip col && echo col_1 col_3 | bzip | csv\na,c\n1,3\n"
 
 int main(int argc, char **argv) {
 
@@ -44,7 +44,7 @@ int main(int argc, char **argv) {
     FILE *files[unzip_max + 1];
     SNPRINTF(num_columns_str, sizeof(num_columns_str), "%d", unzip_max + 1);
     for (i32 i = 0; i <= unzip_max; i++) {
-        SNPRINTF(path, sizeof(path), "%s_%0*d", prefix, strlen(num_columns_str), i);
+        SNPRINTF(path, sizeof(path), "%s_%0*d", prefix, strlen(num_columns_str), i + 1);
         FOPEN(files[i], path, "wb");
     }
 
@@ -77,7 +77,7 @@ int main(int argc, char **argv) {
     for (i32 i = 0; i <= unzip_max; i++) {
         dump_flush(&wbuf, i);
         ASSERT(fclose(files[i]) != EOF, "fatal: failed to close files\n");
-        SNPRINTF(path, sizeof(path), "%s_%0*d", prefix, strlen(num_columns_str), i);
+        SNPRINTF(path, sizeof(path), "%s_%0*d", prefix, strlen(num_columns_str), i + 1);
         FPRINTF(stdout, "%s\n", path);
     }
 
