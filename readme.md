@@ -51,12 +51,12 @@ explicit types and schemas.
 - [bcat](#bcat) - cat some bsv files to csv
 - [bcombine](#bcombine) - prepend a new column by combining values from existing columns
 - [bcopy](#bcopy) - pass through data, to benchmark load/dump performance
-- [bcounteach](#bcounteach) - count as i64 each contiguous identical row by strcmp the first column
-- [bcounteach-hash](#bcounteach-hash) - count as i64 by hashmap of the first column
+- [bcounteach](#bcounteach) - count as i64 each contiguous identical row by the first column
+- [bcounteach-hash](#bcounteach-hash) - count as i64 by hash of the first column
 - [bcountrows](#bcountrows) - count rows as i64
 - [bcut](#bcut) - select some columns
-- [bdedupe](#bdedupe) - dedupe identical contiguous rows by strcmp the first column, keeping the first
-- [bdropuntil](#bdropuntil) - drop until the first column is strcmp gte to VALUE
+- [bdedupe](#bdedupe) - dedupe identical contiguous rows by the first column, keeping the first
+- [bdropuntil](#bdropuntil) - for sorted input, drop until the first column is gte to VALUE
 - [blz4](#blz4) - compress bsv data
 - [blz4d](#blz4d) - decompress bsv data
 - [bmerge](#bmerge) - merge sorted files from stdin
@@ -65,11 +65,11 @@ explicit types and schemas.
 - [bsort](#bsort) - timsort rows by the first column
 - [bsplit](#bsplit) - split a stream into multiple files
 - [bsum](#bsum) - sum the first column
-- [bsumeach](#bsumeach) - sum the second colum of each contiguous identical row by strcmp the first column
-- [bsumeach-hash](#bsumeach-hash) - sum as i64 the second colum by hashmap of the first column
+- [bsumeach](#bsumeach) - sum the second colum of each contiguous identical row by the first column
+- [bsumeach-hash](#bsumeach-hash) - sum as i64 the second colum by hash of the first column
 - [bsv](#bsv) - convert csv to bsv
 - [btake](#btake) - take while the first column is VALUE
-- [btakeuntil](#btakeuntil) - take until the first column is strcmp gte to VALUE
+- [btakeuntil](#btakeuntil) - for sorted input, take until the first column is gte to VALUE
 - [bunzip](#bunzip) - split a multi column input into single column outputs
 - [bzip](#bzip) - combine single column inputs into a multi column output
 - [csv](#csv) - convert bsv to csv
@@ -116,7 +116,7 @@ a,b,c
 
 ### [bcounteach](https://github.com/nathants/bsv/blob/master/src/bcounteach.c)
 
-count as i64 each contiguous identical row by strcmp the first column
+count as i64 each contiguous identical row by the first column
 
 usage: `... | bcounteach`
 
@@ -136,7 +136,7 @@ a,1
 
 ### [bcounteach-hash](https://github.com/nathants/bsv/blob/master/src/bcounteach-hash.c)
 
-count as i64 by hashmap of the first column
+count as i64 by hash of the first column
 
 usage: `... | bcounteach-hash`
 
@@ -182,7 +182,7 @@ c,c,c,b,b,a
 
 ### [bdedupe](https://github.com/nathants/bsv/blob/master/src/bdedupe.c)
 
-dedupe identical contiguous rows by strcmp the first column, keeping the first
+dedupe identical contiguous rows by the first column, keeping the first
 
 usage: `... | bdedupe`
 
@@ -202,9 +202,9 @@ a
 
 ### [bdropuntil](https://github.com/nathants/bsv/blob/master/src/bdropuntil.c)
 
-drop until the first column is strcmp gte to VALUE
+for sorted input, drop until the first column is gte to VALUE
 
-usage: `... | bdropuntil VALUE`
+usage: `... | bdropuntil VALUE [TYPE]`
 
 ```
 >> echo '
@@ -345,7 +345,7 @@ usage: `... | bsum TYPE`
 
 ### [bsumeach](https://github.com/nathants/bsv/blob/master/src/bsumeach.c)
 
-sum the second colum of each contiguous identical row by strcmp the first column
+sum the second colum of each contiguous identical row by the first column
 
 usage: `... | bsumeach TYPE`
 
@@ -365,7 +365,7 @@ a,6
 
 ### [bsumeach-hash](https://github.com/nathants/bsv/blob/master/src/bsumeach-hash.c)
 
-sum as i64 the second colum by hashmap of the first column
+sum as i64 the second colum by hash of the first column
 
 usage: `... | bsumeach-hash i64`
 
@@ -412,9 +412,9 @@ c
 
 ### [btakeuntil](https://github.com/nathants/bsv/blob/master/src/btakeuntil.c)
 
-take until the first column is strcmp gte to VALUE
+for sorted input, take until the first column is gte to VALUE
 
-usage: `... | btakeuntil VALUE`
+usage: `... | btakeuntil VALUE [TYPE]`
 
 ```
 >> echo '

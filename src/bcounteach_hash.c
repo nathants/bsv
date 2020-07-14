@@ -4,7 +4,7 @@
 #include "simd.h"
 #include "hashmap.h"
 
-#define DESCRIPTION "count as i64 by hashmap of the first column\n\n"
+#define DESCRIPTION "count as i64 by hash of the first column\n\n"
 #define USAGE "... | bcounteach-hash\n\n"
 #define EXAMPLE "echo '\na\na\nb\nb\nb\na\n' | bsv | bcounteach-hash | bschema *,i64:a | bsort | csv\na,3\nb,3\n"
 

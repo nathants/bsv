@@ -3,7 +3,7 @@
 #include "dump.h"
 #include "simd.h"
 
-#define DESCRIPTION "dedupe identical contiguous rows by strcmp the first column, keeping the first\n\n"
+#define DESCRIPTION "dedupe identical contiguous rows by the first column, keeping the first\n\n"
 #define USAGE "... | bdedupe\n\n"
 #define EXAMPLE ">> echo '\na\na\nb\nb\na\na\n' | bsv | bdedupe | csv\na\nb\na\n"
 

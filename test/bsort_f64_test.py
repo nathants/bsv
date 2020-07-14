@@ -34,10 +34,10 @@ def expected(csv):
     xs = csv.splitlines()
     xs = [float(x.split(',')[0]) for x in xs if x]
     xs = sorted(xs)
-    return [round(x, 5) for x in xs]
+    return [round(x, 2) for x in xs]
 
 @given(inputs())
 @settings(database=ExampleDatabase(':memory:'), max_examples=100 * int(os.environ.get('TEST_FACTOR', 1)), deadline=os.environ.get("TEST_DEADLINE", 1000 * 60)) # type: ignore
 def test_props(csv):
     result = expected(csv)
-    assert result == [round(float(x), 5) for x in run(csv, 'bsv | bschema a:f64,... | bsort f64 | bcut 1 | bschema f64:a | csv').splitlines() if x]
+    assert result == [round(float(x), 2) for x in run(csv, 'bsv | bschema a:f64,... | bsort f64 | bcut 1 | bschema f64:a | csv').splitlines() if x]

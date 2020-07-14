@@ -6,7 +6,7 @@ all: $(ALL)
 
 setup:
 	mkdir -p bin
-	./scripts/version.sh
+	./scripts/version.sh &>/dev/null
 
 clean: setup
 	cd bin && rm -f -- * *.*

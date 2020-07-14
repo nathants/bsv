@@ -18,7 +18,7 @@ echo >> Makefile
 
 echo setup: >> Makefile
 echo -e '\tmkdir -p bin' >> Makefile
-echo -e '\t./scripts/version.sh' >> Makefile
+echo -e '\t./scripts/version.sh &>/dev/null' >> Makefile
 echo >> Makefile
 
 echo clean: setup >> Makefile

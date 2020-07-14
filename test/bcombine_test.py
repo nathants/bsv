@@ -28,9 +28,9 @@ def test_basic1():
     x,y
     """
     stdout = """
-    ab,a,b,c,d
-    12,1,2,3
-    xy,x,y
+    a:b,a,b,c,d
+    1:2,1,2,3
+    x:y,x,y
     """
     assert rm_whitespace(stdout) + '\n' == run(rm_whitespace(stdin), 'bsv | bcombine 1,2 | csv')
 
@@ -41,9 +41,9 @@ def test_basic2():
     x,y
     """
     stdout = """
-    ba,a,b,c,d
-    21,1,2,3
-    yx,x,y
+    b:a,a,b,c,d
+    2:1,1,2,3
+    y:x,x,y
     """
     assert rm_whitespace(stdout) + '\n' == run(rm_whitespace(stdin), 'bsv | bcombine 2,1 | csv')
 

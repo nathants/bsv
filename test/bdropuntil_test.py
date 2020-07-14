@@ -69,11 +69,7 @@ def expected(value, csv):
             res.append(line)
         else:
             if cols:
-                if {type(value), type(cols[0])} == {str, int}:
-                    if type(value) == int: # numeric is always less than string
-                        res.append(line)
-                        found = True
-                elif cols[0] >= value:
+                if cols[0] >= value:
                     res.append(line)
                     found = True
     return '\n'.join(res) + '\n'

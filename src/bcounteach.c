@@ -3,7 +3,7 @@
 #include "dump.h"
 #include "simd.h"
 
-#define DESCRIPTION "count as i64 each contiguous identical row by strcmp the first column\n\n"
+#define DESCRIPTION "count as i64 each contiguous identical row by the first column\n\n"
 #define USAGE "... | bcounteach\n\n"
 #define EXAMPLE "echo '\na\na\nb\nb\nb\na\n' | bsv | bcounteach | bschema *,i64:a | csv\na,2\nb,3\na,1\n"
 
