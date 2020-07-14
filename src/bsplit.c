@@ -2,11 +2,10 @@
 #include "util.h"
 #include "load.h"
 #include "write.h"
-#include "xxh3.h"
 
 #define DESCRIPTION "split a stream into multiple files\n\n"
-#define USAGE "... | bsplit [chunks_per_file=1] \n\n"
-#define EXAMPLE ">> echo -n a,b,c | bsv | bsplit\n1595793589_0000000000\n"
+#define USAGE "... | bsplit PREFIX [chunks_per_file=1] \n\n"
+#define EXAMPLE ">> echo -n a,b,c | bsv prefix | bsplit\nprefix_0000000000\n"
 
 int main(int argc, char **argv) {
     // setup bsv
@@ -25,19 +24,18 @@ int main(int argc, char **argv) {
     wbuf_init(&wbuf, out_files, 1, false);
 
     // setup state
-    i32 filename_set = 0;
     i32 i = 0;
     i32 j = 0;
-    u8 hex[1024];
+    ASSERT(argc >= 2, "usage: %s", USAGE);
+    u8 *prefix = argv[1];
     u8 filename[1024];
-    u64 hash;
     FILE *f = NULL;
     i32 chunks_per_file = 1;
     row_t row;
 
     // parse args
-    if (argc == 2)
-        chunks_per_file = atoi(argv[1]);
+    if (argc == 3)
+        chunks_per_file = atol(argv[2]);
 
     // process input row by row
     while (1) {
@@ -46,17 +44,10 @@ int main(int argc, char **argv) {
         if (row.stop)
             break;
 
-        // file prefix is hash of the first chunk
-        if (filename_set == 0) {
-            filename_set = 1;
-            hash = XXH3_64bits(rbuf.buffer, rbuf.bytes);
-            SNPRINTF(hex, sizeof(hex), "%08x%08x", (i32)(hash>>32), (i32)hash);
-        }
-
         // open and print next file if needed
         if (f == NULL) {
             memset(filename, 0, sizeof(filename));
-            SNPRINTF(filename, sizeof(filename), "%s_%010d", hex, i++);
+            SNPRINTF(filename, sizeof(filename), "%s_%010d", prefix, i++);
             FOPEN(f, filename, "wb");
             FPRINTF(stdout, "%s\n", filename);
         }
