@@ -20,9 +20,9 @@ note: row data cannot exceed chunk size.
 
 ## layout
 
-[chunk](https://github.com/nathants/bsv/blob/master/util/read.h): `| i32:chunk_size | row-1 | ... | row-n |`
+[chunk](https://github.com/nathants/bsv/blob/master/util/read.h): `| i32:size | row-1 | ... | row-n |`
 
-[row](https://github.com/nathants/bsv/blob/master/util/row.h): `| u16:max | u16:size-1 | ... | u16:size-n | u8:col-1 + \0 | ... | u8:col-n + \0 |`
+[row](https://github.com/nathants/bsv/blob/master/util/row.h): `| u16:max | u16:size-1 | ... | u16:size-n | u8:col-1 | ... | u8:col-n |`
 
 note: column bytes are always followed by a single nullbyte: `\0`
 
