@@ -107,3 +107,5 @@ bcut
 bsumeach-hash
 bcombine
 version.h
+bhead
+btail
