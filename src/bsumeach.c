@@ -76,7 +76,7 @@ int main(int argc, char **argv) {
         if (row.stop)
             break;
         ASSERT(row.max >= 1, "fatal: need at least 2 columns\n");
-        ASSERT(row.sizes[1] == sizeof(i64), "fatal: needed i64 in column\n");
+        ASSERT(row.sizes[1] == sizeof(i64), "fatal: needed i64 in column 2. got size: %d, needed: %d\n", row.sizes[1], sizeof(i64));
         if (simd_strcmp(buffer, row.columns[0]) != 0) {
             DUMP_SUMS();
             memcpy(buffer, row.columns[0], row.sizes[0] + 1); // +1 for the trailing \0
