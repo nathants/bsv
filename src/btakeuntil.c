@@ -2,7 +2,6 @@
 #include "util.h"
 #include "load.h"
 #include "dump.h"
-#include "simd.h"
 
 #define DESCRIPTION "for sorted input, take until the first column is gte to VALUE\n\n"
 #define USAGE "... | btakeuntil VALUE [TYPE]\n\n"

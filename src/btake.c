@@ -1,7 +1,6 @@
 #include "util.h"
 #include "load.h"
 #include "dump.h"
-#include "simd.h"
 
 #define DESCRIPTION "take while the first column is VALUE\n\n"
 #define USAGE "... | btake VALUE\n\n"
@@ -31,7 +30,7 @@ int main(int argc, char **argv) {
         load_next(&rbuf, &row, 0);
         if (row.stop)
             break;
-        if (simd_strcmp(row.columns[0], val) != 0)
+        if (compare_str(row.columns[0], val) != 0)
             break;
         dump(&wbuf, &row, 0);
     }

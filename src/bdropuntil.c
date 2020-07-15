@@ -2,7 +2,6 @@
 #include "util.h"
 #include "load.h"
 #include "dump.h"
-#include "simd.h"
 
 #define DESCRIPTION "for sorted input, drop until the first column is gte to VALUE\n\n"
 #define USAGE "... | bdropuntil VALUE [TYPE]\n\n"

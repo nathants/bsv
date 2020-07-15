@@ -56,6 +56,7 @@ explicit types and schemas.
 - [bcountrows](#bcountrows) - count rows as i64
 - [bcut](#bcut) - select some columns
 - [bdedupe](#bdedupe) - dedupe identical contiguous rows by the first column, keeping the first
+- [bdedupe-hash](#bdedupe-hash) - dedupe rows by hash of the first column, keeping the first
 - [bdropuntil](#bdropuntil) - for sorted input, drop until the first column is gte to VALUE
 - [bhead](#bhead) - keep the first n rows
 - [blz4](#blz4) - compress bsv data
@@ -199,6 +200,25 @@ a
 a
 b
 a
+```
+
+### [bdedupe-hash](https://github.com/nathants/bsv/blob/master/src/bdedupe-hash.c)
+
+dedupe rows by hash of the first column, keeping the first
+
+usage: `... | bdedupe-hash`
+
+```
+>> echo '
+a
+a
+b
+b
+a
+a
+' | bsv | bdedupe-hash | csv
+a
+b
 ```
 
 ### [bdropuntil](https://github.com/nathants/bsv/blob/master/src/bdropuntil.c)

@@ -2,7 +2,6 @@
 #include "load.h"
 #include "dump.h"
 #include "array.h"
-#include "simd.h"
 #include "argh.h"
 
 #define DESCRIPTION "timsort rows by the first column\n\n"

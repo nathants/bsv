@@ -109,3 +109,4 @@ bcombine
 version.h
 bhead
 btail
+bdedupe-hash

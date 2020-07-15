@@ -1,7 +1,6 @@
 #include "util.h"
 #include "load.h"
 #include "dump.h"
-#include "simd.h"
 #include "hashmap.h"
 
 #define DESCRIPTION "count as i64 by hash of the first column\n\n"

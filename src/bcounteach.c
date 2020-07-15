@@ -1,7 +1,6 @@
 #include "util.h"
 #include "load.h"
 #include "dump.h"
-#include "simd.h"
 
 #define DESCRIPTION "count as i64 each contiguous identical row by the first column\n\n"
 #define USAGE "... | bcounteach\n\n"
@@ -48,7 +47,7 @@ int main(int argc, char **argv) {
         if (row.stop)
             break;
         count++;
-        if (simd_strcmp(buffer, row.columns[0]) != 0) {
+        if (compare_str(buffer, row.columns[0]) != 0) {
             DUMP_COUNT();
             memcpy(buffer, row.columns[0], row.sizes[0] + 1); // +1 for the trailing \0
             size = row.sizes[0];

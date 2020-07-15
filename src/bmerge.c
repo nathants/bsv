@@ -1,6 +1,5 @@
 #include "util.h"
 #include "argh.h"
-#include "simd.h"
 #include "heap.h"
 #include "array.h"
 #include "load.h"

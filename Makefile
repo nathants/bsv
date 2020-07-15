@@ -1,6 +1,6 @@
 .PHONY: all clean test
 CFLAGS=-Wno-int-conversion -Wno-incompatible-pointer-types -Wno-discarded-qualifiers -Iutil -Ivendor -flto -O3 -march=native -mtune=native
-ALL=clean docs bcat bcombine bcopy bcounteach bcounteach-hash bcountrows bcut bdedupe bdropuntil bhead blz4 blz4d bmerge bpartition bschema bsort bsplit bsum bsumeach bsumeach-hash bsv btake btakeuntil bunzip bzip _copy _csv csv _gen_bsv _gen_csv xxh3
+ALL=clean docs bcat bcombine bcopy bcounteach bcounteach-hash bcountrows bcut bdedupe bdedupe-hash bdropuntil bhead blz4 blz4d bmerge bpartition bschema bsort bsplit bsum bsumeach bsumeach-hash bsv btake btakeuntil bunzip bzip _copy _csv csv _gen_bsv _gen_csv xxh3
 
 all: $(ALL)
 
@@ -40,6 +40,9 @@ bcut: setup
 
 bdedupe: setup
 	gcc $(CFLAGS) vendor/lz4.c src/bdedupe.c -o bin/bdedupe
+
+bdedupe-hash: setup
+	gcc $(CFLAGS) vendor/lz4.c src/bdedupe_hash.c -o bin/bdedupe-hash
 
 bdropuntil: setup
 	gcc $(CFLAGS) vendor/lz4.c src/bdropuntil.c -o bin/bdropuntil

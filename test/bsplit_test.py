@@ -44,5 +44,5 @@ def test_props(args):
         chunks_per_file = ''
     with shell.tempdir():
         shell.run(f'_gen_csv 2 {lines} | bsv.{buffer} > data.bsv', echo=True)
-        shell.run(f'cat data.bsv | bsplit.{buffer} {chunks_per_file} > filenames')
+        shell.run(f'cat data.bsv | bsplit.{buffer} prefix {chunks_per_file} > filenames')
         assert shell.run(f'cat data.bsv | csv.{buffer} | xxh3') == shell.run(f'cat filenames | while read path; do cat $path; done | csv.{buffer} | xxh3')
