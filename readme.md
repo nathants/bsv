@@ -57,6 +57,7 @@ explicit types and schemas.
 - [bcut](#bcut) - select some columns
 - [bdedupe](#bdedupe) - dedupe identical contiguous rows by the first column, keeping the first
 - [bdropuntil](#bdropuntil) - for sorted input, drop until the first column is gte to VALUE
+- [bhead](#bhead) - keep the first n rows
 - [blz4](#blz4) - compress bsv data
 - [blz4d](#blz4d) - decompress bsv data
 - [bmerge](#bmerge) - merge sorted files from stdin
@@ -217,6 +218,22 @@ c
 d
 ```
 
+### [bhead](https://github.com/nathants/bsv/blob/master/src/bhead.c)
+
+keep the first n rows
+
+usage: `... | bhead N`
+
+```
+>> echo '
+a
+b
+c
+' | bsv | btail 2 | csv
+a
+b
+```
+
 ### [blz4](https://github.com/nathants/bsv/blob/master/src/blz4.c)
 
 compress bsv data
@@ -321,11 +338,11 @@ usage: `... | bsort [-r|--reversed] [TYPE]`
 
 split a stream into multiple files
 
-usage: `... | bsplit [chunks_per_file=1]`
+usage: `... | bsplit PREFIX [chunks_per_file=1]`
 
 ```
->> echo -n a,b,c | bsv | bsplit
-1595793589_0000000000
+>> echo -n a,b,c | bsv prefix | bsplit
+prefix_0000000000
 ```
 
 ### [bsum](https://github.com/nathants/bsv/blob/master/src/bsum.c)
@@ -437,7 +454,7 @@ usage: `... | bunzip PREFIX`
 >> echo '
 a,b,c
 1,2,3
-' | bsv | bunzip col && echo col_0 col_2 | bzip | csv
+' | bsv | bunzip col && echo col_1 col_3 | bzip | csv
 a,c
 1,3
 ```
