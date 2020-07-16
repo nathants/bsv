@@ -48,7 +48,7 @@ for path in co('ls src/*.c').splitlines():
         if not name.startswith('_'):
             name = name.replace('_', '-')
         before.append(f'- [{name}](#{name}) - {description}'.strip())
-        after.append(f'\n### [{name}](https://github.com/nathants/bsv/blob/master/src/{name}.c)\n\n{description}usage: `{usage.strip()}`\n\n```\n{example.rstrip()}\n```')
+        after.append(f'\n### [{name}](https://github.com/nathants/bsv/blob/master/src/{name}.c)\n\n{description}```\nusage: {usage.strip()}\n```\n\n```\n{example.rstrip()}\n```')
 
 with open('readme.md', 'w') as f:
     f.write('\n'.join(before + after) + '\n')

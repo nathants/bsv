@@ -85,7 +85,9 @@ explicit types and schemas.
 
 cat some bsv files to csv
 
-usage: `bcat [-l|--lz4] [-p|--prefix] [-h N|--head N] FILE1 ... FILEN`
+```
+usage: bcat [-l|--lz4] [-p|--prefix] [-h N|--head N] FILE1 ... FILEN
+```
 
 ```
 >> for char in a a b b c c; do
@@ -102,7 +104,9 @@ usage: `bcat [-l|--lz4] [-p|--prefix] [-h N|--head N] FILE1 ... FILEN`
 
 prepend a new column by combining values from existing columns
 
-usage: `... | bcombine COL1,...,COLN`
+```
+usage: ... | bcombine COL1,...,COLN
+```
 
 ```
 >> echo a,b,c | bsv | bcombine 3,2 | csv
@@ -113,7 +117,9 @@ b:a,a,b,c
 
 pass through data, to benchmark load/dump performance
 
-usage: `... | bcopy`
+```
+usage: ... | bcopy
+```
 
 ```
 >> echo a,b,c | bsv | bcopy | csv
@@ -124,7 +130,9 @@ a,b,c
 
 count as i64 each contiguous identical row by the first column
 
-usage: `... | bcounteach`
+```
+usage: ... | bcounteach
+```
 
 ```
 echo '
@@ -144,7 +152,9 @@ a,1
 
 count as i64 by hash of the first column
 
-usage: `... | bcounteach-hash`
+```
+usage: ... | bcounteach-hash
+```
 
 ```
 echo '
@@ -163,7 +173,9 @@ b,3
 
 count rows as i64
 
-usage: `... | bcountrows`
+```
+usage: ... | bcountrows
+```
 
 ```
 >> echo '
@@ -179,7 +191,9 @@ usage: `... | bcountrows`
 
 select some columns
 
-usage: `... | bcut COL1,...,COLN`
+```
+usage: ... | bcut COL1,...,COLN
+```
 
 ```
 >> echo a,b,c | bsv | bcut 3,3,3,2,2,1 | csv
@@ -190,7 +204,9 @@ c,c,c,b,b,a
 
 dedupe identical contiguous rows by the first column, keeping the first
 
-usage: `... | bdedupe`
+```
+usage: ... | bdedupe
+```
 
 ```
 >> echo '
@@ -210,7 +226,9 @@ a
 
 dedupe rows by hash of the first column, keeping the first
 
-usage: `... | bdedupe-hash`
+```
+usage: ... | bdedupe-hash
+```
 
 ```
 >> echo '
@@ -229,7 +247,9 @@ b
 
 for sorted input, drop until the first column is gte to VALUE
 
-usage: `... | bdropuntil VALUE [TYPE]`
+```
+usage: ... | bdropuntil VALUE [TYPE]
+```
 
 ```
 >> echo '
@@ -246,7 +266,9 @@ d
 
 keep the first n rows
 
-usage: `... | bhead N`
+```
+usage: ... | bhead N
+```
 
 ```
 >> echo '
@@ -262,7 +284,9 @@ b
 
 compress bsv data
 
-usage: `... | blz4`
+```
+usage: ... | blz4
+```
 
 ```
 >> echo a,b,c | bsv | blz4 | blz4d | csv
@@ -273,7 +297,9 @@ a,b,c
 
 decompress bsv data
 
-usage: `... | blz4d`
+```
+usage: ... | blz4d
+```
 
 ```
 >> echo a,b,c | bsv | blz4 | blz4d | csv
@@ -284,7 +310,9 @@ a,b,c
 
 merge sorted files from stdin
 
-usage: `echo FILE1 ... FILEN | bmerge [TYPE] [-r|--reversed]`
+```
+usage: echo FILE1 ... FILEN | bmerge [TYPE] [-r|--reversed]
+```
 
 ```
 >> echo -e 'a
@@ -308,7 +336,9 @@ f
 
 split into multiple files by consistent hash of the first column value
 
-usage: `... | bpartition NUM_BUCKETS [PREFIX]`
+```
+usage: ... | bpartition NUM_BUCKETS [PREFIX]
+```
 
 ```
 >> echo '
@@ -324,7 +354,9 @@ prefix06
 
 validate and converts row data with a schema of columns
 
-usage: `... | bschema SCHEMA [--filter]`
+```
+usage: ... | bschema SCHEMA [--filter]
+```
 
 ```
   --filter remove bad rows instead of erroring
@@ -345,7 +377,9 @@ aa,bbb,cccc
 
 timsort rows by the first column
 
-usage: `... | bsort [-r|--reversed] [TYPE]`
+```
+usage: ... | bsort [-r|--reversed] [TYPE]
+```
 
 ```
 >> echo '
@@ -362,7 +396,9 @@ usage: `... | bsort [-r|--reversed] [TYPE]`
 
 split a stream into multiple files
 
-usage: `... | bsplit PREFIX [chunks_per_file=1]`
+```
+usage: ... | bsplit PREFIX [chunks_per_file=1]
+```
 
 ```
 >> echo -n a,b,c | bsv prefix | bsplit
@@ -373,7 +409,9 @@ prefix_0000000000
 
 sum the first column
 
-usage: `... | bsum TYPE`
+```
+usage: ... | bsum TYPE
+```
 
 ```
 >> echo -e '1
@@ -388,7 +426,9 @@ usage: `... | bsum TYPE`
 
 sum the second colum of each contiguous identical row by the first column
 
-usage: `... | bsumeach TYPE`
+```
+usage: ... | bsumeach TYPE
+```
 
 ```
 echo '
@@ -408,7 +448,9 @@ a,6
 
 sum as i64 the second colum by hash of the first column
 
-usage: `... | bsumeach-hash i64`
+```
+usage: ... | bsumeach-hash i64
+```
 
 ```
 echo '
@@ -428,7 +470,9 @@ a,6
 
 convert csv to bsv
 
-usage: `... | bsv`
+```
+usage: ... | bsv
+```
 
 ```
 >> echo a,b,c | bsv | bcut 3,2,1 | csv
@@ -439,7 +483,9 @@ c,b,a
 
 take while the first column is VALUE
 
-usage: `... | btake VALUE`
+```
+usage: ... | btake VALUE
+```
 
 ```
 >> echo '
@@ -455,7 +501,9 @@ c
 
 for sorted input, take until the first column is gte to VALUE
 
-usage: `... | btakeuntil VALUE [TYPE]`
+```
+usage: ... | btakeuntil VALUE [TYPE]
+```
 
 ```
 >> echo '
@@ -472,7 +520,9 @@ b
 
 split a multi column input into single column outputs
 
-usage: `... | bunzip PREFIX`
+```
+usage: ... | bunzip PREFIX
+```
 
 ```
 >> echo '
@@ -487,7 +537,9 @@ a,c
 
 combine single column inputs into a multi column output
 
-usage: `ls column_* | bzip [COL1,...COLN]`
+```
+usage: ls column_* | bzip [COL1,...COLN]
+```
 
 ```
 >> echo '
@@ -502,7 +554,9 @@ a,c
 
 convert bsv to csv
 
-usage: `... | csv`
+```
+usage: ... | csv
+```
 
 ```
 >> echo a,b,c | bsv | csv
@@ -513,7 +567,9 @@ a,b,c
 
 xxh3_64 hash stdin
 
-usage: `... | xxh3 [--stream|--int]`
+```
+usage: ... | xxh3 [--stream|--int]
+```
 
 ```
   --stream pass stdin through to stdout with hash on stderr
