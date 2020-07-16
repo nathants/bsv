@@ -46,6 +46,10 @@ explicit types and schemas.
 
 [s4](https://github.com/nathants/s4) - a storage cluster that is cheap and fast, with data local compute and efficient shuffle.
 
+## examples
+
+[structured analysis of nyc taxi data with bsv and hive](https://github.com/nathants/s4/blob/master/examples/nyc_taxi_bsv)
+
 ## tools
 
 - [bcat](#bcat) - cat some bsv files to csv
