@@ -6,7 +6,7 @@ it should be simple and easy to process data at the speed of sequential io.
 
 a simple and efficient [data](https://github.com/nathants/bsv/blob/master/util/load.h) [format](https://github.com/nathants/bsv/blob/master/util/dump.h) for sequentially manipulating chunks of rows of columns while minimizing allocations and copies.
 
-minimal cli [tools](https://github.com/nathants/bsv#tools) for rapidly composing performant data flow pipelines.
+minimal cli [tools](#tools) for rapidly composing performant data flow pipelines.
 
 ## how
 
@@ -148,7 +148,7 @@ b,3
 a,1
 ```
 
-### [bcounteach-hash](https://github.com/nathants/bsv/blob/master/src/bcounteach-hash.c)
+### [bcounteach-hash](https://github.com/nathants/bsv/blob/master/src/bcounteach_hash.c)
 
 count as i64 by hash of the first column
 
@@ -222,7 +222,7 @@ b
 a
 ```
 
-### [bdedupe-hash](https://github.com/nathants/bsv/blob/master/src/bdedupe-hash.c)
+### [bdedupe-hash](https://github.com/nathants/bsv/blob/master/src/bdedupe_hash.c)
 
 dedupe rows by hash of the first column, keeping the first
 
@@ -444,7 +444,7 @@ b,12
 a,6
 ```
 
-### [bsumeach-hash](https://github.com/nathants/bsv/blob/master/src/bsumeach-hash.c)
+### [bsumeach-hash](https://github.com/nathants/bsv/blob/master/src/bsumeach_hash.c)
 
 sum as i64 the second colum by hash of the first column
 
