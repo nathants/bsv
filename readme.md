@@ -40,7 +40,7 @@ explicit types and schemas.
 
 ## experiments
 
-[performance](https://github.com/nathants/bsv/blob/master/experiments/readme.md) experiments and alternate implementations.
+[performance](https://github.com/nathants/bsv/blob/master/experiments/) experiments and alternate implementations.
 
 ## related work
 

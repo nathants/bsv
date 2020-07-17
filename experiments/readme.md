@@ -45,9 +45,9 @@ sys     0m0.450s
 
 ### alternate implementations and performance experiments
 
-[cut](https://github.com/nathants/bsv/blob/master/experiments/cut/readme.md) in c, rust, go, and pypy
+[cut](https://github.com/nathants/bsv/blob/master/experiments/cut/) in c, rust, go, and pypy
 
-[bcut](https://github.com/nathants/bsv/blob/master/experiments/bcut/readme.md) in c, rust, go and pypy
+[bcut](https://github.com/nathants/bsv/blob/master/experiments/bcut/) in c, rust, go and pypy
 
 [sort and merge](https://github.com/nathants/bsv/blob/master/experiments/cut/readme.md#the-only-random-access-that-should-ever-be-happening-is-sort) with bsv and coreutils
 
