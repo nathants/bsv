@@ -52,34 +52,36 @@ explicit types and schemas.
 
 ## tools
 
-- [bcat](#bcat) - cat some bsv files to csv
-- [bcombine](#bcombine) - prepend a new column by combining values from existing columns
-- [bcopy](#bcopy) - pass through data, to benchmark load/dump performance
-- [bcounteach](#bcounteach) - count as i64 each contiguous identical row by the first column
-- [bcounteach-hash](#bcounteach-hash) - count as i64 by hash of the first column
-- [bcountrows](#bcountrows) - count rows as i64
-- [bcut](#bcut) - select some columns
-- [bdedupe](#bdedupe) - dedupe identical contiguous rows by the first column, keeping the first
-- [bdedupe-hash](#bdedupe-hash) - dedupe rows by hash of the first column, keeping the first
-- [bdropuntil](#bdropuntil) - for sorted input, drop until the first column is gte to VALUE
-- [bhead](#bhead) - keep the first n rows
-- [blz4](#blz4) - compress bsv data
-- [blz4d](#blz4d) - decompress bsv data
-- [bmerge](#bmerge) - merge sorted files from stdin
-- [bpartition](#bpartition) - split into multiple files by consistent hash of the first column value
-- [bschema](#bschema) - validate and converts row data with a schema of columns
-- [bsort](#bsort) - timsort rows by the first column
-- [bsplit](#bsplit) - split a stream into multiple files
-- [bsum](#bsum) - sum the first column
-- [bsumeach](#bsumeach) - sum the second colum of each contiguous identical row by the first column
-- [bsumeach-hash](#bsumeach-hash) - sum as i64 the second colum by hash of the first column
-- [bsv](#bsv) - convert csv to bsv
-- [btake](#btake) - take while the first column is VALUE
-- [btakeuntil](#btakeuntil) - for sorted input, take until the first column is gte to VALUE
-- [bunzip](#bunzip) - split a multi column input into single column outputs
-- [bzip](#bzip) - combine single column inputs into a multi column output
-- [csv](#csv) - convert bsv to csv
-- [xxh3](#xxh3) - xxh3_64 hash stdin
+| name | description |
+| -- | -- |
+| [bcat](#bcat) | cat some bsv files to csv |
+| [bcombine](#bcombine) | prepend a new column by combining values from existing columns |
+| [bcopy](#bcopy) | pass through data, to benchmark load/dump performance |
+| [bcounteach](#bcounteach) | count as i64 each contiguous identical row by the first column |
+| [bcounteach-hash](#bcounteach-hash) | count as i64 by hash of the first column |
+| [bcountrows](#bcountrows) | count rows as i64 |
+| [bcut](#bcut) | select some columns |
+| [bdedupe](#bdedupe) | dedupe identical contiguous rows by the first column, keeping the first |
+| [bdedupe-hash](#bdedupe-hash) | dedupe rows by hash of the first column, keeping the first |
+| [bdropuntil](#bdropuntil) | for sorted input, drop until the first column is gte to VALUE |
+| [bhead](#bhead) | keep the first n rows |
+| [blz4](#blz4) | compress bsv data |
+| [blz4d](#blz4d) | decompress bsv data |
+| [bmerge](#bmerge) | merge sorted files from stdin |
+| [bpartition](#bpartition) | split into multiple files by consistent hash of the first column value |
+| [bschema](#bschema) | validate and converts row data with a schema of columns |
+| [bsort](#bsort) | timsort rows by the first column |
+| [bsplit](#bsplit) | split a stream into multiple files |
+| [bsum](#bsum) | sum the first column |
+| [bsumeach](#bsumeach) | sum the second colum of each contiguous identical row by the first column |
+| [bsumeach-hash](#bsumeach-hash) | sum as i64 the second colum by hash of the first column |
+| [bsv](#bsv) | convert csv to bsv |
+| [btake](#btake) | take while the first column is VALUE |
+| [btakeuntil](#btakeuntil) | for sorted input, take until the first column is gte to VALUE |
+| [bunzip](#bunzip) | split a multi column input into single column outputs |
+| [bzip](#bzip) | combine single column inputs into a multi column output |
+| [csv](#csv) | convert bsv to csv |
+| [xxh3](#xxh3) | xxh3_64 hash stdin |
 
 ### [bcat](https://github.com/nathants/bsv/blob/master/src/bcat.c)
 

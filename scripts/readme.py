@@ -15,6 +15,9 @@ for x in xs:
         before.append('')
         break
 
+before.append('| name | description |')
+before.append('| -- | -- |')
+
 after = []
 
 for path in co('ls src/*.c').splitlines():
@@ -47,7 +50,7 @@ for path in co('ls src/*.c').splitlines():
             raise
         if not name.startswith('_'):
             name = name.replace('_', '-')
-        before.append(f'- [{name}](#{name}) - {description}'.strip())
+        before.append(f'| [{name}](#{name}) | {description.rstrip()} |'.strip())
         after.append(f'\n### [{name}](https://github.com/nathants/bsv/blob/master/src/{name.replace("-", "_")}.c)\n\n{description}```\nusage: {usage.strip()}\n```\n\n```\n{example.rstrip()}\n```')
 
 with open('readme.md', 'w') as f:
