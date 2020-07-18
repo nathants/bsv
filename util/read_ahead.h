@@ -11,13 +11,16 @@ typedef struct readaheadbuf_s {
     u8 * _u8s;
 } readaheadbuf_t;
 
-void rabuf_init(readaheadbuf_t *buf, i32 num_files) {
+readaheadbuf_t rabuf_init(i32 num_files) {
+    readaheadbuf_t *buf;
+    MALLOC(buf, sizeof(readaheadbuf_t));
     buf->has_nexted = 0;
     MALLOC(buf->last_buffers, sizeof(u8*) * num_files);
     MALLOC(buf->last_chunk_size, sizeof(i32) * num_files);
     for (i32 i = 0; i < num_files; i++) {
       MALLOC(buf->last_buffers[i], BUFFER_SIZE);
     }
+    return *buf;
 }
 
 inlined void swap(readbuf_t *rbuf, readaheadbuf_t* rabuf, i32 file) {

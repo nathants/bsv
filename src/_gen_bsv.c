@@ -20,10 +20,8 @@ int main(int argc, char **argv) {
     ASSERT(num_columns >= 0, "fatal: num_columns < 0");
     ASSERT(num_rows >= 0, "fatal: num_rows < 0");
 
-    // setup output
-    FILE *out_files[1] = {stdout};
-    writebuf_t wbuf;
-    wbuf_init(&wbuf, out_files, 1, false);
+    // setup bsv
+    writebuf_t wbuf = wbuf_init((FILE*[]){stdout}, 1, false);
 
     const u8 *words[] = {
         "Abelson",

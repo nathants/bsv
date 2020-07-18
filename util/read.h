@@ -19,7 +19,9 @@ typedef struct readbuf_s {
     i32 lz4_size;
 } readbuf_t;
 
-void rbuf_init(readbuf_t *buf, FILE **files, i32 num_files, bool lz4) {
+readbuf_t rbuf_init(FILE **files, i32 num_files, bool lz4) {
+    readbuf_t *buf;
+    MALLOC(buf, sizeof(readbuf_t));
     buf->files = files;
     MALLOC(buf->buffers, sizeof(u8*) * num_files);
     MALLOC(buf->offset, sizeof(i32) * num_files);
@@ -32,6 +34,7 @@ void rbuf_init(readbuf_t *buf, FILE **files, i32 num_files, bool lz4) {
     buf->lz4 = lz4;
     if (lz4)
         MALLOC(buf->lz4_buf, BUFFER_SIZE_LZ4);
+    return *buf;
 }
 
 #define DECOMPRESS(buf)                                                                                             \

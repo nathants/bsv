@@ -48,13 +48,10 @@ int main(int argc, char **argv) {
             ARRAY_APPEND(filename, tmp, u8);
         }
     }
-    readbuf_t rbuf;
-    rbuf_init(&rbuf, files, ARRAY_SIZE(files), lz4);
+    readbuf_t rbuf = rbuf_init(files, ARRAY_SIZE(files), lz4);
 
     // setup output
-    FILE *out_files[1] = {stdout};
-    writebuf_t wbuf;
-    wbuf_init(&wbuf, out_files, 1, false);
+    writebuf_t wbuf = wbuf_init((FILE*[]){stdout}, 1, false);
 
     i32 value_type;
     if (!ARGH_ARGC)

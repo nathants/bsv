@@ -13,7 +13,9 @@ typedef struct writebuf_s {
     i32 lz4_size;
 } writebuf_t;
 
-void wbuf_init(writebuf_t *buf, FILE **files, i32 num_files, bool lz4) {
+writebuf_t wbuf_init(FILE **files, i32 num_files, bool lz4) {
+    writebuf_t *buf;
+    MALLOC(buf, sizeof(writebuf_t));
     buf->files = files;
     MALLOC(buf->buffer, sizeof(u8*) * num_files);
     MALLOC(buf->offset, sizeof(i32) * num_files);
@@ -24,6 +26,7 @@ void wbuf_init(writebuf_t *buf, FILE **files, i32 num_files, bool lz4) {
     buf->lz4 = lz4;
     if (lz4)
         MALLOC(buf->lz4_buf, BUFFER_SIZE_LZ4);
+    return *buf;
 }
 
 inlined void write_bytes(writebuf_t *buf, u8 *bytes, i32 size, i32 file) {

@@ -26,9 +26,7 @@ int main(int argc, char **argv) {
     SETUP();
 
     // setup input
-    FILE *in_files[1] = {stdin};
-    readbuf_t rbuf;
-    rbuf_init(&rbuf, in_files, 1, false);
+    readbuf_t rbuf = rbuf_init((FILE*[]){stdin}, 1, false);
 
     // setup state
     row_t row;
@@ -68,8 +66,7 @@ int main(int argc, char **argv) {
     }
 
     // setup output
-    writebuf_t wbuf;
-    wbuf_init(&wbuf, files, num_buckets, lz4);
+    writebuf_t wbuf = wbuf_init(files, num_buckets, lz4);
 
     // for 1 bucket, pipe the data straight through
     if (num_buckets == 1) {

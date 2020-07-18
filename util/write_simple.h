@@ -10,7 +10,9 @@ typedef struct writebuf_s {
 } writebuf_t;
 
 
-void wbuf_init(writebuf_t *buf, FILE **files, i32 num_files) {
+writebuf_t wbuf_init(FILE **files, i32 num_files) {
+    writebuf_t *buf;
+    MALLOC(buf, sizeof(writebuf_t));
     buf->files = files;
     MALLOC(buf->buffer, sizeof(u8*) * num_files);
     MALLOC(buf->offset, sizeof(i32) * num_files);
@@ -18,6 +20,7 @@ void wbuf_init(writebuf_t *buf, FILE **files, i32 num_files) {
         buf->offset[i] = 0;
         MALLOC(buf->buffer[i], BUFFER_SIZE);
     }
+    return *buf;
 }
 
 inlined void write_flush(writebuf_t *buf, i32 file) {

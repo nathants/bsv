@@ -10,16 +10,8 @@ int main(int argc, char **argv) {
 
     // setup bsv
     SETUP();
-
-    // setup input
-    FILE *in_files[1] = {stdin};
-    readbuf_t rbuf;
-    rbuf_init(&rbuf, in_files, 1, false);
-
-    // setup output
-    FILE *out_files[1] = {stdout};
-    writebuf_t wbuf;
-    wbuf_init(&wbuf, out_files, 1, false);
+    readbuf_t rbuf = rbuf_init((FILE*[]){stdin}, 1, false);
+    writebuf_t wbuf = wbuf_init((FILE*[]){stdout}, 1, false);
 
     // setup state
     u8 *buffer;

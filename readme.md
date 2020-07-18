@@ -4,7 +4,7 @@ it should be simple and easy to process data at the speed of sequential io.
 
 ## what
 
-a simple and efficient [data](https://github.com/nathants/bsv/blob/master/util/load.h) [format](https://github.com/nathants/bsv/blob/master/util/dump.h) for sequentially manipulating chunks of rows of columns while minimizing allocations and copies.
+a simple and efficient [data](https://github.com/nathants/bsv/blob/master/util/load.h) [format](https://github.com/nathants/bsv/blob/master/util/dump.h) for easily manipulating chunks of rows of columns while minimizing allocations and copies.
 
 minimal cli [tools](#tools) for rapidly composing performant data flow pipelines.
 
@@ -20,13 +20,90 @@ note: row data cannot exceed chunk size.
 
 ## layout
 
-[chunk](https://github.com/nathants/bsv/blob/master/util/read.h): `| i32:size | row-1 | ... | row-n |`
+[chunk](https://github.com/nathants/bsv/blob/master/util/read.h):
 
-[row](https://github.com/nathants/bsv/blob/master/util/load.h): `| u16:max | u16:size-1 | ... | u16:size-n | u8:col-1 | ... | u8:col-n |`
+```
+| i32:size | row-1 | ... | row-n |
+```
+
+[row](https://github.com/nathants/bsv/blob/master/util/load.h):
+
+```
+| u16:max | u16:size-1 | ... | u16:size-n | u8:column-1 | ... | u8:column-n |
+```
 
 note: column bytes are always followed by a single nullbyte.
 
 note: max is the maximum zero based index into the row.
+
+## example
+
+add `bsumall.c` to `bsv/src/`:
+
+```c
+#include "util.h"
+#include "load.h"
+#include "dump.h"
+
+#define DESCRIPTION "sum columns of u16 as i64\n\n"
+#define USAGE "... | bsumall \n\n"
+#define EXAMPLE ">> echo '\n1,2\n3,4\n' | bsv | bschema a:u16,a:u16 | bsumall i64 | bschema i64:a,i64:a | csv\n4,6\n"
+
+int main(int argc, char **argv) {
+
+    // setup state
+    SETUP();
+    readbuf_t rbuf = rbuf_init((FILE*[]){stdin}, 1, false);
+    writebuf_t wbuf = wbuf_init((FILE*[]){stdout}, 1, false);
+    i64 sums[MAX_COLUMNS] = {0};
+    row_t row;
+
+    // process input row by row
+    while (1) {
+        load_next(&rbuf, &row, 0);
+        if (row.stop)
+            break;
+        for (i32 i = 0; i <= row.max; i++) {
+            ASSERT(sizeof(u16) == row.sizes[i], "fatal: bad data\n");
+            sums[i] += *(u16*)row.columns[i];
+        }
+    }
+
+    // generate output row
+    row.max = -1;
+    for (i32 i = 0; i < MAX_COLUMNS; i++) {
+        if (!sums[i])
+            break;
+        row.sizes[i] = sizeof(i64);
+        row.columns[i] = &sums[i];
+        row.max++;
+    }
+
+    // dump output
+    if (row.max >= 0)
+        dump(&wbuf, &row, 0);
+    dump_flush(&wbuf, 0);
+}
+```
+
+build and run:
+
+```
+>> ./scripts/makefile.sh
+
+>> make bsumall
+
+>> bsumall -h
+sum columns of u16 as i64
+
+usage: ... | bsumall
+
+>> echo '
+1,2
+3,4
+' | bsv | bschema a:u16,a:u16 | bsumall i64 | bschema i64:a,i64:a | csv
+4,6
+```
 
 ## non goals
 
@@ -46,7 +123,7 @@ explicit types and schemas.
 
 [s4](https://github.com/nathants/s4) - a storage cluster that is cheap and fast, with data local compute and efficient shuffle.
 
-## examples
+## more examples
 
 [structured analysis of nyc taxi data with bsv and hive](https://github.com/nathants/s4/blob/master/examples/nyc_taxi_bsv)
 
@@ -416,7 +493,7 @@ usage: ... | bsum TYPE
 ```
 
 ```
->> echo -e '1
+>> echo '1
 2
 3
 4

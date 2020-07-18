@@ -13,9 +13,7 @@ int main(int argc, char **argv) {
     SETUP();
 
     // setup input
-    FILE *in_files[1] = {stdin};
-    readbuf_t rbuf;
-    rbuf_init(&rbuf, in_files, 1, false);
+    readbuf_t rbuf = rbuf_init((FILE*[]){stdin}, 1, false);
 
     // setup state
     u8 num_columns_str[16];
@@ -49,8 +47,7 @@ int main(int argc, char **argv) {
     }
 
     // setup output
-    writebuf_t wbuf;
-    wbuf_init(&wbuf, files, unzip_max + 1, lz4);
+    writebuf_t wbuf = wbuf_init(files, unzip_max + 1, lz4);
 
     // output first row
     for (i32 i = 0; i <= unzip_max; i++) {

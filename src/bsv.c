@@ -14,9 +14,7 @@ int main(int argc, char **argv) {
     CSV_INIT();
 
     // setup output
-    FILE *out_files[1] = {stdout};
-    writebuf_t wbuf;
-    wbuf_init(&wbuf, out_files, 1, false);
+    writebuf_t wbuf = wbuf_init((FILE*[]){stdout}, 1, false);
 
     // setup state
     row_t row;

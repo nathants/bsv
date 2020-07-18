@@ -13,7 +13,9 @@ typedef struct readbuf_s {
     u8 **buffers;
 } readbuf_t;
 
-void rbuf_init(readbuf_t *buf, FILE **files, i32 num_files) {
+readbuf_t rbuf_init(FILE **files, i32 num_files) {
+    readbuf_t *buf;
+    MALLOC(buf, sizeof(readbuf_t));
     buf->files = files;
     MALLOC(buf->stop, sizeof(i32) * num_files);
     for (i32 file = 0; file < num_files; file++)
@@ -24,6 +26,7 @@ void rbuf_init(readbuf_t *buf, FILE **files, i32 num_files) {
         buf->offset[file] = BUFFER_SIZE;
         MALLOC(buf->buffers[file], BUFFER_SIZE);
     }
+    return *buf;
 }
 
 inlined void read_bytes(readbuf_t *buf, i32 size, i32 file) {

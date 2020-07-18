@@ -39,14 +39,11 @@ int main(int argc, char **argv) {
     FILE *files[ARGH_ARGC];
     for (i32 i = 0; i < ARGH_ARGC; i++)
         FOPEN(files[i], ARGH_ARGV[i], "rb");
-    readbuf_t rbuf;
-    rbuf_init(&rbuf, files, ARGH_ARGC, lz4);
+    readbuf_t rbuf = rbuf_init(files, ARGH_ARGC, lz4);
     row_t row;
 
     // setup output
-    FILE *out_files[1] = {stdout};
-    writebuf_t wbuf;
-    wbuf_init(&wbuf, out_files, 1);
+    writebuf_t wbuf = wbuf_init((FILE*[]){stdout}, 1);
 
     // process input row by row
     for (i32 i = 0; i < ARGH_ARGC; i++) {
