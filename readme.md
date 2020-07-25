@@ -480,7 +480,7 @@ usage: ... | bsplit PREFIX [chunks_per_file=1]
 ```
 
 ```bash
->> echo -n a,b,c | bsv prefix | bsplit
+>> echo -n a,b,c | bsv | bsplit prefix
 prefix_0000000000
 ```
 

@@ -5,7 +5,7 @@
 
 #define DESCRIPTION "split a stream into multiple files\n\n"
 #define USAGE "... | bsplit PREFIX [chunks_per_file=1] \n\n"
-#define EXAMPLE ">> echo -n a,b,c | bsv prefix | bsplit\nprefix_0000000000\n"
+#define EXAMPLE ">> echo -n a,b,c | bsv | bsplit prefix\nprefix_0000000000\n"
 
 int main(int argc, char **argv) {
 
