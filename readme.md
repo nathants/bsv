@@ -155,6 +155,7 @@ explicit types and schemas.
 | [bsv](#bsv) | convert csv to bsv |
 | [btake](#btake) | take while the first column is VALUE |
 | [btakeuntil](#btakeuntil) | for sorted input, take until the first column is gte to VALUE |
+| [btopn](#btopn) | accumulate the top n rows in a heap by first column value |
 | [bunzip](#bunzip) | split a multi column input into single column outputs |
 | [bzip](#bzip) | combine single column inputs into a multi column output |
 | [csv](#csv) | convert bsv to csv |
@@ -593,6 +594,24 @@ d
 ' | bsv | btakeuntil c | csv
 a
 b
+```
+
+### [btopn](https://github.com/nathants/bsv/blob/master/src/btopn.c)
+
+accumulate the top n rows in a heap by first column value
+
+```bash
+usage: ... | btopn N [TYPE] [-r|--reversed]
+```
+
+```bash
+>> echo '
+1
+3
+2
+' | bsv | bschema a:i64 | btopn 2 i64 | bschema i64:a | csv
+3
+2
 ```
 
 ### [bunzip](https://github.com/nathants/bsv/blob/master/src/bunzip.c)
