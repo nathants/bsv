@@ -391,7 +391,7 @@ a,b,c
 merge sorted files from stdin
 
 ```bash
-usage: echo FILE1 ... FILEN | bmerge [TYPE] [-r|--reversed]
+usage: echo FILE1 ... FILEN | bmerge [TYPE] [-r|--reversed] [-l|--lz4]
 ```
 
 ```bash
@@ -417,7 +417,7 @@ f
 split into multiple files by consistent hash of the first column value
 
 ```bash
-usage: ... | bpartition NUM_BUCKETS [PREFIX]
+usage: ... | bpartition NUM_BUCKETS [PREFIX] [-l|--lz4]
 ```
 
 ```bash
@@ -619,7 +619,7 @@ usage: ... | btopn N [TYPE] [-r|--reversed]
 split a multi column input into single column outputs
 
 ```bash
-usage: ... | bunzip PREFIX
+usage: ... | bunzip PREFIX [-l|--lz4]
 ```
 
 ```bash
@@ -636,7 +636,7 @@ a,c
 combine single column inputs into a multi column output
 
 ```bash
-usage: ls column_* | bzip [COL1,...COLN]
+usage: ls column_* | bzip [COL1,...COLN] [-l|--lz4]
 ```
 
 ```bash

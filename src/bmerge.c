@@ -6,7 +6,7 @@
 #include "dump.h"
 
 #define DESCRIPTION "merge sorted files from stdin\n\n"
-#define USAGE "echo FILE1 ... FILEN | bmerge [TYPE] [-r|--reversed]\n\n"
+#define USAGE "echo FILE1 ... FILEN | bmerge [TYPE] [-r|--reversed] [-l|--lz4]\n\n"
 #define EXAMPLE                                 \
     ">> echo -e 'a\nc\ne\n' | bsv > a.bsv\n"    \
     ">> echo -e 'b\nd\nf\n' | bsv > b.bsv\n"    \

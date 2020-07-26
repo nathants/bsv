@@ -10,7 +10,7 @@
 #define SEED 0
 
 #define DESCRIPTION "split into multiple files by consistent hash of the first column value\n\n"
-#define USAGE "\n... | bpartition NUM_BUCKETS [PREFIX]\n\n"
+#define USAGE "\n... | bpartition NUM_BUCKETS [PREFIX] [-l|--lz4]\n\n"
 #define EXAMPLE ">> echo '\na\nb\nc\n' | bsv | bpartition 10 prefix\nprefix03\nprefix06\n"
 
 int empty_file(char *path) {

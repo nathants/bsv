@@ -5,7 +5,7 @@
 #include "dump.h"
 
 #define DESCRIPTION "combine single column inputs into a multi column output\n\n"
-#define USAGE "ls column_* | bzip [COL1,...COLN]\n\n"
+#define USAGE "ls column_* | bzip [COL1,...COLN] [-l|--lz4]\n\n"
 #define EXAMPLE ">> echo '\na,b,c\n1,2,3\n' | bsv | bunzip column && ls column_* | bzip 1,3 | csv\na,c\n1,3\n"
 
 int main(int argc, char **argv) {

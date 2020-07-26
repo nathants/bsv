@@ -4,7 +4,7 @@
 #include "dump.h"
 
 #define DESCRIPTION "split a multi column input into single column outputs\n\n"
-#define USAGE "... | bunzip PREFIX \n\n"
+#define USAGE "... | bunzip PREFIX [-l|--lz4]\n\n"
 #define EXAMPLE ">> echo '\na,b,c\n1,2,3\n' | bsv | bunzip col && echo col_1 col_3 | bzip | csv\na,c\n1,3\n"
 
 int main(int argc, char **argv) {
