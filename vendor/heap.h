@@ -106,7 +106,6 @@ static void* map_in_pages(int page_count) {
     }
 }
 
-
 // Helper function to map a number of pages out of memory
 static void map_out_pages(void* addr, int page_count) {
     // Check everything
@@ -114,20 +113,6 @@ static void map_out_pages(void* addr, int page_count) {
     assert(page_count > 0);
     // Call munmap to get rid of the pages
     free(addr);
-}
-
-// This is a comparison function that treats keys as signed ints
-int compare_int_keys(register void* key1, register void* key2) {
-    // Cast them as int* and read them in
-    register int key1_v = *((int*)key1);
-    register int key2_v = *((int*)key2);
-    // Perform the comparison
-    if (key1_v < key2_v)
-        return -1;
-    else if (key1_v == key2_v)
-        return 0;
-    else
-        return 1;
 }
 
 // Creates a new heap
