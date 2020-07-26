@@ -1,4 +1,5 @@
 #include <ctype.h>
+#include <stdbool.h>
 #include <time.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -7,7 +8,7 @@
 #include "dump.h"
 
 void showusage() {
-    FPRINTF(stderr, "\nusage: $ _gen_bsv NUM_COLUMNS NUM_ROWS\n");
+    FPRINTF(stderr, "\nusage: $ _gen_bsv NUM_COLUMNS NUM_ROWS [--bytes]\n");
     exit(1);
 }
 
@@ -19,6 +20,9 @@ int main(int argc, char **argv) {
     i64 num_rows = atol(argv[2]);
     ASSERT(num_columns >= 0, "fatal: num_columns < 0");
     ASSERT(num_rows >= 0, "fatal: num_rows < 0");
+    bool bytes = false;
+    if (argc == 4 && strcmp(argv[3], "--bytes") == 0)
+        bytes = true;
 
     // setup bsv
     writebuf_t wbuf = wbuf_init((FILE*[]){stdout}, 1, false);
@@ -1046,12 +1050,21 @@ int main(int argc, char **argv) {
         offset = 0;
         row.max = 0;
         for (i32 j = 0; j < num_columns; j++) {
-            index = rand() % num_words;
-            memcpy(buffer + offset, words[index], sizes[index]);
-            row.sizes[j] = sizes[index];
-            row.columns[j] = buffer + offset;
-            offset += sizes[index];
-            row.max = j;
+            if (bytes) {
+                for (i32 k = 0; k < 8; k++)
+                    buffer[offset + k] = rand();
+                row.sizes[j] = 8;
+                row.columns[j] = buffer + offset;
+                offset += 8;
+                row.max = j;
+            } else {
+                index = rand() % num_words;
+                memcpy(buffer + offset, words[index], sizes[index]);
+                row.sizes[j] = sizes[index];
+                row.columns[j] = buffer + offset;
+                offset += sizes[index];
+                row.max = j;
+            }
         }
         dump(&wbuf, &row, 0);
     }
