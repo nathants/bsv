@@ -48,6 +48,7 @@ int main(int argc, char **argv) {
             ARRAY_APPEND(filename, tmp, u8);
         }
     }
+    ASSERT(ARRAY_SIZE(files) < USHRT_MAX, "fatal: too many files\n");
     readbuf_t rbuf = rbuf_init(files, ARRAY_SIZE(files), lz4);
 
     // setup output
@@ -114,9 +115,28 @@ int main(int argc, char **argv) {
     // seed the heap with the first row of each input
     for (i32 i = 0; i < ARRAY_SIZE(files); i++) {
         load_next(&rbuf, &row, i);
-        if (row.stop) {
-            DEBUG("empty file: %d\n", i);
+        if (row.stop)
             continue;
+        switch (value_type) {
+            // normal
+            case STR: break;
+            case I64: ASSERT(row.sizes[0] == sizeof(i64), "fatal: bad size for i64: %d\n", row.sizes[0]); break;
+            case I32: ASSERT(row.sizes[0] == sizeof(i32), "fatal: bad size for i32: %d\n", row.sizes[0]); break;
+            case I16: ASSERT(row.sizes[0] == sizeof(i16), "fatal: bad size for i16: %d\n", row.sizes[0]); break;
+            case U64: ASSERT(row.sizes[0] == sizeof(u64), "fatal: bad size for u64: %d\n", row.sizes[0]); break;
+            case U32: ASSERT(row.sizes[0] == sizeof(u32), "fatal: bad size for u32: %d\n", row.sizes[0]); break;
+            case U16: ASSERT(row.sizes[0] == sizeof(u16), "fatal: bad size for u16: %d\n", row.sizes[0]); break;
+            case F64: ASSERT(row.sizes[0] == sizeof(f64), "fatal: bad size for f64: %d\n", row.sizes[0]); break;
+            case F32: ASSERT(row.sizes[0] == sizeof(f32), "fatal: bad size for f32: %d\n", row.sizes[0]); break;
+            // reverse
+            case R_I64: ASSERT(row.sizes[0] == sizeof(i64), "fatal: bad size for i64: %d\n", row.sizes[0]); break;
+            case R_I32: ASSERT(row.sizes[0] == sizeof(i32), "fatal: bad size for i32: %d\n", row.sizes[0]); break;
+            case R_I16: ASSERT(row.sizes[0] == sizeof(i16), "fatal: bad size for i16: %d\n", row.sizes[0]); break;
+            case R_U64: ASSERT(row.sizes[0] == sizeof(u64), "fatal: bad size for u64: %d\n", row.sizes[0]); break;
+            case R_U32: ASSERT(row.sizes[0] == sizeof(u32), "fatal: bad size for u32: %d\n", row.sizes[0]); break;
+            case R_U16: ASSERT(row.sizes[0] == sizeof(u16), "fatal: bad size for u16: %d\n", row.sizes[0]); break;
+            case R_F64: ASSERT(row.sizes[0] == sizeof(f64), "fatal: bad size for f64: %d\n", row.sizes[0]); break;
+            case R_F32: ASSERT(row.sizes[0] == sizeof(f32), "fatal: bad size for f32: %d\n", row.sizes[0]); break;
         }
         MALLOC(raw_row, sizeof(raw_row_t));
         row_to_raw(&row, raw_row);

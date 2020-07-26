@@ -10,7 +10,7 @@ typedef struct row_s {
 } row_t;
 
 typedef struct raw_row_s {
-    i32 meta;
+    u16 meta;
     u8 *header;
     i32 header_size;
     u8 *buffer;
