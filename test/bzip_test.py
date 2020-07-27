@@ -3,10 +3,16 @@ import uuid
 import os
 import string
 import shell
+import random
 from hypothesis.database import ExampleDatabase
 from hypothesis import given, settings
-from hypothesis.strategies import lists, composite, integers, text, randoms
-from test_util import run, clone_source
+from hypothesis.strategies import lists, composite, integers, text, randoms, sampled_from
+from test_util import run, clone_source, compile_buffer_sizes
+
+if os.environ.get('TEST_FACTOR'):
+    buffers = list(sorted(set([128, 256, 1024, 1024 * 1024 * 5] + [random.randint(128, 1024) for _ in range(10)])))
+else:
+    buffers = [128]
 
 def setup_module(m):
     m.tempdir = clone_source()
@@ -14,7 +20,13 @@ def setup_module(m):
     m.path = os.environ['PATH']
     os.chdir(m.tempdir)
     os.environ['PATH'] = f'{os.getcwd()}/bin:/usr/bin:/usr/local/bin:/sbin:/usr/sbin:/bin'
-    shell.run('make clean && make bsv csv bzip bunzip', stream=True)
+    shell.run('make clean', stream=True)
+    compile_buffer_sizes('csv', buffers)
+    compile_buffer_sizes('bsv', buffers)
+    compile_buffer_sizes('bzip', buffers)
+    compile_buffer_sizes('bunzip', buffers)
+    shell.run('make bsv csv bzip bunzip', stream=True)
+
 
 def teardown_module(m):
     os.chdir(m.orig)
@@ -24,17 +36,18 @@ def teardown_module(m):
 
 @composite
 def inputs(draw):
+    buffer = draw(sampled_from(buffers))
     rand = draw(randoms())
     num_columns = draw(integers(min_value=1, max_value=12))
     zipcol = integers(min_value=0, max_value=num_columns - 1)
     zipcols = draw(lists(zipcol, min_size=1, max_size=16))
     zipcols = list(set(zipcols))
     rand.shuffle(zipcols)
-    column = text(string.ascii_lowercase, min_size=1)
+    column = text(string.ascii_lowercase, min_size=1, max_size=5)
     columns = lists(column, min_size=num_columns, max_size=num_columns)
     lines = draw(lists(columns, min_size=1))
     csv = '\n'.join([','.join(line) for line in lines]) + '\n'
-    return zipcols, csv
+    return buffer, zipcols, csv
 
 def expected(zipcols, csv):
     res = []
@@ -46,11 +59,11 @@ def expected(zipcols, csv):
 @given(inputs())
 @settings(database=ExampleDatabase(':memory:'), max_examples=100 * int(os.environ.get('TEST_FACTOR', 1)), deadline=os.environ.get("TEST_DEADLINE", 1000 * 60)) # type: ignore
 def test_props(args):
-    zipcols, csv = args
+    buffer, zipcols, csv = args
     result = expected(zipcols, csv)
     cols = ','.join(str(i + 1) for i in zipcols)
     prefix = str(uuid.uuid4())
-    assert result == run(csv, f'bsv | bunzip {prefix} >/dev/null && ls {prefix}_* | bzip {cols} | csv')
+    assert result == run(csv, f'bsv.{buffer} | bunzip.{buffer} {prefix} >/dev/null && ls {prefix}_* | bzip.{buffer} {cols} | csv.{buffer}')
 
 def test_selection():
     shell.run('echo -e "a\nb\n" | bsv > a')

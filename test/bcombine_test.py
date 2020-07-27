@@ -1,11 +1,7 @@
 import pytest
 import os
-import string
 import shell
-from hypothesis.database import ExampleDatabase
-from hypothesis import given, settings
-from hypothesis.strategies import text, lists, composite, integers
-from test_util import run, rm_whitespace, rm_whitespace, max_columns, clone_source
+from test_util import run, rm_whitespace, rm_whitespace, clone_source
 
 def setup_module(m):
     m.tempdir = clone_source()
