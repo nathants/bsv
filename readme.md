@@ -109,7 +109,7 @@ usage: ... | bsumall
 
 support of hardware other than little endian.
 
-explicit types and schemas.
+types and schemas as a part of the data format.
 
 ## testing methodology
 
