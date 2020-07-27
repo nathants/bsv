@@ -42,15 +42,16 @@ int main(int argc, char **argv) {
         load_next(&rbuf, &row, 0);
         if (row.stop)
             break;
+        ASSERT_SIZE(value_type, row.sizes[0]);
         switch (value_type) {
-            case I64: ASSERT(row.sizes[0] == sizeof(i64), "fatal: bad size for i64: %d\n", row.sizes[0]); sum_i64 += *(i64*)(row.columns[0]); break;
-            case I32: ASSERT(row.sizes[0] == sizeof(i32), "fatal: bad size for i32: %d\n", row.sizes[0]); sum_i32 += *(i32*)(row.columns[0]); break;
-            case I16: ASSERT(row.sizes[0] == sizeof(i16), "fatal: bad size for i16: %d\n", row.sizes[0]); sum_i16 += *(i16*)(row.columns[0]); break;
-            case U64: ASSERT(row.sizes[0] == sizeof(u64), "fatal: bad size for u64: %d\n", row.sizes[0]); sum_u64 += *(u64*)(row.columns[0]); break;
-            case U32: ASSERT(row.sizes[0] == sizeof(u32), "fatal: bad size for u32: %d\n", row.sizes[0]); sum_u32 += *(u32*)(row.columns[0]); break;
-            case U16: ASSERT(row.sizes[0] == sizeof(u16), "fatal: bad size for u16: %d\n", row.sizes[0]); sum_u16 += *(u16*)(row.columns[0]); break;
-            case F64: ASSERT(row.sizes[0] == sizeof(f64), "fatal: bad size for f64: %d\n", row.sizes[0]); sum_f64 += *(f64*)(row.columns[0]); break;
-            case F32: ASSERT(row.sizes[0] == sizeof(f32), "fatal: bad size for f32: %d\n", row.sizes[0]); sum_f32 += *(f32*)(row.columns[0]); break;
+            case I64: sum_i64 += *(i64*)(row.columns[0]); break;
+            case I32: sum_i32 += *(i32*)(row.columns[0]); break;
+            case I16: sum_i16 += *(i16*)(row.columns[0]); break;
+            case U64: sum_u64 += *(u64*)(row.columns[0]); break;
+            case U32: sum_u32 += *(u32*)(row.columns[0]); break;
+            case U16: sum_u16 += *(u16*)(row.columns[0]); break;
+            case F64: sum_f64 += *(f64*)(row.columns[0]); break;
+            case F32: sum_f32 += *(f32*)(row.columns[0]); break;
         }
     }
 

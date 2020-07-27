@@ -42,7 +42,7 @@ int main(int argc, char **argv) {
             else if (strcmp(ARGH_ARGV[1], "u16") == 0) value_type = R_U16;
             else if (strcmp(ARGH_ARGV[1], "f64") == 0) value_type = R_F64;
             else if (strcmp(ARGH_ARGV[1], "f32") == 0) value_type = R_F32;
-            else ASSERT(0, "fatal: bad type %s\n", ARGH_ARGV[0]);
+            else ASSERT(0, "fatal: bad type %s\n", ARGH_ARGV[1]);
         } else {
             if      (strcmp(ARGH_ARGV[1], "i64") == 0) value_type = I64;
             else if (strcmp(ARGH_ARGV[1], "i32") == 0) value_type = I32;
@@ -52,7 +52,7 @@ int main(int argc, char **argv) {
             else if (strcmp(ARGH_ARGV[1], "u16") == 0) value_type = U16;
             else if (strcmp(ARGH_ARGV[1], "f64") == 0) value_type = F64;
             else if (strcmp(ARGH_ARGV[1], "f32") == 0) value_type = F32;
-            else ASSERT(0, "fatal: bad type %s\n", ARGH_ARGV[0]);
+            else ASSERT(0, "fatal: bad type %s\n", ARGH_ARGV[1]);
         }
     }
 
@@ -88,28 +88,7 @@ int main(int argc, char **argv) {
         load_next(&rbuf, &row, 0);
         if (row.stop)
             break;
-        switch (value_type) {
-            // normal
-            case STR: break;
-            case I64: ASSERT(row.sizes[0] == sizeof(i64), "fatal: bad size for i64: %d\n", row.sizes[0]); break;
-            case I32: ASSERT(row.sizes[0] == sizeof(i32), "fatal: bad size for i32: %d\n", row.sizes[0]); break;
-            case I16: ASSERT(row.sizes[0] == sizeof(i16), "fatal: bad size for i16: %d\n", row.sizes[0]); break;
-            case U64: ASSERT(row.sizes[0] == sizeof(u64), "fatal: bad size for u64: %d\n", row.sizes[0]); break;
-            case U32: ASSERT(row.sizes[0] == sizeof(u32), "fatal: bad size for u32: %d\n", row.sizes[0]); break;
-            case U16: ASSERT(row.sizes[0] == sizeof(u16), "fatal: bad size for u16: %d\n", row.sizes[0]); break;
-            case F64: ASSERT(row.sizes[0] == sizeof(f64), "fatal: bad size for f64: %d\n", row.sizes[0]); break;
-            case F32: ASSERT(row.sizes[0] == sizeof(f32), "fatal: bad size for f32: %d\n", row.sizes[0]); break;
-            // reverse
-            case R_I64: ASSERT(row.sizes[0] == sizeof(i64), "fatal: bad size for i64: %d\n", row.sizes[0]); break;
-            case R_I32: ASSERT(row.sizes[0] == sizeof(i32), "fatal: bad size for i32: %d\n", row.sizes[0]); break;
-            case R_I16: ASSERT(row.sizes[0] == sizeof(i16), "fatal: bad size for i16: %d\n", row.sizes[0]); break;
-            case R_U64: ASSERT(row.sizes[0] == sizeof(u64), "fatal: bad size for u64: %d\n", row.sizes[0]); break;
-            case R_U32: ASSERT(row.sizes[0] == sizeof(u32), "fatal: bad size for u32: %d\n", row.sizes[0]); break;
-            case R_U16: ASSERT(row.sizes[0] == sizeof(u16), "fatal: bad size for u16: %d\n", row.sizes[0]); break;
-            case R_F64: ASSERT(row.sizes[0] == sizeof(f64), "fatal: bad size for f64: %d\n", row.sizes[0]); break;
-            case R_F32: ASSERT(row.sizes[0] == sizeof(f32), "fatal: bad size for f32: %d\n", row.sizes[0]); break;
-        }
-
+        ASSERT_SIZE(value_type, row.sizes[0]);
         MALLOC(raw_row, sizeof(raw_row_t));
         row_to_raw_malloc(&row, raw_row);
         heap_insert(&h, raw_row->buffer, raw_row);
@@ -121,6 +100,7 @@ int main(int argc, char **argv) {
         load_next(&rbuf, &row, 0);
         if (row.stop)
             break;
+        ASSERT_SIZE(value_type, row.sizes[0]);
         ASSERT(1 == heap_min(&h, NULL, &raw_row), "fatal: heap_min failed\n");
         if (compare(value_type, row.columns[0], raw_row->buffer) > 0) {
             ASSERT(1 == heap_delmin(&h, NULL, &raw_row), "fatal: heap_delmin failed\n");

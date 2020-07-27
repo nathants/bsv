@@ -58,6 +58,7 @@ int main(int argc, char **argv) {
                 done_skipping = true;
             }
         } else { // ------------------------------------------------------ reading data chunk by chunk, checking the first row and the proceeding to the next chunk
+            ASSERT_SIZE(value_type, row.sizes[0]);
             if (matched) { // -------------------------------------------- once a match is found dump every row
                 dump(&wbuf, &row, 0);
             } else { // -------------------------------------------------- check for a match

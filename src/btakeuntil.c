@@ -58,6 +58,7 @@ int main(int argc, char **argv) {
                 done_skipping = true;
             }
         } else { // ------------------------------------------------------ reading data chunk by chunk, checking the first row and the proceeding to the next chunk
+            ASSERT_SIZE(value_type, row.sizes[0]);
             cmp = compare(value_type, row.columns[0], val); // ------------------- check for a match
             if (done_skipping) { // -------------------------------------- since we are done skipping ahead by chunks, check every row for a match
                 if (cmp >= 0) // ----------------------------------------- found a match, time to stop

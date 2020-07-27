@@ -67,7 +67,7 @@ int main(int argc, char **argv) {
         if (row.stop)
             break;
         ASSERT(row.max >= 1, "fatal: need at least 2 columns\n");
-        ASSERT(row.sizes[1] == sizeof(i64), "fatal: needed i64 in column 2. got size: %d, needed: %d\n", row.sizes[1], sizeof(i64));
+        ASSERT_SIZE(value_type, row.sizes[1]);
         if (compare_str(buffer, row.columns[0]) != 0) {
             DUMP_SUMS();
             memcpy(buffer, row.columns[0], row.sizes[0] + 1); // +1 for the trailing \0
@@ -82,14 +82,14 @@ int main(int argc, char **argv) {
             sum_f32 = 0;
         }
         switch (value_type) {
-            case I64: ASSERT(row.sizes[1] == sizeof(i64), "fatal: bad size for i64: %d\n", row.sizes[1]); sum_i64 += *(i64*)(row.columns[1]); break;
-            case I32: ASSERT(row.sizes[1] == sizeof(i32), "fatal: bad size for i32: %d\n", row.sizes[1]); sum_i32 += *(i32*)(row.columns[1]); break;
-            case I16: ASSERT(row.sizes[1] == sizeof(i16), "fatal: bad size for i16: %d\n", row.sizes[1]); sum_i16 += *(i16*)(row.columns[1]); break;
-            case U64: ASSERT(row.sizes[1] == sizeof(u64), "fatal: bad size for u64: %d\n", row.sizes[1]); sum_u64 += *(u64*)(row.columns[1]); break;
-            case U32: ASSERT(row.sizes[1] == sizeof(u32), "fatal: bad size for u32: %d\n", row.sizes[1]); sum_u32 += *(u32*)(row.columns[1]); break;
-            case U16: ASSERT(row.sizes[1] == sizeof(u16), "fatal: bad size for u16: %d\n", row.sizes[1]); sum_u16 += *(u16*)(row.columns[1]); break;
-            case F64: ASSERT(row.sizes[1] == sizeof(f64), "fatal: bad size for f64: %d\n", row.sizes[1]); sum_f64 += *(f64*)(row.columns[1]); break;
-            case F32: ASSERT(row.sizes[1] == sizeof(f32), "fatal: bad size for f32: %d\n", row.sizes[1]); sum_f32 += *(f32*)(row.columns[1]); break;
+            case I64: sum_i64 += *(i64*)(row.columns[1]); break;
+            case I32: sum_i32 += *(i32*)(row.columns[1]); break;
+            case I16: sum_i16 += *(i16*)(row.columns[1]); break;
+            case U64: sum_u64 += *(u64*)(row.columns[1]); break;
+            case U32: sum_u32 += *(u32*)(row.columns[1]); break;
+            case U16: sum_u16 += *(u16*)(row.columns[1]); break;
+            case F64: sum_f64 += *(f64*)(row.columns[1]); break;
+            case F32: sum_f32 += *(f32*)(row.columns[1]); break;
         }
     }
 

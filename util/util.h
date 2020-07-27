@@ -268,3 +268,26 @@ static inlined int compare(const i32 value_type, const void *v1, const void *v2)
         default: ASSERT(0, "fatal: unknown sort type\n");
     }
 }
+
+#define ASSERT_SIZE(value_type, size)                                                           \
+    switch (value_type) {                                                                       \
+        /* normal */                                                                            \
+        case STR: break;                                                                        \
+        case I64: ASSERT(size == sizeof(i64), "fatal: bad size for i64: %d\n", size); break;    \
+        case I32: ASSERT(size == sizeof(i32), "fatal: bad size for i32: %d\n", size); break;    \
+        case I16: ASSERT(size == sizeof(i16), "fatal: bad size for i16: %d\n", size); break;    \
+        case U64: ASSERT(size == sizeof(u64), "fatal: bad size for u64: %d\n", size); break;    \
+        case U32: ASSERT(size == sizeof(u32), "fatal: bad size for u32: %d\n", size); break;    \
+        case U16: ASSERT(size == sizeof(u16), "fatal: bad size for u16: %d\n", size); break;    \
+        case F64: ASSERT(size == sizeof(f64), "fatal: bad size for f64: %d\n", size); break;    \
+        case F32: ASSERT(size == sizeof(f32), "fatal: bad size for f32: %d\n", size); break;    \
+        /* reverse */                                                                           \
+        case R_I64: ASSERT(size == sizeof(i64), "fatal: bad size for i64: %d\n", size); break;  \
+        case R_I32: ASSERT(size == sizeof(i32), "fatal: bad size for i32: %d\n", size); break;  \
+        case R_I16: ASSERT(size == sizeof(i16), "fatal: bad size for i16: %d\n", size); break;  \
+        case R_U64: ASSERT(size == sizeof(u64), "fatal: bad size for u64: %d\n", size); break;  \
+        case R_U32: ASSERT(size == sizeof(u32), "fatal: bad size for u32: %d\n", size); break;  \
+        case R_U16: ASSERT(size == sizeof(u16), "fatal: bad size for u16: %d\n", size); break;  \
+        case R_F64: ASSERT(size == sizeof(f64), "fatal: bad size for f64: %d\n", size); break;  \
+        case R_F32: ASSERT(size == sizeof(f32), "fatal: bad size for f32: %d\n", size); break;  \
+    }

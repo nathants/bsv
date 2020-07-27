@@ -9,7 +9,7 @@ from test_util import compile_buffer_sizes, run, rm_whitespace, clone_source
 if os.environ.get('TEST_FACTOR'):
     buffers = list(sorted(set([5, 8, 11, 17, 64, 128, 256, 1024, 1024 * 1024 * 5] + [random.randint(8, 1024) for _ in range(10)])))
 else:
-    buffers = [128]
+    buffers = [8, 128]
 
 def setup_module(m):
     m.tempdir = clone_source()
