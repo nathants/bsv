@@ -6,6 +6,10 @@
 #define ASSERT_SIZE_IS_VALID() ASSERT(row->sizes[i] <= MAX_COLUMNS - 1, "fatal: cannot have columns with more than 2**16 - 1 bytes, column: %d, size: %d, content: %.*s...\n", i, row->sizes[i], 10, row->columns[i])
 #define ASSERT_MAX_IS_VALID()  ASSERT(row->max <= MAX_COLUMNS, "fatal: cannot have more then 2**16 columns\n")
 
+//
+// NOTE: the memory pointed to by row->columns will be copied by
+// dump(), and can safely be mutated after the dump() returns.
+//
 inlined void dump(writebuf_t *wbuf, const row_t *row, i32 file) {
     ASSERT_MAX_IS_VALID();
     i32 size = sizeof(u16) + (row->max + 1) * sizeof(u16); // -------------- init size with max:u16 + size1:u16,...sizen:u16

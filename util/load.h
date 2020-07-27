@@ -3,6 +3,15 @@
 #include "row.h"
 #include "read.h"
 
+//
+// NOTE: the memory pointed to by row->columns can only be used until
+// the next call of load_next(), which may mutate that memory. if you
+// need it after that you must copy it somewhere else before the next
+// call of load_next().
+//
+// NOTE: you must not mutate memory pointed to by row->columns, which
+// should be considered readonly.
+//
 inlined void load_next(readbuf_t *rbuf, row_t *row, i32 file) {
     read_bytes(rbuf, sizeof(u16), file); // ------------------------------------- read max, the max zero based index into columns data
     switch(rbuf->bytes) {
