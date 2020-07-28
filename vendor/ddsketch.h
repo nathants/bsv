@@ -101,6 +101,7 @@ i32 store_length(store_t *s) {
 i32 store_key_at_rank(store_t *s, i32 rank) {
     i32 n = 0;
     for (i32 i = 0; i < s->num_bins; i++) {
+        ASSERT(i < s->num_bins, "fatal: index error\n");
         n += (i32)s->bins[i] ;
         if (n >= rank) {
             return i + s->min_key;
@@ -139,6 +140,7 @@ void store_grow_right(store_t *s, i32 key) {
     }
     if (key - s->max_key >= s->max_num_bins) {
         i64 *tmp_bins;
+        ASSERT(s->max_num_bins > 0, "fatal: index error\n");
         MALLOC(tmp_bins,    s->max_num_bins * sizeof(i64));
         memset(tmp_bins, 0, s->max_num_bins * sizeof(i64));
         tmp_bins[0] = (i64)s->count;
@@ -151,6 +153,7 @@ void store_grow_right(store_t *s, i32 key) {
         i32 min_key = key - s->max_num_bins + 1;
         i64 n = 0;
         for (i32 i = s->min_key; i < min_key && i <= s->max_key; i++) {
+            ASSERT(i - s->min_key < s->num_bins, "fatal: index error\n");
             n += s->bins[i - s->min_key];
         }
         if (s->num_bins < s->max_num_bins) {
@@ -166,11 +169,13 @@ void store_grow_right(store_t *s, i32 key) {
             i32 offset = min_key - s->min_key;
             memmove(s->bins, s->bins + offset, s->num_bins - offset);
             for (i32 i = s->max_key - min_key + 1; i < s->max_num_bins; i++) {
+                ASSERT(i < s->num_bins, "fatal: index error\n");
                 s->bins[i] = 0;
             }
         }
         s->max_key = key;
         s->min_key = min_key;
+        ASSERT(s->num_bins > 0, "fatal: index error\n");
         s->bins[0] += n;
     } else {
         i32 num_bins = key - s->min_key + 1;
@@ -212,12 +217,16 @@ void store_merge(store_t *s, store_t *o) {
             store_grow_left(s, o->min_key);
         }
         for (i32 i = MAX(o->min_key, s->min_key); i <= o->max_key; i++) {
+            ASSERT(i - s->min_key < s->num_bins, "fatal: index error\n");
+            ASSERT(i - o->min_key < o->num_bins, "fatal: index error\n");
             s->bins[i - s->min_key] += o->bins[i - o->min_key];
         }
         i64 n = 0;
         for (i32 i = o->min_key; i < s->min_key; i++) {
+            ASSERT(i - o->min_key < o->num_bins, "fatal: index error\n");
             n += o->bins[i - o->min_key];
         }
+        ASSERT(s->num_bins > 0, "fatal: index error\n");
         s->bins[0] += n;
     } else {
         if (o->min_key < s->min_key) {
@@ -226,6 +235,8 @@ void store_merge(store_t *s, store_t *o) {
             memset(tmp_bins, 0, o->num_bins * sizeof(i64));
             memcpy(tmp_bins, o->bins, o->num_bins);
             for (i32 i = s->min_key; i <= s->max_key; i++) {
+                ASSERT(i - o->min_key < o->num_bins, "fatal: index error\n");
+                ASSERT(i - s->min_key < s->num_bins, "fatal: index error\n");
                 tmp_bins[i - o->min_key] += s->bins[i - s->min_key];
             }
             free(s->bins);
@@ -236,6 +247,8 @@ void store_merge(store_t *s, store_t *o) {
         } else {
             store_grow_right(s, o->max_key);
             for (i32 i = o->min_key; i <= o->max_key; i++) {
+                ASSERT(i - s->min_key < s->num_bins, "fatal: index error\n");
+                ASSERT(i - o->min_key < o->num_bins, "fatal: index error\n");
                 s->bins[i - s->min_key] += o->bins[i - o->min_key];
             }
         }
@@ -257,6 +270,7 @@ void store_add(store_t *s, i32 key) {
     if (index < 0) {
         index = 0;
     }
+    ASSERT(index < s->num_bins, "fatal: index error\n");
     s->bins[index]++;
     s->count++;
 }
