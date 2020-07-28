@@ -6,20 +6,6 @@
 #define USAGE "... | bcut COL1,...,COLN\n\n"
 #define EXAMPLE ">> echo a,b,c | bsv | bcut 3,3,3,2,2,1 | csv\nc,c,c,b,b,a\n"
 
-#define PARSE_ARGV()                                                                                                            \
-    do {                                                                                                                        \
-        ASSERT(argc == 2, "usage: %s", USAGE);                                                                                  \
-        char *f;                                                                                                                \
-        char *fs = (char*)argv[1];                                                                                              \
-        while ((f = strsep(&fs, ","))) {                                                                                        \
-            index = atoi(f);                                                                                                    \
-            indices[num_fields++] = index - 1;                                                                                  \
-            ASSERT(index <= MAX_COLUMNS, "fatal: cannot select indices above %d, tried to select: %d\n", MAX_COLUMNS, index);   \
-            ASSERT(index > 0, "fatal: indices must be gte 0, got: %d", index);                                                  \
-        }                                                                                                                       \
-        ASSERT(num_fields <= MAX_COLUMNS, "fatal: cannot select more than %d indices\n", MAX_COLUMNS);                          \
-    } while (0)
-
 int main(int argc, char **argv) {
 
     // setup bsv
@@ -31,7 +17,16 @@ int main(int argc, char **argv) {
     i32 num_fields = 0;
     i32 indices[MAX_COLUMNS];
     i32 index;
-    PARSE_ARGV();
+    ASSERT(argc == 2, "usage: %s", USAGE);
+    char *f;
+    char *fs = (char*)argv[1];
+    while ((f = strsep(&fs, ","))) {
+        index = atoi(f);
+        indices[num_fields++] = index - 1;
+        ASSERT(index <= MAX_COLUMNS, "fatal: cannot select indices above %d, tried to select: %d\n", MAX_COLUMNS, index);
+        ASSERT(index > 0, "fatal: indices must be gte 0, got: %d", index);
+    }
+    ASSERT(num_fields <= MAX_COLUMNS, "fatal: cannot select more than %d indices\n", MAX_COLUMNS);
     row_t row;
     row_t new;
 
