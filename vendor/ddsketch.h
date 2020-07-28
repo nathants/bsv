@@ -1,4 +1,5 @@
-// source: https://github.com/DataDog/sketches-go/tree/43f19ad77ff73bc865c41f7e391ef4b23b82810a/ddsketch
+// based on source: https://github.com/DataDog/sketches-go/tree/43f19ad77ff73bc865c41f7e391ef4b23b82810a/ddsketch
+//
 // Unless explicitly stated otherwise all files in this repository are licensed
 // under the Apache License 2.0.
 // This product includes software developed at Datadog (https://www.datadoghq.com/).
@@ -9,6 +10,7 @@
 #include <float.h>
 #include <math.h>
 #include "util.h"
+#include "row.h"
 
 // constants
 
@@ -101,7 +103,6 @@ i32 store_length(store_t *s) {
 i32 store_key_at_rank(store_t *s, i32 rank) {
     i32 n = 0;
     for (i32 i = 0; i < s->num_bins; i++) {
-        ASSERT(i < s->num_bins, "fatal: index error\n");
         n += (i32)s->bins[i] ;
         if (n >= rank) {
             return i + s->min_key;
@@ -127,7 +128,7 @@ void store_grow_left(store_t *s, i32 key) {
     i32 num_bins = s->max_key - min_key + 1;
     MALLOC(tmp_bins,    num_bins * sizeof(i64));
     memset(tmp_bins, 0, num_bins * sizeof(i64));
-    memcpy(tmp_bins + s->min_key - min_key, s->bins, s->num_bins);
+    memcpy(tmp_bins + s->min_key - min_key, s->bins, s->num_bins * sizeof(i64));
     free(s->bins);
     s->bins = tmp_bins;
     s->num_bins = num_bins;
@@ -161,13 +162,13 @@ void store_grow_right(store_t *s, i32 key) {
             MALLOC(tmp_bins,    s->max_num_bins * sizeof(i64));
             memset(tmp_bins, 0, s->max_num_bins * sizeof(i64));
             i32 offset = min_key - s->min_key;
-            memcpy(tmp_bins, s->bins + offset, s->num_bins - offset);
+            memcpy(tmp_bins, s->bins + offset, (s->num_bins - offset) * sizeof(i64));
             free(s->bins);
             s->bins = tmp_bins;
             s->num_bins = s->max_num_bins;
         } else {
             i32 offset = min_key - s->min_key;
-            memmove(s->bins, s->bins + offset, s->num_bins - offset);
+            memmove(s->bins, s->bins + offset, (s->num_bins - offset) * sizeof(i64));
             for (i32 i = s->max_key - min_key + 1; i < s->max_num_bins; i++) {
                 ASSERT(i < s->num_bins, "fatal: index error\n");
                 s->bins[i] = 0;
@@ -182,7 +183,7 @@ void store_grow_right(store_t *s, i32 key) {
         i64 *tmp_bins;
         MALLOC(tmp_bins,    num_bins * sizeof(i64));
         memset(tmp_bins, 0, num_bins * sizeof(i64));
-        memcpy(tmp_bins, s->bins, s->num_bins);
+        memcpy(tmp_bins, s->bins, s->num_bins * sizeof(i64));
         free(s->bins);
         s->bins = tmp_bins;
         s->num_bins = num_bins;
@@ -194,7 +195,7 @@ void store_copy(store_t *s, store_t *o) {
         i64 *tmp_bins;
         MALLOC(tmp_bins,    o->num_bins * sizeof(i64));
         memset(tmp_bins, 0, o->num_bins * sizeof(i64));
-        memcpy(tmp_bins, o->bins, o->num_bins);
+        memcpy(tmp_bins, o->bins, o->num_bins * sizeof(i64));
         free(s->bins);
         s->bins = tmp_bins;
         s->num_bins = o->num_bins;
@@ -233,7 +234,7 @@ void store_merge(store_t *s, store_t *o) {
             i64 *tmp_bins;
             MALLOC(tmp_bins,    o->num_bins * sizeof(i64));
             memset(tmp_bins, 0, o->num_bins * sizeof(i64));
-            memcpy(tmp_bins, o->bins, o->num_bins);
+            memcpy(tmp_bins, o->bins, o->num_bins * sizeof(i64));
             for (i32 i = s->min_key; i <= s->max_key; i++) {
                 ASSERT(i - o->min_key < o->num_bins, "fatal: index error\n");
                 ASSERT(i - s->min_key < s->num_bins, "fatal: index error\n");
@@ -350,4 +351,67 @@ void sketch_merge(sketch_t *s, sketch_t *o) {
     if (o->max > s->max) {
         s->max = o->max;
     }
+}
+
+// serialization to/from bsv rows. not based on datadog source
+
+void sketch_to_row(row_t *row, sketch_t *s) {
+    // sketch_t
+    row->columns[0] = &s->min;   row->sizes[0] = sizeof(f64);
+    row->columns[1] = &s->max;   row->sizes[1] = sizeof(f64);
+    row->columns[2] = &s->count; row->sizes[2] = sizeof(i64);
+    row->columns[3] = &s->sum;   row->sizes[3] = sizeof(f64);
+    // config_t
+    row->columns[4] = &s->config->max_num_bins; row->sizes[4] = sizeof(i32);
+    row->columns[5] = &s->config->gamma;        row->sizes[5] = sizeof(f64);
+    row->columns[6] = &s->config->gamma_ln;     row->sizes[6] = sizeof(f64);
+    row->columns[7] = &s->config->min_value;    row->sizes[7] = sizeof(f64);
+    row->columns[8] = &s->config->offset;       row->sizes[8] = sizeof(i32);
+    // store_t
+    row->columns[9]  = &s->store->num_bins;     row->sizes[9]  = sizeof(i32);
+    row->columns[10] = &s->store->max_num_bins; row->sizes[10] = sizeof(i32);
+    row->columns[11] = &s->store->count;        row->sizes[11] = sizeof(i64);
+    row->columns[12] = &s->store->min_key;      row->sizes[12] = sizeof(i32);
+    row->columns[13] = &s->store->max_key;      row->sizes[13] = sizeof(i32);
+    // store_t.bins
+    i32 offset = 14;
+    for (i32 i = 0; i < s->store->num_bins; i++) {
+        row->columns[i + offset] = &s->store->bins[i];
+        row->sizes[i + offset] = sizeof(i64);
+        row->max = offset + i;
+    }
+}
+
+sketch_t *sketch_from_row(row_t *row) {
+    config_t *c = config_new_default();
+    sketch_t *s = sketch_new(c);
+    ASSERT(row->max >= 14, "fatal: not enough data\n");
+    // sketch_t
+    s->min   = *(f64*)row->columns[0]; ASSERT(row->sizes[0] == sizeof(f64), "fatal: bad size\n");
+    s->max   = *(f64*)row->columns[1]; ASSERT(row->sizes[1] == sizeof(f64), "fatal: bad size\n");
+    s->count = *(i64*)row->columns[2]; ASSERT(row->sizes[2] == sizeof(i64), "fatal: bad size\n");
+    s->sum   = *(f64*)row->columns[3]; ASSERT(row->sizes[3] == sizeof(f64), "fatal: bad size\n");
+    // config_t
+    s->config->max_num_bins = *(i32*)row->columns[4]; ASSERT(row->sizes[4] == sizeof(i32), "fatal: bad size\n");
+    s->config->gamma        = *(f64*)row->columns[5]; ASSERT(row->sizes[5] == sizeof(f64), "fatal: bad size\n");
+    s->config->gamma_ln     = *(f64*)row->columns[6]; ASSERT(row->sizes[6] == sizeof(f64), "fatal: bad size\n");
+    s->config->min_value    = *(f64*)row->columns[7]; ASSERT(row->sizes[7] == sizeof(f64), "fatal: bad size\n");
+    s->config->offset       = *(i32*)row->columns[8]; ASSERT(row->sizes[8] == sizeof(i32), "fatal: bad size\n");
+    // store_t
+    s->store->num_bins     = *(i32*)row->columns[9];  ASSERT(row->sizes[9]  == sizeof(i32), "fatal: bad size\n");
+    s->store->max_num_bins = *(i32*)row->columns[10]; ASSERT(row->sizes[10] == sizeof(i32), "fatal: bad size\n");
+    s->store->count        = *(i64*)row->columns[11]; ASSERT(row->sizes[11] == sizeof(i64), "fatal: bad size\n");
+    s->store->min_key      = *(i32*)row->columns[12]; ASSERT(row->sizes[12] == sizeof(i32), "fatal: bad size\n");
+    s->store->max_key      = *(i32*)row->columns[13]; ASSERT(row->sizes[13] == sizeof(i32), "fatal: bad size\n");
+    // store_t.bins
+    ASSERT(row->max == 14 + s->store->num_bins - 1, "fatal: not enough bin data %d %d\n");
+    free(s->store->bins);
+    MALLOC(s->store->bins,    s->store->num_bins * sizeof(i64));
+    memset(s->store->bins, 0, s->store->num_bins * sizeof(i64));
+    i32 offset = 14;
+    for (i32 i = 0; i < s->store->num_bins; i++) {
+        s->store->bins[i] = *(i64*)row->columns[i + offset];
+        ASSERT(row->sizes[i + offset] == sizeof(i64), "fatal: bad size\n");
+    }
+    return s;
 }
