@@ -4,7 +4,7 @@
 
 #define DESCRIPTION "sum the first column\n\n"
 #define USAGE "... | bsum TYPE \n\n"
-#define EXAMPLE ">> echo '1\n2\n3\n4\n' | bsv | bschema a:i64 | bsum i64 | bschema i64:a | csv\n10\n"
+#define EXAMPLE ">> echo '\n1\n2\n3\n4\n' | bsv | bschema a:i64 | bsum i64 | bschema i64:a | csv\n10\n"
 
 int main(int argc, char **argv) {
 
