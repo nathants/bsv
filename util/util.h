@@ -199,6 +199,15 @@ int isdigits(const char *s) {
     return 1;
 }
 
+int isdigits_ordot(const char *s) {
+    while (s != NULL && *s != '\0') {
+        if (!isdigit(*s) && *s != '.')
+            return 0;
+        s++;
+    }
+    return 1;
+}
+
 enum value_type {
     // normal
     STR,

@@ -3,7 +3,7 @@ set -eou pipefail
 cd $(dirname $(dirname $(realpath $0)))
 
 echo ".PHONY: all clean test" > Makefile
-echo "CFLAGS=-Wno-int-conversion -Wno-incompatible-pointer-types -Wno-discarded-qualifiers -Iutil -Ivendor -flto -O3 -march=native -mtune=native" >> Makefile
+echo "CFLAGS=-Wno-int-conversion -Wno-incompatible-pointer-types -Wno-discarded-qualifiers -Iutil -Ivendor -flto -O3 -march=native -mtune=native -lm" >> Makefile
 echo ALL=clean docs $(for src in src/*.c; do
                     if basename $src | grep ^_ &>/dev/null; then
                         basename $src | cut -d. -f1

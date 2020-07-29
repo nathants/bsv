@@ -111,3 +111,5 @@ bhead
 btail
 bdedupe-hash
 btopn
+bquantile-merge
+bquantile-sketch

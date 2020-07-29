@@ -146,6 +146,8 @@ types and schemas as a part of the data format.
 | [blz4d](#blz4d) | decompress bsv data |
 | [bmerge](#bmerge) | merge sorted files from stdin |
 | [bpartition](#bpartition) | split into multiple files by consistent hash of the first column value |
+| [bquantile-merge](#bquantile-merge) | merge ddsketches and output quantile values pairs as f64 |
+| [bquantile-sketch](#bquantile-sketch) | collapse the first column into a single row ddsketch |
 | [bschema](#bschema) | validate and converts row data with a schema of columns |
 | [bsort](#bsort) | timsort rows by the first column |
 | [bsplit](#bsplit) | split a stream into multiple files |
@@ -428,6 +430,36 @@ c
 ' | bsv | bpartition 10 prefix
 prefix03
 prefix06
+```
+
+### [bquantile-merge](https://github.com/nathants/bsv/blob/master/src/bquantile_merge.c)
+
+merge ddsketches and output quantile values pairs as f64
+
+```bash
+usage: ... | bquantile-merge QUANTILES
+```
+
+```bash
+>> seq 1 100 | bsv | bschema a:i64 | bquantile-sketch i64 | bquantile-merge .2,.5,.7 | bschema f64:a,f64:a | csv
+0.200000,19.886670
+0.500000,49.902961
+0.700000,70.111839
+```
+
+### [bquantile-sketch](https://github.com/nathants/bsv/blob/master/src/bquantile_sketch.c)
+
+collapse the first column into a single row ddsketch
+
+```bash
+usage: ... | bquantile-sketch TYPE [-a|--alpha] [-b|--max-bins] [-m|--min-value]
+```
+
+```bash
+>> seq 1 100 | bsv | bschema a:i64 | bquantile-sketch i64 | bquantile-merge .2,.5,.7 | bschema f64:a,f64:a | csv
+0.200000,19.886670
+0.500000,49.902961
+0.700000,70.111839
 ```
 
 ### [bschema](https://github.com/nathants/bsv/blob/master/src/bschema.c)

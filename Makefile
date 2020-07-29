@@ -1,6 +1,6 @@
 .PHONY: all clean test
-CFLAGS=-Wno-int-conversion -Wno-incompatible-pointer-types -Wno-discarded-qualifiers -Iutil -Ivendor -flto -O3 -march=native -mtune=native
-ALL=clean docs bcat bcombine bcopy bcounteach bcounteach-hash bcountrows bcut bdedupe bdedupe-hash bdropuntil bhead blz4 blz4d bmerge bpartition bschema bsort bsplit bsum bsumeach bsumeach-hash bsv btake btakeuntil btopn bunzip bzip _copy _csv csv _gen_bsv _gen_csv xxh3
+CFLAGS=-Wno-int-conversion -Wno-incompatible-pointer-types -Wno-discarded-qualifiers -Iutil -Ivendor -flto -O3 -march=native -mtune=native -lm
+ALL=clean docs bcat bcombine bcopy bcounteach bcounteach-hash bcountrows bcut bdedupe bdedupe-hash bdropuntil bhead blz4 blz4d bmerge bpartition bquantile-merge bquantile-sketch bschema bsort bsplit bsum bsumeach bsumeach-hash bsv btake btakeuntil btopn bunzip bzip _copy _csv csv _gen_bsv _gen_csv xxh3
 
 all: $(ALL)
 
@@ -61,6 +61,12 @@ bmerge: setup
 
 bpartition: setup
 	gcc $(CFLAGS) vendor/lz4.c src/bpartition.c -o bin/bpartition
+
+bquantile-merge: setup
+	gcc $(CFLAGS) vendor/lz4.c src/bquantile_merge.c -o bin/bquantile-merge
+
+bquantile-sketch: setup
+	gcc $(CFLAGS) vendor/lz4.c src/bquantile_sketch.c -o bin/bquantile-sketch
 
 bschema: setup
 	gcc $(CFLAGS) vendor/lz4.c src/bschema.c -o bin/bschema
