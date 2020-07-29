@@ -250,8 +250,8 @@ int main(int argc, char **argv) {
                 // float
                 case A_F32: A_TO_F(f32); break;
                 case A_F64: A_TO_F(f64); break;
-                case F32_A: N_TO_A(f32, "%f"); break;
-                case F64_A: N_TO_A(f64, "%lf"); break;
+                case F32_A: N_TO_A(f32, "%e"); break;
+                case F64_A: N_TO_A(f64, "%e"); break;
 
                 default: ASSERT(0, "not possible\n");
             }
