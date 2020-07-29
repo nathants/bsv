@@ -96,14 +96,10 @@ store_t *store_new(i32 max_num_bins) {
     return s;
 }
 
-i32 store_length(store_t *s) {
-    return s->num_bins;
-}
-
 i32 store_key_at_rank(store_t *s, i32 rank) {
     i32 n = 0;
     for (i32 i = 0; i < s->num_bins; i++) {
-        n += (i32)s->bins[i] ;
+        n += (i32)s->bins[i];
         if (n >= rank) {
             return i + s->min_key;
         }
@@ -126,9 +122,12 @@ void store_grow_left(store_t *s, i32 key) {
     }
     i64 *tmp_bins;
     i32 num_bins = s->max_key - min_key + 1;
+    i32 offset = s->min_key - min_key;
     MALLOC(tmp_bins,    num_bins * sizeof(i64));
     memset(tmp_bins, 0, num_bins * sizeof(i64));
-    memcpy(tmp_bins + s->min_key - min_key, s->bins, s->num_bins * sizeof(i64));
+    ASSERT(num_bins >= s->num_bins, "fatal: overflow 1\n");
+    ASSERT(num_bins - offset >= s->num_bins, "fatal overflow 1b\n");
+    memcpy(tmp_bins + offset, s->bins, s->num_bins * sizeof(i64));
     free(s->bins);
     s->bins = tmp_bins;
     s->num_bins = num_bins;
@@ -141,7 +140,6 @@ void store_grow_right(store_t *s, i32 key) {
     }
     if (key - s->max_key >= s->max_num_bins) {
         i64 *tmp_bins;
-        ASSERT(s->max_num_bins > 0, "fatal: index error\n");
         MALLOC(tmp_bins,    s->max_num_bins * sizeof(i64));
         memset(tmp_bins, 0, s->max_num_bins * sizeof(i64));
         tmp_bins[0] = (i64)s->count;
@@ -154,7 +152,7 @@ void store_grow_right(store_t *s, i32 key) {
         i32 min_key = key - s->max_num_bins + 1;
         i64 n = 0;
         for (i32 i = s->min_key; i < min_key && i <= s->max_key; i++) {
-            ASSERT(i - s->min_key < s->num_bins, "fatal: index error\n");
+            ASSERT(i - s->min_key < s->num_bins, "fatal: index error 2\n");
             n += s->bins[i - s->min_key];
         }
         if (s->num_bins < s->max_num_bins) {
@@ -162,27 +160,30 @@ void store_grow_right(store_t *s, i32 key) {
             MALLOC(tmp_bins,    s->max_num_bins * sizeof(i64));
             memset(tmp_bins, 0, s->max_num_bins * sizeof(i64));
             i32 offset = min_key - s->min_key;
+            ASSERT(s->max_num_bins >= s->num_bins - offset, "fatal: overflow 3\n");
             memcpy(tmp_bins, s->bins + offset, (s->num_bins - offset) * sizeof(i64));
             free(s->bins);
             s->bins = tmp_bins;
             s->num_bins = s->max_num_bins;
         } else {
             i32 offset = min_key - s->min_key;
+            ASSERT(offset > 0, "fatal: bad offset 4\n");
             memmove(s->bins, s->bins + offset, (s->num_bins - offset) * sizeof(i64));
             for (i32 i = s->max_key - min_key + 1; i < s->max_num_bins; i++) {
-                ASSERT(i < s->num_bins, "fatal: index error\n");
+                ASSERT(i < s->num_bins, "fatal: index error 5\n");
                 s->bins[i] = 0;
             }
         }
         s->max_key = key;
         s->min_key = min_key;
-        ASSERT(s->num_bins > 0, "fatal: index error\n");
+        ASSERT(s->num_bins > 0, "fatal: index error 6\n");
         s->bins[0] += n;
     } else {
         i32 num_bins = key - s->min_key + 1;
         i64 *tmp_bins;
         MALLOC(tmp_bins,    num_bins * sizeof(i64));
         memset(tmp_bins, 0, num_bins * sizeof(i64));
+        ASSERT(num_bins >= s->num_bins, "fatal: overflow 7\n");
         memcpy(tmp_bins, s->bins, s->num_bins * sizeof(i64));
         free(s->bins);
         s->bins = tmp_bins;
@@ -218,16 +219,16 @@ void store_merge(store_t *s, store_t *o) {
             store_grow_left(s, o->min_key);
         }
         for (i32 i = MAX(o->min_key, s->min_key); i <= o->max_key; i++) {
-            ASSERT(i - s->min_key < s->num_bins, "fatal: index error\n");
-            ASSERT(i - o->min_key < o->num_bins, "fatal: index error\n");
+            ASSERT(i - s->min_key < s->num_bins, "fatal: index error 8\n");
+            ASSERT(i - o->min_key < o->num_bins, "fatal: index error 9\n");
             s->bins[i - s->min_key] += o->bins[i - o->min_key];
         }
         i64 n = 0;
         for (i32 i = o->min_key; i < s->min_key; i++) {
-            ASSERT(i - o->min_key < o->num_bins, "fatal: index error\n");
+            ASSERT(i - o->min_key < o->num_bins, "fatal: index error 10\n");
             n += o->bins[i - o->min_key];
         }
-        ASSERT(s->num_bins > 0, "fatal: index error\n");
+        ASSERT(s->num_bins > 0, "fatal: index error 11\n");
         s->bins[0] += n;
     } else {
         if (o->min_key < s->min_key) {
@@ -236,8 +237,8 @@ void store_merge(store_t *s, store_t *o) {
             memset(tmp_bins, 0, o->num_bins * sizeof(i64));
             memcpy(tmp_bins, o->bins, o->num_bins * sizeof(i64));
             for (i32 i = s->min_key; i <= s->max_key; i++) {
-                ASSERT(i - o->min_key < o->num_bins, "fatal: index error\n");
-                ASSERT(i - s->min_key < s->num_bins, "fatal: index error\n");
+                ASSERT(i - o->min_key < o->num_bins, "fatal: index error 12\n");
+                ASSERT(i - s->min_key < s->num_bins, "fatal: index error 13\n");
                 tmp_bins[i - o->min_key] += s->bins[i - s->min_key];
             }
             free(s->bins);
@@ -248,8 +249,8 @@ void store_merge(store_t *s, store_t *o) {
         } else {
             store_grow_right(s, o->max_key);
             for (i32 i = o->min_key; i <= o->max_key; i++) {
-                ASSERT(i - s->min_key < s->num_bins, "fatal: index error\n");
-                ASSERT(i - o->min_key < o->num_bins, "fatal: index error\n");
+                ASSERT(i - s->min_key < s->num_bins, "fatal: index error 14\n");
+                ASSERT(i - o->min_key < o->num_bins, "fatal: index error 15\n");
                 s->bins[i - s->min_key] += o->bins[i - o->min_key];
             }
         }
@@ -271,7 +272,7 @@ void store_add(store_t *s, i32 key) {
     if (index < 0) {
         index = 0;
     }
-    ASSERT(index < s->num_bins, "fatal: index error\n");
+    ASSERT(index < s->num_bins, "fatal: index error 16\n");
     s->bins[index]++;
     s->count++;
 }
@@ -303,7 +304,7 @@ void sketch_add(sketch_t *s, f64 v) {
 }
 
 f64 sketch_quantile(sketch_t *s, f64 q) {
-    ASSERT(q >= 0 && q <= 1 && s->count != 0, "fatal: bad q param or no data\n");
+    ASSERT(q >= 0 && q <= 1 && s->count != 0, "fatal: bad q param or no data 17\n");
     if (q == 0) {
         return s->min;
     } else if (q == 1) {
@@ -385,33 +386,33 @@ void sketch_to_row(row_t *row, sketch_t *s) {
 sketch_t *sketch_from_row(row_t *row) {
     config_t *c = config_new_default();
     sketch_t *s = sketch_new(c);
-    ASSERT(row->max >= 14, "fatal: not enough data\n");
+    ASSERT(row->max >= 14, "fatal: not enough data 18\n");
     // sketch_t
-    s->min   = *(f64*)row->columns[0]; ASSERT(row->sizes[0] == sizeof(f64), "fatal: bad size\n");
-    s->max   = *(f64*)row->columns[1]; ASSERT(row->sizes[1] == sizeof(f64), "fatal: bad size\n");
-    s->count = *(i64*)row->columns[2]; ASSERT(row->sizes[2] == sizeof(i64), "fatal: bad size\n");
-    s->sum   = *(f64*)row->columns[3]; ASSERT(row->sizes[3] == sizeof(f64), "fatal: bad size\n");
+    s->min   = *(f64*)row->columns[0]; ASSERT(row->sizes[0] == sizeof(f64), "fatal: bad size 19\n");
+    s->max   = *(f64*)row->columns[1]; ASSERT(row->sizes[1] == sizeof(f64), "fatal: bad size 20\n");
+    s->count = *(i64*)row->columns[2]; ASSERT(row->sizes[2] == sizeof(i64), "fatal: bad size 21\n");
+    s->sum   = *(f64*)row->columns[3]; ASSERT(row->sizes[3] == sizeof(f64), "fatal: bad size 22\n");
     // config_t
-    s->config->max_num_bins = *(i32*)row->columns[4]; ASSERT(row->sizes[4] == sizeof(i32), "fatal: bad size\n");
-    s->config->gamma        = *(f64*)row->columns[5]; ASSERT(row->sizes[5] == sizeof(f64), "fatal: bad size\n");
-    s->config->gamma_ln     = *(f64*)row->columns[6]; ASSERT(row->sizes[6] == sizeof(f64), "fatal: bad size\n");
-    s->config->min_value    = *(f64*)row->columns[7]; ASSERT(row->sizes[7] == sizeof(f64), "fatal: bad size\n");
-    s->config->offset       = *(i32*)row->columns[8]; ASSERT(row->sizes[8] == sizeof(i32), "fatal: bad size\n");
+    s->config->max_num_bins = *(i32*)row->columns[4]; ASSERT(row->sizes[4] == sizeof(i32), "fatal: bad size 23\n");
+    s->config->gamma        = *(f64*)row->columns[5]; ASSERT(row->sizes[5] == sizeof(f64), "fatal: bad size 24\n");
+    s->config->gamma_ln     = *(f64*)row->columns[6]; ASSERT(row->sizes[6] == sizeof(f64), "fatal: bad size 25\n");
+    s->config->min_value    = *(f64*)row->columns[7]; ASSERT(row->sizes[7] == sizeof(f64), "fatal: bad size 26\n");
+    s->config->offset       = *(i32*)row->columns[8]; ASSERT(row->sizes[8] == sizeof(i32), "fatal: bad size 27\n");
     // store_t
-    s->store->num_bins     = *(i32*)row->columns[9];  ASSERT(row->sizes[9]  == sizeof(i32), "fatal: bad size\n");
-    s->store->max_num_bins = *(i32*)row->columns[10]; ASSERT(row->sizes[10] == sizeof(i32), "fatal: bad size\n");
-    s->store->count        = *(i64*)row->columns[11]; ASSERT(row->sizes[11] == sizeof(i64), "fatal: bad size\n");
-    s->store->min_key      = *(i32*)row->columns[12]; ASSERT(row->sizes[12] == sizeof(i32), "fatal: bad size\n");
-    s->store->max_key      = *(i32*)row->columns[13]; ASSERT(row->sizes[13] == sizeof(i32), "fatal: bad size\n");
+    s->store->num_bins     = *(i32*)row->columns[9];  ASSERT(row->sizes[9]  == sizeof(i32), "fatal: bad size 28\n");
+    s->store->max_num_bins = *(i32*)row->columns[10]; ASSERT(row->sizes[10] == sizeof(i32), "fatal: bad size 29\n");
+    s->store->count        = *(i64*)row->columns[11]; ASSERT(row->sizes[11] == sizeof(i64), "fatal: bad size 30\n");
+    s->store->min_key      = *(i32*)row->columns[12]; ASSERT(row->sizes[12] == sizeof(i32), "fatal: bad size 31\n");
+    s->store->max_key      = *(i32*)row->columns[13]; ASSERT(row->sizes[13] == sizeof(i32), "fatal: bad size 32\n");
     // store_t.bins
-    ASSERT(row->max == 14 + s->store->num_bins - 1, "fatal: not enough bin data %d %d\n");
+    ASSERT(row->max == 14 + s->store->num_bins - 1, "fatal: not enough bin data [%d %d] 34\n");
     free(s->store->bins);
     MALLOC(s->store->bins,    s->store->num_bins * sizeof(i64));
     memset(s->store->bins, 0, s->store->num_bins * sizeof(i64));
     i32 offset = 14;
     for (i32 i = 0; i < s->store->num_bins; i++) {
         s->store->bins[i] = *(i64*)row->columns[i + offset];
-        ASSERT(row->sizes[i + offset] == sizeof(i64), "fatal: bad size\n");
+        ASSERT(row->sizes[i + offset] == sizeof(i64), "fatal: bad size 35\n");
     }
     return s;
 }
