@@ -26,7 +26,7 @@ echo -e '\tcd bin && rm -f -- * *.*' >> Makefile
 echo >> Makefile
 
 echo docs: >> Makefile
-echo -e '\t./scripts/readme.py' >> Makefile
+echo -e '\t./scripts/update_readme.py' >> Makefile
 echo >> Makefile
 
 echo test: setup >> Makefile
