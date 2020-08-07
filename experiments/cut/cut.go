@@ -25,7 +25,7 @@ func main() {
 	for {
 		// read row
 		line, isPrefix, err := r.ReadLine()
-		if isPrefix != false {
+		if isPrefix {
 			panic("line too long")
 		}
 		if err != nil {
