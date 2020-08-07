@@ -50,11 +50,20 @@ func main() {
 		ends[max] = len(line)
 		// handle row
 		for i, f := range fields {
-			w.Write(line[starts[f]:ends[f]])
+			_, err = w.Write(line[starts[f]:ends[f]])
+			if err != nil {
+				panic(err)
+			}
 			if i != len(fields)-1 {
-				w.Write([]byte(","))
+				_, err = w.Write([]byte(","))
+				if err != nil {
+					panic(err)
+				}
 			}
 		}
-		w.Write([]byte("\n"))
+		_, err = w.Write([]byte("\n"))
+		if err != nil {
+			panic(err)
+		}
 	}
 }

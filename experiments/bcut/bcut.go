@@ -63,13 +63,21 @@ func main() {
 
 			// handle row
 			for i, f := range fields {
-				w.Write(chunk_buffer[offsets[f] : offsets[f]+sizes[f]])
+				_, err = w.Write(chunk_buffer[offsets[f] : offsets[f]+sizes[f]])
+				if err != nil {
+					panic(err)
+				}
 				if i != len(fields)-1 {
-					w.Write([]byte(","))
+					_, err = w.Write([]byte(","))
+					if err != nil {
+						panic(err)
+					}
 				}
 			}
-			w.Write([]byte("\n"))
-
+			_, err = w.Write([]byte("\n"))
+			if err != nil {
+				panic(err)
+			}
 		}
 	}
 
