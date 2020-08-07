@@ -20,7 +20,7 @@
     i32 csv_stop = 0;                 /* stop immediately */                                \
     i32 csv_max = 0;                  /* highest zero-based index into sizes and columns */ \
     i32 csv_sizes[MAX_COLUMNS] = {0}; /* array of the number of chars in each column */     \
-    u8 *csv_columns[MAX_COLUMNS];    /* array of columns as u8-star */                      \
+    u8 *csv_columns[MAX_COLUMNS];     /* array of columns as u8-star */                     \
     csv_columns[0] = c_buffer;
 
 #define CSV_READ_LINE(file)                                                                                                                                                             \
