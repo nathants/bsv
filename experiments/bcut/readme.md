@@ -64,6 +64,7 @@ sys     0m0.500s
 ```bash
 >> cp ~/repos/bsv/experiments/bcut/* .
 >> cp -r ~/repos/bsv/util .
+>> cp -r ~/repos/bsv/vendor .
 
 >> cut -d, -f3,7 <data.csv | xxh3
 9135bc839b1f6beb
@@ -79,7 +80,7 @@ sys     0m0.500s
 >> ./bcut_rust 3,7 <data.csv | xxh3
 9135bc839b1f6beb
 
->> gcc -Iutil -O3 -flto -march=native -mtune=native -o bcut_c bcut.c
+>> gcc -Ivendor -Iutil -O3 -flto -march=native -mtune=native -o bcut_c bcut.c
 >> ./bcut_c 3,7 <data.csv | xxh3
 9135bc839b1f6beb
 
