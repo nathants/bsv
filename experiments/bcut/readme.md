@@ -70,23 +70,19 @@ sys     0m0.500s
 9135bc839b1f6beb
 
 >> go build -o bcut_go bcut.go
->> ./bcut_go 3,7 <data.csv | xxh3
-9135bc839b1f6beb
-
->> pypy bcut.py 3,7 <data.csv | xxh3
+>> ./bcut_go 3,7 <data.bsv | xxh3
 9135bc839b1f6beb
 
 >> rustc -O -o bcut_rust bcut.rs
->> ./bcut_rust 3,7 <data.csv | xxh3
+>> ./bcut_rust 3,7 <data.bsv | xxh3
 9135bc839b1f6beb
 
 >> gcc -Ivendor -Iutil -O3 -flto -march=native -mtune=native -o bcut_c bcut.c
->> ./bcut_c 3,7 <data.csv | xxh3
+>> ./bcut_c 3,7 <data.bsv | xxh3
 9135bc839b1f6beb
 
 >> bcut 3,7 <data.bsv | csv | xxh3
 9135bc839b1f6beb
-
 ```
 
 ##### coreutils cut is a good baseline
@@ -95,14 +91,6 @@ sys     0m0.500s
 real    0m5.784s
 user    0m5.472s
 sys     0m0.311s
-```
-
-##### pypy is slower
-```bash
->> time pypy bcut.py 3,7 <data.bsv >/dev/null
-real    0m9.917s
-user    0m9.443s
-sys     0m0.450s
 ```
 
 ##### go is faster
