@@ -37,7 +37,7 @@ while True:
         elif read_buffer[i] == newline:
             starts[max] = read_offset
             ends[max] = i
-            read_offset = i
+            read_offset = i + 1 # next row starts on the byte following the newline
             # handle row
             val = b''
             for i, f in enumerate(fields):
