@@ -23,13 +23,13 @@ note: row data cannot exceed chunk size.
 [chunk](https://github.com/nathants/bsv/blob/master/util/read.h):
 
 ```bash
-| i32:size | row | ... |
+| i32:size | u8[]:row | ... |
 ```
 
 [row](https://github.com/nathants/bsv/blob/master/util/load.h):
 
 ```bash
-| u16:max | u16:size | ... | u8:column | ... |
+| u16:max | u16:size | ... | u8[]:column | ... |
 ```
 
 note: column bytes are always followed by a single nullbyte.
