@@ -138,9 +138,23 @@ types and schemas as a part of the data format.
 
 [performance](https://github.com/nathants/bsv/blob/master/experiments/) experiments and alternate implementations.
 
-## related work
+## related projects
 
 [s4](https://github.com/nathants/s4) - a storage cluster that is cheap and fast, with data local compute and efficient shuffle.
+
+## related posts
+
+[optimizing a bsv data processing pipeline](https://nathants.com/posts/optimizing-a-bsv-data-processing-pipeline)
+
+[performant batch processing with bsv, s4, and presto](https://nathants.com/posts/performant-batch-processing-with-bsv-s4-and-presto)
+
+[discovering a baseline for data processing performance](https://nathants.com/posts/discovering-a-baseline-for-data-processing-performance)
+
+[refactoring common distributed data patterns into s4](https://nathants.com/posts/refactoring-common-distributed-data-patterns-into-s4)
+
+[scaling python data processing horizontally](https://nathants.com/posts/scaling-python-data-processing-horizontally)
+
+[scaling python data processing vertically](https://nathants.com/posts/scaling-python-data-processing-vertically)
 
 ## more examples
 
