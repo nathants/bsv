@@ -2,7 +2,7 @@
 #include "load.h"
 #include "dump.h"
 
-#define DESCRIPTION "sum the second colum of each contiguous identical row by the first column\n\n"
+#define DESCRIPTION "sum the second column of each contiguous identical row by the first column\n\n"
 #define USAGE "... | bsumeach TYPE\n\n"
 #define EXAMPLE "echo '\na,1\na,2\nb,3\nb,4\nb,5\na,6\n' | bsv | bschema *,a:i64 | bsumeach i64 | bschema *,i64:a | csv\na,3\nb,12\na,6\n"
 

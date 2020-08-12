@@ -3,7 +3,7 @@
 #include "dump.h"
 #include "hashmap.h"
 
-#define DESCRIPTION "sum as i64 the second colum by hash of the first column\n\n"
+#define DESCRIPTION "sum as i64 the second column by hash of the first column\n\n"
 #define USAGE "... | bsumeach-hash i64\n\n"
 #define EXAMPLE "echo '\na,1\na,2\nb,3\nb,4\nb,5\na,6\n' | bsv | bschema *,a:i64 | bsumeach-hash i64 | bschema *,i64:a | csv\na,3\nb,12\na,6\n"
 

@@ -32,9 +32,28 @@ note: row data cannot exceed chunk size.
 | u16:max | u16:size | ... | u8[]:column | ... |
 ```
 
-note: column bytes are always followed by a single nullbyte.
+note: column bytes are always followed by a single null byte.
 
 note: max is the maximum zero based index into the row.
+
+## install
+
+```bash
+>> curl https://raw.githubusercontent.com/nathants/bsv/master/scripts/install_archlinux.sh | bash
+```
+
+```bash
+>> git clone https://github.com/nathants/bsv
+>> cd bsv
+>> make -j
+>> sudo mv -fv bin/* /usr/local/bin
+```
+
+note: for best pipeline performance increase maximum pipe size
+
+```bash
+>> sudo sysctl fs.pipe-max-size=5242880
+```
 
 ## example
 
@@ -152,8 +171,8 @@ types and schemas as a part of the data format.
 | [bsort](#bsort) | timsort rows by the first column |
 | [bsplit](#bsplit) | split a stream into multiple files |
 | [bsum](#bsum) | sum the first column |
-| [bsumeach](#bsumeach) | sum the second colum of each contiguous identical row by the first column |
-| [bsumeach-hash](#bsumeach-hash) | sum as i64 the second colum by hash of the first column |
+| [bsumeach](#bsumeach) | sum the second column of each contiguous identical row by the first column |
+| [bsumeach-hash](#bsumeach-hash) | sum as i64 the second column by hash of the first column |
 | [bsv](#bsv) | convert csv to bsv |
 | [btake](#btake) | take while the first column is VALUE |
 | [btakeuntil](#btakeuntil) | for sorted input, take until the first column is gte to VALUE |
@@ -537,7 +556,7 @@ usage: ... | bsum TYPE
 
 ### [bsumeach](https://github.com/nathants/bsv/blob/master/src/bsumeach.c)
 
-sum the second colum of each contiguous identical row by the first column
+sum the second column of each contiguous identical row by the first column
 
 ```bash
 usage: ... | bsumeach TYPE
@@ -559,7 +578,7 @@ a,6
 
 ### [bsumeach-hash](https://github.com/nathants/bsv/blob/master/src/bsumeach_hash.c)
 
-sum as i64 the second colum by hash of the first column
+sum as i64 the second column by hash of the first column
 
 ```bash
 usage: ... | bsumeach-hash i64
