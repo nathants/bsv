@@ -150,21 +150,5 @@ def test_encoding():
     assert bsv == val
     assert rm_whitespace(stdin) + '\n' == run(rm_whitespace(stdin), 'bsv | csv')
 
-    stdin = """
-    a
-    """
-    val = run(rm_whitespace(stdin), 'bsv')
-    val = bytes(val, 'utf-8')
-    bsv = b''.join([
-        # chunk header
-        struct.pack('i', 6), # uint32 num bytes in this chunk, chunks contain 1 or more rows
-        # chunk body
-        struct.pack('H', 0), # uint16 max, see load.h
-        struct.pack('H', 1), # uint16 sizes, see load.h
-        b'a\0',
-    ])
-    assert bsv == val
-    assert rm_whitespace(stdin) + '\n' == run(rm_whitespace(stdin), 'bsv | csv')
-
     stdin = '\n'
     assert rm_whitespace(stdin) + '\n' == run(rm_whitespace(stdin), 'bsv | csv')
