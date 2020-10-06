@@ -9,7 +9,7 @@
 #define EXAMPLE                                                       \
     "  --stream pass stdin through to stdout with hash on stderr\n\n" \
     "  --int output hash as int not hash\n\n"                         \
-    ">> echo abc | xxh3\nB5CA312E51D77D64\n"
+    ">> echo abc | xxh3\n079364cbfdf9f4cb\n"
 
 int main(int argc, char **argv) {
 

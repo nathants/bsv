@@ -741,5 +741,5 @@ usage: ... | xxh3 [--stream|--int]
   --int output hash as int not hash
 
 >> echo abc | xxh3
-B5CA312E51D77D64
+079364cbfdf9f4cb
 ```
