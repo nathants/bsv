@@ -24,7 +24,7 @@ def teardown_module(m):
 @composite
 def inputs(draw):
     num_columns = draw(integers(min_value=1, max_value=3))
-    column = floats(allow_nan=False, allow_infinity=False)
+    column = floats(allow_nan=False, min_value=1e-10, max_value=1e10)
     line = lists(column, min_size=num_columns, max_size=num_columns)
     lines = draw(lists(line))
     lines = [','.join(map(str, line)) for line in lines]

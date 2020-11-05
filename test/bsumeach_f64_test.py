@@ -26,8 +26,10 @@ def test_basic():
     a,6.1
     """
     stdout = """
-    a,6.300000
-    b,9.200000
-    a,6.100000
+    a,6.3
+    b,9.2
+    a,6.1
     """
-    assert rm_whitespace(stdout) + '\n' == run(rm_whitespace(stdin), 'bsv | bschema *,a:f64 | bsumeach f64 | bschema *,f64:a | csv')
+    result = run(rm_whitespace(stdin), 'bsv | bschema *,a:f64 | bsumeach f64 | bschema *,f64:a | csv')
+    result = '\n'.join(f'{k},{round(float(v), 3)}' for line in result.splitlines() for k, v in [line.split(',')]) + '\n'
+    assert rm_whitespace(stdout) + '\n' == result
