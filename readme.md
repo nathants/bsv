@@ -55,6 +55,18 @@ note: for best pipeline performance increase maximum pipe size
 >> sudo sysctl fs.pipe-max-size=5242880
 ```
 
+## test
+
+```bash
+>> git clone https://github.com/nathants/bsv
+>> cd bsv
+>> tox
+```
+
+```bash
+>> docker build . -t bsv
+>> docker run --rm -it bsv bash -c 'cd /code && tox'
+```
 ## example
 
 add `bsumall.c` to `bsv/src/`:
