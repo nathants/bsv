@@ -65,7 +65,7 @@ note: for best pipeline performance increase maximum pipe size
 
 ```bash
 >> docker build . -t bsv
->> docker run --rm -it bsv bash -c 'cd /code && tox'
+>> docker run --rm -it bsv bash -c 'pacman -Sy --noconfirm git rsync python-tox && cd /code && tox'
 ```
 ## example
 

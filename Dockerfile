@@ -1,10 +1,8 @@
 FROM archlinux:latest
 
 RUN pacman --needed --noconfirm --noprogressbar -Sy \
-     rsync \
-     python-tox \
+     python \
      gcc \
-     git \
      make
 
 ADD tox.ini      /code/
@@ -18,8 +16,14 @@ ADD scripts      /code/scripts
 ADD .git         /code/.git
 ADD readme.md    /code/readme.md
 
-RUN cd /code && tox --notest
-
 RUN cd /code && \
     make -j && \
-    mv -fv bin/* /usr/local/bin
+    mv -fv bin/* /bin
+
+CMD /bin/_gen_csv -h; \
+    /bin/_gen_bsv -h; \
+    cd /code/src; \
+    for name in $(ls | grep -v ^_); do \
+      /bin/$(echo $name | cut -d. -f1) -h; \
+    done; \
+    true
