@@ -58,8 +58,6 @@ note: for best pipeline performance increase maximum pipe size
 ## test
 
 ```bash
->> git clone https://github.com/nathants/bsv
->> cd bsv
 >> tox
 ```
 
