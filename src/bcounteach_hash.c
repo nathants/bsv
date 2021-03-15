@@ -18,7 +18,6 @@ int main(int argc, char **argv) {
     row_t row;
     u8 *key;
     i64 *count;
-    void* element;
     struct hashmap_s hashmap;
     ASSERT(0 == hashmap_create(2, &hashmap), "fatal: hashmap init\n");
 
@@ -27,8 +26,8 @@ int main(int argc, char **argv) {
         load_next(&rbuf, &row, 0);
         if (row.stop)
             break;
-        if (element = hashmap_get(&hashmap, row.columns[0], row.sizes[0])) {
-            *(i64*)element += 1;
+        if (count = hashmap_get(&hashmap, row.columns[0], row.sizes[0])) {
+            *count += 1;
         } else {
             MALLOC(key, row.sizes[0]);
             strncpy(key, row.columns[0], row.sizes[0]);
@@ -49,4 +48,5 @@ int main(int argc, char **argv) {
         }
     }
     dump_flush(&wbuf, 0);
+
 }
