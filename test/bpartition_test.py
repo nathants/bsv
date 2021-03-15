@@ -63,9 +63,9 @@ def test_without_prefix():
         h,i,j
         """
         stdout = """
+        02
         04
-        06
-        08
+        05
         """
         assert rm_whitespace(unindent(stdout)) == shell.run('bsv | bpartition 10', stdin=unindent(stdin))
 
@@ -77,21 +77,21 @@ def test_basic():
         h,i,j
         """
         stdout = """
+        prefix_02
         prefix_04
-        prefix_06
-        prefix_08
+        prefix_05
         """
         assert rm_whitespace(unindent(stdout)) == shell.run('bsv | bpartition 10 prefix', stdin=unindent(stdin))
         stdout = """
+        prefix_02:h,i,j
         prefix_04:e,f,g
-        prefix_06:h,i,j
-        prefix_08:b,c,d
+        prefix_05:b,c,d
         """
         assert unindent(stdout).strip() == shell.run('bcat --prefix prefix*')
         stdout = """
+        prefix_02
         prefix_04
-        prefix_06
-        prefix_08
+        prefix_05
         """
         assert unindent(stdout).strip() == shell.run('ls prefix*')
 
@@ -103,24 +103,24 @@ def test_appends():
         h,i,j
         """
         stdout = """
+        prefix_02
         prefix_04
-        prefix_06
-        prefix_08
+        prefix_05
         """
         assert rm_whitespace(unindent(stdout)) == shell.run('bsv | bpartition 10 prefix', stdin=unindent(stdin))
         assert rm_whitespace(unindent(stdout)) == shell.run('bsv | bpartition 10 prefix', stdin=unindent(stdin))
         stdout = """
+        prefix_02:h,i,j
+        prefix_02:h,i,j
         prefix_04:e,f,g
         prefix_04:e,f,g
-        prefix_06:h,i,j
-        prefix_06:h,i,j
-        prefix_08:b,c,d
-        prefix_08:b,c,d
+        prefix_05:b,c,d
+        prefix_05:b,c,d
         """
         assert unindent(stdout).strip() == shell.run('bcat --prefix prefix*')
         stdout = """
+        prefix_02
         prefix_04
-        prefix_06
-        prefix_08
+        prefix_05
         """
         assert unindent(stdout).strip() == shell.run('ls prefix*')

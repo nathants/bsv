@@ -1,5 +1,7 @@
 import shell
+import io
 import os
+import xxh3
 from test_util import clone_source
 
 def setup_module(m):
@@ -18,9 +20,11 @@ def teardown_module(m):
 
 def test_hex():
     assert '079364cbfdf9f4cb' == shell.run('echo abc | xxh3')
+    assert '079364cbfdf9f4cb' == xxh3.oneshot_hex('abc\n'.encode())
 
 def test_int():
     assert '545890807144117451' == shell.run('echo abc | xxh3 --int')
+    assert 545890807144117451 == xxh3.oneshot_int('abc\n'.encode())
 
 def test_stream():
     assert {
@@ -29,9 +33,11 @@ def test_stream():
         'stderr': '079364cbfdf9f4cb',
         'stdout': 'abc',
     } == shell.run('echo abc | xxh3 --stream', warn=True)
+    assert '079364cbfdf9f4cb' == xxh3.stream_hex(io.BytesIO('abc\n'.encode()))
     assert {
         'cmd': 'set -eou pipefail; echo abc | xxh3 --stream --int',
         'exitcode': 0,
         'stderr': '545890807144117451',
         'stdout': 'abc',
     } == shell.run('echo abc | xxh3 --stream --int', warn=True)
+    assert 545890807144117451 == xxh3.stream_int(io.BytesIO('abc\n'.encode()))
