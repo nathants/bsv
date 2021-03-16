@@ -27,7 +27,7 @@ int main(int argc, char **argv) {
         if (row.stop)
             break;
         if (count = hashmap_get(&hashmap, row.columns[0], row.sizes[0])) {
-            *count += 1;
+            (*count)++;
         } else {
             MALLOC(key, row.sizes[0]);
             strncpy(key, row.columns[0], row.sizes[0]);
