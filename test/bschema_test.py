@@ -18,6 +18,7 @@ def teardown_module(m):
     shell.run('rm -rf', m.tempdir)
 
 def test_basic():
+    assert '0' == shell.run('echo 0 | bsv | bschema a:u16 | bschema u16:a | csv')
     assert '5' == shell.run('echo 5 | bsv | bschema a:u16 | bschema u16:a | csv')
     assert '5' == shell.run('echo 5 | bsv | bschema a:u32 | bschema u32:a | csv')
     assert '5' == shell.run('echo 5 | bsv | bschema a:u64 | bschema u64:a | csv')

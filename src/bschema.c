@@ -86,7 +86,7 @@ enum conversion {
 
 #define A_TO_UL(type, max)                                                                              \
     ASSERT(sizeof(type) < BUFFER_SIZE - scratch_offset, "fatal: scratch overflow\n");                   \
-    ASSERT(compare_str(row.columns[i], "0") > 0, "fatal: unsigned value cannot be below zero\n");       \
+    ASSERT(compare_str(row.columns[i], "0") >= 0, "fatal: unsigned value cannot be below zero\n");      \
     tmpul = strtoul(row.columns[i], NULL, 10);                                                          \
     _##type = tmpul;                                                                                    \
     ASSERT(tmpul < ULONG_MAX, "fatal: above max value: %lu > %lu\n", tmpul, ULONG_MAX);                 \
