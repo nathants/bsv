@@ -51,6 +51,7 @@ inlined void read_bytes(readbuf_t *buf, i32 size, i32 file) {
         buf->bytes_read = fread_unlocked(&buf->chunk_size[file], 1, sizeof(i32), buf->files[file]); // - try read chunk size
         switch (buf->bytes_read) {
             case sizeof(i32): // ----------------------------------------------------------------------- read chunk size succeeded
+                ASSERT(buf->chunk_size[file] < BUFFER_SIZE, "fatal: bad chunk size: %d\n", buf->chunk_size[file]);
                 #ifdef READ_GROWING // when defined hold all data in ram for sorting
                     MALLOC(buf->buffers[file], buf->chunk_size[file]);
                 #endif
