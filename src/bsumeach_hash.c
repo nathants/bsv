@@ -1,7 +1,7 @@
 #include "util.h"
 #include "load.h"
 #include "dump.h"
-#include "hashmap.h"
+#include "fastmap.h"
 
 #define DESCRIPTION "sum as i64 the second column by hash of the first column\n\n"
 #define USAGE "... | bsumeach-hash i64\n\n"
@@ -16,10 +16,8 @@ int main(int argc, char **argv) {
 
     // setup state
     row_t row;
-    u8 *key;
-    void* element;
-    struct hashmap_s hashmap;
-    ASSERT(0 == hashmap_create(2, &hashmap), "fatal: hashmap init\n");
+
+    FASTMAP_INIT(sums, void*, 1<<16);
     i64 *sum_i64;
     i32 *sum_i32;
     i16 *sum_i16;
@@ -49,39 +47,39 @@ int main(int argc, char **argv) {
             break;
         ASSERT(row.max >= 1, "fatal: need at least 2 columns\n");
         ASSERT_SIZE(value_type, row.sizes[1]);
-        if (element = hashmap_get(&hashmap, row.columns[0], row.sizes[0])) {
+        FASTMAP_SET_INDEX(sums, row.columns[0], row.sizes[0], void*);
+        if (FASTMAP_VALUE(sums) != NULL) {
             switch (value_type) {
-                case I64: *(i64*)element += *(i64*)row.columns[1]; break;
-                case I32: *(i32*)element += *(i32*)row.columns[1]; break;
-                case I16: *(i16*)element += *(i16*)row.columns[1]; break;
-                case U64: *(u64*)element += *(u64*)row.columns[1]; break;
-                case U32: *(u32*)element += *(u32*)row.columns[1]; break;
-                case U16: *(u16*)element += *(u16*)row.columns[1]; break;
-                case F64: *(f64*)element += *(f64*)row.columns[1]; break;
-                case F32: *(f32*)element += *(f32*)row.columns[1]; break;
+                case I64: *(i64*)FASTMAP_VALUE(sums) += *(i64*)row.columns[1]; break;
+                case I32: *(i32*)FASTMAP_VALUE(sums) += *(i32*)row.columns[1]; break;
+                case I16: *(i16*)FASTMAP_VALUE(sums) += *(i16*)row.columns[1]; break;
+                case U64: *(u64*)FASTMAP_VALUE(sums) += *(u64*)row.columns[1]; break;
+                case U32: *(u32*)FASTMAP_VALUE(sums) += *(u32*)row.columns[1]; break;
+                case U16: *(u16*)FASTMAP_VALUE(sums) += *(u16*)row.columns[1]; break;
+                case F64: *(f64*)FASTMAP_VALUE(sums) += *(f64*)row.columns[1]; break;
+                case F32: *(f32*)FASTMAP_VALUE(sums) += *(f32*)row.columns[1]; break;
             }
-        } else {
-            MALLOC(key, row.sizes[0]);
-            strncpy(key, row.columns[0], row.sizes[0]);
+        }
+        else {
             switch (value_type) {
-                case I64: MALLOC(sum_i64, sizeof(i64)); *sum_i64 = *(i64*)row.columns[1]; ASSERT(0 == hashmap_put(&hashmap, key, row.sizes[0], sum_i64), "fatal: hashmap put\n"); break;
-                case I32: MALLOC(sum_i32, sizeof(i32)); *sum_i32 = *(i32*)row.columns[1]; ASSERT(0 == hashmap_put(&hashmap, key, row.sizes[0], sum_i32), "fatal: hashmap put\n"); break;
-                case I16: MALLOC(sum_i16, sizeof(i16)); *sum_i16 = *(i16*)row.columns[1]; ASSERT(0 == hashmap_put(&hashmap, key, row.sizes[0], sum_i16), "fatal: hashmap put\n"); break;
-                case U64: MALLOC(sum_u64, sizeof(u64)); *sum_u64 = *(u64*)row.columns[1]; ASSERT(0 == hashmap_put(&hashmap, key, row.sizes[0], sum_u64), "fatal: hashmap put\n"); break;
-                case U32: MALLOC(sum_u32, sizeof(u32)); *sum_u32 = *(u32*)row.columns[1]; ASSERT(0 == hashmap_put(&hashmap, key, row.sizes[0], sum_u32), "fatal: hashmap put\n"); break;
-                case U16: MALLOC(sum_u16, sizeof(u16)); *sum_u16 = *(u16*)row.columns[1]; ASSERT(0 == hashmap_put(&hashmap, key, row.sizes[0], sum_u16), "fatal: hashmap put\n"); break;
-                case F64: MALLOC(sum_f64, sizeof(f64)); *sum_f64 = *(f64*)row.columns[1]; ASSERT(0 == hashmap_put(&hashmap, key, row.sizes[0], sum_f64), "fatal: hashmap put\n"); break;
-                case F32: MALLOC(sum_f32, sizeof(f32)); *sum_f32 = *(f32*)row.columns[1]; ASSERT(0 == hashmap_put(&hashmap, key, row.sizes[0], sum_f32), "fatal: hashmap put\n"); break;
+                case I64: MALLOC(sum_i64, sizeof(i64)); *sum_i64 = *(i64*)row.columns[1]; FASTMAP_VALUE(sums) = sum_i64; break;
+                case I32: MALLOC(sum_i32, sizeof(i32)); *sum_i32 = *(i32*)row.columns[1]; FASTMAP_VALUE(sums) = sum_i32; break;
+                case I16: MALLOC(sum_i16, sizeof(i16)); *sum_i16 = *(i16*)row.columns[1]; FASTMAP_VALUE(sums) = sum_i16; break;
+                case U64: MALLOC(sum_u64, sizeof(u64)); *sum_u64 = *(u64*)row.columns[1]; FASTMAP_VALUE(sums) = sum_u64; break;
+                case U32: MALLOC(sum_u32, sizeof(u32)); *sum_u32 = *(u32*)row.columns[1]; FASTMAP_VALUE(sums) = sum_u32; break;
+                case U16: MALLOC(sum_u16, sizeof(u16)); *sum_u16 = *(u16*)row.columns[1]; FASTMAP_VALUE(sums) = sum_u16; break;
+                case F64: MALLOC(sum_f64, sizeof(f64)); *sum_f64 = *(f64*)row.columns[1]; FASTMAP_VALUE(sums) = sum_f64; break;
+                case F32: MALLOC(sum_f32, sizeof(f32)); *sum_f32 = *(f32*)row.columns[1]; FASTMAP_VALUE(sums) = sum_f32; break;
             }
         }
     }
 
-    for (i32 i = 0; i < hashmap.table_size; i++) {
-        if (hashmap.data[i].in_use) {
+    for (u64 i = 0; i < FASTMAP_SIZE(sums); i++) {
+        if (FASTMAP_KEYS(sums)[i] != NULL) {
             row.max = 1;
-            row.columns[0] = hashmap.data[i].key;
-            row.sizes[0] = hashmap.data[i].key_len;
-            row.columns[1] = hashmap.data[i].data;
+            row.columns[0] = FASTMAP_KEYS(sums)[i];
+            row.sizes[0] = FASTMAP_SIZES(sums)[i];
+            row.columns[1] = FASTMAP_VALUES(sums)[i];
             switch (value_type) {
                 case I64: row.sizes[1] = sizeof(i64); break;
                 case I32: row.sizes[1] = sizeof(i32); break;
@@ -96,4 +94,5 @@ int main(int argc, char **argv) {
         }
     }
     dump_flush(&wbuf, 0);
+
 }

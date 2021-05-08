@@ -1,7 +1,7 @@
 #include "util.h"
 #include "load.h"
 #include "dump.h"
-#include "hashmap.h"
+#include "fastmap.h"
 
 #define DESCRIPTION "count as i64 by hash of the first column\n\n"
 #define USAGE "... | bcounteach-hash\n\n"
@@ -16,33 +16,24 @@ int main(int argc, char **argv) {
 
     // setup state
     row_t row;
-    u8 *key;
-    i64 *count;
-    struct hashmap_s hashmap;
-    ASSERT(0 == hashmap_create(2, &hashmap), "fatal: hashmap init\n");
 
-    // process input row by row
+    FASTMAP_INIT(counts, i64, 1<<16);
+
     while (1) {
         load_next(&rbuf, &row, 0);
-        if (row.stop)
+        if (row.stop) {
             break;
-        if (count = hashmap_get(&hashmap, row.columns[0], row.sizes[0])) {
-            (*count)++;
-        } else {
-            MALLOC(key, row.sizes[0]);
-            strncpy(key, row.columns[0], row.sizes[0]);
-            MALLOC(count, sizeof(i64));
-            *count = 1;
-            ASSERT(0 == hashmap_put(&hashmap, key, row.sizes[0], count), "fatal: hashmap put\n");
         }
+        FASTMAP_SET_INDEX(counts, row.columns[0], row.sizes[0], i64);
+        FASTMAP_VALUE(counts)++;
     }
 
-    for (i32 i = 0; i < hashmap.table_size; i++) {
-        if (hashmap.data[i].in_use) {
+    for (i32 i = 0; i < FASTMAP_SIZE(counts); i++) {
+        if (FASTMAP_KEYS(counts)[i] != NULL) {
             row.max = 1;
-            row.columns[0] = hashmap.data[i].key;
-            row.sizes[0] = hashmap.data[i].key_len;
-            row.columns[1] = hashmap.data[i].data;
+            row.columns[0] = FASTMAP_KEYS(counts)[i];
+            row.sizes[0] = FASTMAP_SIZES(counts)[i];
+            row.columns[1] = &FASTMAP_VALUES(counts)[i];
             row.sizes[1] = sizeof(i64);
             dump(&wbuf, &row, 0);
         }

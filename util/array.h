@@ -3,9 +3,18 @@
 #define ARRAY_EXPAND_CAPACITY 1024 * 1024
 
 #define ARRAY_INIT(array, type)                             \
-    int32_t array##_size = 0;                               \
-    int32_t array##_capacity = ARRAY_EXPAND_CAPACITY;       \
+    u64 array##_size = 0;                                   \
+    u64 array##_capacity = ARRAY_EXPAND_CAPACITY;           \
     type *array = malloc(sizeof(type) * array##_capacity);
+
+#define ARRAY_ADD(array, size, type)                            \
+    do {                                                        \
+        if (array##_size + size > array##_capacity) {           \
+            array##_capacity += ARRAY_EXPAND_CAPACITY;          \
+            REALLOC(array, sizeof(type) * array##_capacity);    \
+        }                                                       \
+        array##_size += size;                                   \
+    } while(0)
 
 #define ARRAY_APPEND(array, val, type)                          \
     do {                                                        \

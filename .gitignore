@@ -1,3 +1,4 @@
+*.gcda
 Cargo.lock
 target/
 .ccls*

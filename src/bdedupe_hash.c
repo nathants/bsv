@@ -1,7 +1,7 @@
 #include "util.h"
 #include "load.h"
 #include "dump.h"
-#include "hashmap.h"
+#include "fastmap.h"
 
 #define DESCRIPTION "dedupe rows by hash of the first column, keeping the first\n\n"
 #define USAGE "... | bdedupe-hash\n\n"
@@ -15,23 +15,18 @@ int main(int argc, char **argv) {
     writebuf_t wbuf = wbuf_init((FILE*[]){stdout}, 1, false);
 
     // setup state
-    u8 *buffer;
     row_t row;
-    u8 *key;
-    void* element;
-    struct hashmap_s hashmap;
-    ASSERT(0 == hashmap_create(2, &hashmap), "fatal: hashmap init\n");
+    FASTMAP_INIT(dupes, u8, 1<<16);
 
     // process input row by row
     while (1) {
         load_next(&rbuf, &row, 0);
         if (row.stop)
             break;
-        if (!hashmap_get(&hashmap, row.columns[0], row.sizes[0])) {
+        FASTMAP_SET_INDEX(dupes, row.columns[0], row.sizes[0], u8);
+        if (FASTMAP_VALUE(dupes) == 0) {
+            FASTMAP_VALUE(dupes) = 1;
             dump(&wbuf, &row, 0);
-            MALLOC(key, row.sizes[0]);
-            strncpy(key, row.columns[0], row.sizes[0]);
-            hashmap_put(&hashmap, key, row.sizes[0], key);
         }
     }
     dump_flush(&wbuf, 0);
