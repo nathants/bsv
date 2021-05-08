@@ -1,6 +1,6 @@
 #pragma once
 
-#define ARRAY_EXPAND_CAPACITY 1024 * 1024
+#define ARRAY_EXPAND_CAPACITY 1024 * 512
 
 #define ARRAY_INIT(array, type)                             \
     u64 array##_size = 0;                                   \
