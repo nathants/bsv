@@ -1,4 +1,4 @@
-/* source: https://github.com/Cyan4973/xxHash/blob/4dab8579451e5e21e3c422ad740e2ebc3c926299/xxh3.h */
+/* source: https://github.com/Cyan4973/xxHash/blob/a9054f397d7f41bc505638df3853b270eb9e7493/xxh3.h */
 /*
  * xxHash - Extremely Fast Hash algorithm
  * Development source file for `xxh3`
@@ -43,7 +43,7 @@
  * but it is still provided for compatibility with source code
  * which used to include it directly.
  *
- * Programs are now highly discourage to include xxh3.h.
+ * Programs are now highly discouraged to include xxh3.h.
  * Include `xxhash.h` instead, which is the officially supported interface.
  *
  * In the future, xxh3.h will start to generate warnings, then errors,

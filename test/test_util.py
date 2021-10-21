@@ -10,7 +10,7 @@ def clone_source():
     with shell.climb_git_root():
         orig = os.getcwd()
         with shell.tempdir(cleanup=False):
-            shell.run(f"rsync -avhc {orig}/ . --exclude '.git' --exclude '.tox' --exclude '.backups' --exclude '__pycache__'")
+            shell.run(f"rsync -avhc {orig}/ . --exclude '.git' --exclude '.tox' --exclude '.backups' --exclude '__pycache__' --exclude '.hypothesis' --exclude '.ccls-cache'")
             shell.run('mkdir .git')
             return os.getcwd()
 
