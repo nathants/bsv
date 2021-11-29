@@ -14,7 +14,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
-#include "simd.h"
 #include "version.h"
 
 typedef int8_t   i8;
@@ -232,7 +231,7 @@ enum value_type {
 };
 
 // normal
-inlined int compare_str  (const void *v1, const void *v2) { return simd_strcmp((u8*)v1, (u8*)v2); }
+inlined int compare_str  (const void *v1, const void *v2) { return strcmp((u8*)v1, (u8*)v2); }
 inlined int compare_i64  (const void *v1, const void *v2) { if (*(i64*)v1 < *(i64*)v2) { return -1; } else if (*(i64*)v1 > *(i64*)v2) { return 1; } else { return 0; } }
 inlined int compare_i32  (const void *v1, const void *v2) { if (*(i32*)v1 < *(i32*)v2) { return -1; } else if (*(i32*)v1 > *(i32*)v2) { return 1; } else { return 0; } }
 inlined int compare_i16  (const void *v1, const void *v2) { if (*(i16*)v1 < *(i16*)v2) { return -1; } else if (*(i16*)v1 > *(i16*)v2) { return 1; } else { return 0; } }
@@ -242,7 +241,7 @@ inlined int compare_u16  (const void *v1, const void *v2) { if (*(u16*)v1 < *(u1
 inlined int compare_f64  (const void *v1, const void *v2) { if (*(f64*)v1 < *(f64*)v2) { return -1; } else if (*(f64*)v1 > *(f64*)v2) { return 1; } else { return 0; } }
 inlined int compare_f32  (const void *v1, const void *v2) { if (*(f32*)v1 < *(f32*)v2) { return -1; } else if (*(f32*)v1 > *(f32*)v2) { return 1; } else { return 0; } }
 // reverse
-inlined int compare_r_str(const void *v1, const void *v2) { return simd_strcmp((u8*)v2, (u8*)v1); }
+inlined int compare_r_str(const void *v1, const void *v2) { return strcmp((u8*)v2, (u8*)v1); }
 inlined int compare_r_i64(const void *v1, const void *v2) { if (*(i64*)v2 < *(i64*)v1) { return -1; } else if (*(i64*)v2 > *(i64*)v1) { return 1; } else { return 0; } }
 inlined int compare_r_i32(const void *v1, const void *v2) { if (*(i32*)v2 < *(i32*)v1) { return -1; } else if (*(i32*)v2 > *(i32*)v1) { return 1; } else { return 0; } }
 inlined int compare_r_i16(const void *v1, const void *v2) { if (*(i16*)v2 < *(i16*)v1) { return -1; } else if (*(i16*)v2 > *(i16*)v1) { return 1; } else { return 0; } }
@@ -255,7 +254,7 @@ inlined int compare_r_f32(const void *v1, const void *v2) { if (*(f32*)v2 < *(f3
 inlined int compare(const i32 value_type, const void *v1, const void *v2) {
     switch (value_type) {
         // normal
-        case STR: return simd_strcmp((u8*)v1, (u8*)v2);
+        case STR: return strcmp((u8*)v1, (u8*)v2);
         case I64: if (*(i64*)v1 < *(i64*)v2) { return -1; } else if (*(i64*)v1 > *(i64*)v2) { return 1; } else { return 0; }
         case I32: if (*(i32*)v1 < *(i32*)v2) { return -1; } else if (*(i32*)v1 > *(i32*)v2) { return 1; } else { return 0; }
         case I16: if (*(i16*)v1 < *(i16*)v2) { return -1; } else if (*(i16*)v1 > *(i16*)v2) { return 1; } else { return 0; }
@@ -265,7 +264,7 @@ inlined int compare(const i32 value_type, const void *v1, const void *v2) {
         case F64: if (*(f64*)v1 < *(f64*)v2) { return -1; } else if (*(f64*)v1 > *(f64*)v2) { return 1; } else { return 0; }
         case F32: if (*(f32*)v1 < *(f32*)v2) { return -1; } else if (*(f32*)v1 > *(f32*)v2) { return 1; } else { return 0; }
         // reverse
-        case R_STR: return simd_strcmp((u8*)v2, (u8*)v1);
+        case R_STR: return strcmp((u8*)v2, (u8*)v1);
         case R_I64: if (*(i64*)v2 < *(i64*)v1) { return -1; } else if (*(i64*)v2 > *(i64*)v1) { return 1; } else { return 0; }
         case R_I32: if (*(i32*)v2 < *(i32*)v1) { return -1; } else if (*(i32*)v2 > *(i32*)v1) { return 1; } else { return 0; }
         case R_I16: if (*(i16*)v2 < *(i16*)v1) { return -1; } else if (*(i16*)v2 > *(i16*)v1) { return 1; } else { return 0; }
