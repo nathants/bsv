@@ -24,10 +24,10 @@
     u64   map##_used = 0;                                   \
     u64   map##_size = initial_size;                        \
     u8  **map##_keys;                                       \
-    u8  *map##_keys_buf;                                    \
+    u8   *map##_keys_buf;                                   \
     u8  **map##_keys_bufs_last;                             \
-    u64  map##_keys_bufs_last_size;                         \
-    u64  map##_keys_buf_remaining = FASTMAP_KEY_BUF_SIZE;   \
+    u64   map##_keys_bufs_last_size;                        \
+    u64   map##_keys_buf_remaining = FASTMAP_KEY_BUF_SIZE;  \
     MALLOC(map##_keys_buf, FASTMAP_KEY_BUF_SIZE);           \
     MALLOC(map##_keys, sizeof(u8*) * map##_size);           \
     for (u64 i = 0; i < map##_size; i++)                    \
