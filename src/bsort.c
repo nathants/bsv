@@ -9,8 +9,8 @@
 #define EXAMPLE ">> echo '\n3\n2\n1\n' | bsv | bschema a:i64 | bsort i64 | bschema i64:a | csv\n1\n2\n3\n\n"
 
 #define SORT_NAME row
-#define SORT_TYPE raw_row_t *
-#define SORT_CMP(x, y) compare((x)->meta, (x)->buffer, (y)->buffer)
+#define SORT_TYPE raw_row_t
+#define SORT_CMP(x, y) compare((x).meta, (x).buffer, (y).buffer)
 #include "sort.h"
 
 int main(int argc, char **argv) {
@@ -22,8 +22,8 @@ int main(int argc, char **argv) {
 
     // setup state
     row_t row;
-    raw_row_t *raw_row;
-    ARRAY_INIT(array, raw_row_t*);
+    raw_row_t raw_row;
+    ARRAY_INIT(array, raw_row_t);
 
     // parse args
     bool reversed = false;
@@ -69,10 +69,9 @@ int main(int argc, char **argv) {
         if (row.stop)
             break;
         ASSERT_SIZE(value_type, row.sizes[0]);
-        MALLOC(raw_row, sizeof(raw_row_t));
-        row_to_raw(&row, raw_row);
-        raw_row->meta = value_type;
-        ARRAY_APPEND(array, raw_row, raw_row_t*);
+        row_to_raw(&row, &raw_row);
+        raw_row.meta = value_type;
+        ARRAY_APPEND(array, raw_row, raw_row_t);
     }
 
     // sort
@@ -80,6 +79,6 @@ int main(int argc, char **argv) {
 
     // write
     for (i32 i = 0; i < array_size; i++)
-        dump_raw(&wbuf, array[i], 0);
+        dump_raw(&wbuf, &array[i], 0);
     dump_flush(&wbuf, 0);
 }
