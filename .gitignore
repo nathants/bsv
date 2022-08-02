@@ -114,3 +114,5 @@ bdedupe-hash
 btopn
 bquantile-merge
 bquantile-sketch
+_bcopy
+_bcopyraw

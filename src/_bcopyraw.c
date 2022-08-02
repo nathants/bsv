@@ -1,10 +1,12 @@
-#include "util.h"
+#define READ_GROWING
 #include "load.h"
 #include "dump.h"
+#include "array.h"
+#include "argh.h"
 
-#define DESCRIPTION "pass through data, to benchmark load/dump performance\n\n"
+#define DESCRIPTION "pass through data, to benchmark raw load/dump performance\n\n"
 #define USAGE "... | bcopy \n\n"
-#define EXAMPLE ">> echo a,b,c | bsv | bcopy | csv\na,b,c\n"
+#define EXAMPLE ">> echo a,b,c | bsv | _bcopyraw | csv\na,b,c\n"
 
 int main(int argc, char **argv) {
 
@@ -15,13 +17,16 @@ int main(int argc, char **argv) {
 
     // setup state
     row_t row;
+    raw_row_t raw_row;
+    ARRAY_INIT(array, raw_row_t*);
 
-    // process input row by row
+    // read
     while (1) {
         load_next(&rbuf, &row, 0);
         if (row.stop)
             break;
-        dump(&wbuf, &row, 0);
+        row_to_raw(&row, &raw_row);
+        dump_raw(&wbuf, &raw_row, 0);
     }
     dump_flush(&wbuf, 0);
 }

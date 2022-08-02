@@ -1,6 +1,6 @@
 .PHONY: all clean test
 CFLAGS=${CC_EXTRA} -Wno-int-conversion -Wno-incompatible-pointer-types -Wno-discarded-qualifiers -Iutil -Ivendor -flto -O3 -march=native -mtune=native -lm
-ALL=clean docs bcat bcombine bcopy bcounteach bcounteach-hash bcountrows bcut bdedupe bdedupe-hash bdropuntil bhead blz4 blz4d bmerge bpartition bquantile-merge bquantile-sketch bschema bsort bsplit bsum bsumeach bsumeach-hash bsv btake btakeuntil btopn bunzip bzip _copy _csv csv _gen_bsv _gen_csv xxh3
+ALL=clean docs _bcopy _bcopyraw _copy _csv _gen_bsv _gen_csv bcat bcombine bcounteach bcounteach-hash bcountrows bcut bdedupe bdedupe-hash bdropuntil bhead blz4 blz4d bmerge bpartition bquantile-merge bquantile-sketch bschema bsort bsplit bsum bsumeach bsumeach-hash bsv btake btakeuntil btopn bunzip bzip csv xxh3
 
 all: $(ALL)
 
@@ -17,14 +17,29 @@ docs:
 test: setup
 	tox
 
+_bcopy: setup
+	gcc $(CFLAGS) vendor/lz4.c src/_bcopy.c -o bin/_bcopy
+
+_bcopyraw: setup
+	gcc $(CFLAGS) vendor/lz4.c src/_bcopyraw.c -o bin/_bcopyraw
+
+_copy: setup
+	gcc $(CFLAGS) vendor/lz4.c src/_copy.c -o bin/_copy
+
+_csv: setup
+	gcc $(CFLAGS) vendor/lz4.c src/_csv.c -o bin/_csv
+
+_gen_bsv: setup
+	gcc $(CFLAGS) vendor/lz4.c src/_gen_bsv.c -o bin/_gen_bsv
+
+_gen_csv: setup
+	gcc $(CFLAGS) vendor/lz4.c src/_gen_csv.c -o bin/_gen_csv
+
 bcat: setup
 	gcc $(CFLAGS) vendor/lz4.c src/bcat.c -o bin/bcat
 
 bcombine: setup
 	gcc $(CFLAGS) vendor/lz4.c src/bcombine.c -o bin/bcombine
-
-bcopy: setup
-	gcc $(CFLAGS) vendor/lz4.c src/bcopy.c -o bin/bcopy
 
 bcounteach: setup
 	gcc $(CFLAGS) vendor/lz4.c src/bcounteach.c -o bin/bcounteach
@@ -104,20 +119,9 @@ bunzip: setup
 bzip: setup
 	gcc $(CFLAGS) vendor/lz4.c src/bzip.c -o bin/bzip
 
-_copy: setup
-	gcc $(CFLAGS) vendor/lz4.c src/_copy.c -o bin/_copy
-
-_csv: setup
-	gcc $(CFLAGS) vendor/lz4.c src/_csv.c -o bin/_csv
-
 csv: setup
 	gcc $(CFLAGS) vendor/lz4.c src/csv.c -o bin/csv
 
-_gen_bsv: setup
-	gcc $(CFLAGS) vendor/lz4.c src/_gen_bsv.c -o bin/_gen_bsv
-
-_gen_csv: setup
-	gcc $(CFLAGS) vendor/lz4.c src/_gen_csv.c -o bin/_gen_csv
-
 xxh3: setup
 	gcc $(CFLAGS) vendor/lz4.c src/xxh3.c -o bin/xxh3
+

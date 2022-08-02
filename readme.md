@@ -178,7 +178,6 @@ types and schemas as a part of the data format.
 | -- | -- |
 | [bcat](#bcat) | cat some bsv files to csv |
 | [bcombine](#bcombine) | prepend a new column by combining values from existing columns |
-| [bcopy](#bcopy) | pass through data, to benchmark load/dump performance |
 | [bcounteach](#bcounteach) | count as i64 each contiguous identical row by the first column |
 | [bcounteach-hash](#bcounteach-hash) | count as i64 by hash of the first column |
 | [bcountrows](#bcountrows) | count rows as i64 |
@@ -238,19 +237,6 @@ usage: ... | bcombine COL1,...,COLN
 ```bash
 >> echo a,b,c | bsv | bcombine 3,2 | csv
 b:a,a,b,c
-```
-
-### [bcopy](https://github.com/nathants/bsv/blob/master/src/bcopy.c)
-
-pass through data, to benchmark load/dump performance
-
-```bash
-usage: ... | bcopy
-```
-
-```bash
->> echo a,b,c | bsv | bcopy | csv
-a,b,c
 ```
 
 ### [bcounteach](https://github.com/nathants/bsv/blob/master/src/bcounteach.c)
