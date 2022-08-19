@@ -157,7 +157,6 @@ void _sigpipe_handler(int signum) {
         fprintf(stderr, "%s\n", VERSION_GIT_HASH);                                  \
         fprintf(stderr, "%s\n", VERSION_DATE);                                      \
         fprintf(stderr, "%s\n", VERSION_COMPILER);                                  \
-        fprintf(stderr, "%s\n", VERSION_ARCH);                                      \
         exit(1);                                                                    \
     }
 
