@@ -156,7 +156,6 @@ void _sigpipe_handler(int signum) {
     if (!strcmp(argv[argc - 1], "-v") || !strcmp(argv[argc - 1], "--version")) {    \
         fprintf(stderr, "%s\n", VERSION_GIT_HASH);                                  \
         fprintf(stderr, "%s\n", VERSION_DATE);                                      \
-        fprintf(stderr, "%s\n", VERSION_COMPILER);                                  \
         exit(1);                                                                    \
     }
 
