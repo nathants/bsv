@@ -1,6 +1,6 @@
 .PHONY: all clean test
 CFLAGS=${CC_EXTRA} -Wno-int-conversion -Wno-incompatible-pointer-types -Wno-discarded-qualifiers -Iutil -Ivendor -flto -O3 -march=native -mtune=native -lm
-ALL=clean docs _bcopy _bcopyraw _copy _csv _gen_bsv _gen_csv bcat bcombine bcounteach bcounteach-hash bcountrows bcut bdedupe bdedupe-hash bdropuntil bhead blz4 blz4d bmerge bpartition bquantile-merge bquantile-sketch bschema bsort bsplit bsum bsumeach bsumeach-hash bsv btake btakeuntil btopn bunzip bzip csv xxh3
+ALL=clean docs _bcopy _bcopyraw _copy _csv _gen_bsv _gen_csv _queue bcat bcombine bcounteach bcounteach-hash bcountrows bcut bdedupe bdedupe-hash bdropuntil bhead blz4 blz4d bmerge bpartition bquantile-merge bquantile-sketch bschema bsort bsplit bsum bsumeach bsumeach-hash bsv btake btakeuntil btopn bunzip bzip csv xxh3
 
 all: $(ALL)
 
@@ -34,6 +34,9 @@ _gen_bsv: setup
 
 _gen_csv: setup
 	gcc $(CFLAGS) vendor/lz4.c src/_gen_csv.c -o bin/_gen_csv
+
+_queue: setup
+	gcc $(CFLAGS) vendor/lz4.c src/_queue.c -o bin/_queue
 
 bcat: setup
 	gcc $(CFLAGS) vendor/lz4.c src/bcat.c -o bin/bcat
@@ -124,4 +127,3 @@ csv: setup
 
 xxh3: setup
 	gcc $(CFLAGS) vendor/lz4.c src/xxh3.c -o bin/xxh3
-
