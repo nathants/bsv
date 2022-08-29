@@ -1,7 +1,7 @@
 #include "util.h"
 #include "load.h"
 #include "dump.h"
-#include "fastmap.h"
+#include "map.h"
 
 #define DESCRIPTION "dedupe rows by hash of the first column, keeping the first\n\n"
 #define USAGE "... | bdedupe-hash\n\n"
@@ -16,16 +16,17 @@ int main(int argc, char **argv) {
 
     // setup state
     row_t row;
-    FASTMAP_INIT(dupes, u8, 1<<16);
+    MAP_INIT(dupes, u8, 1<<16);
+    MAP_ALLOC(dupes, u8);
 
     // process input row by row
     while (1) {
         load_next(&rbuf, &row, 0);
         if (row.stop)
             break;
-        FASTMAP_SET_INDEX(dupes, row.columns[0], row.sizes[0], u8);
-        if (FASTMAP_VALUE(dupes) == 0) {
-            FASTMAP_VALUE(dupes) = 1;
+        MAP_SET_INDEX(dupes, row.columns[0], row.sizes[0], u8);
+        if (MAP_VALUE(dupes) == 0) {
+            MAP_VALUE(dupes) = 1;
             dump(&wbuf, &row, 0);
         }
     }
