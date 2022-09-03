@@ -59,7 +59,7 @@
             if (size > map##_keys_buf_remaining) {														\
                 MAP_GROW_KEY_BUF(map);                                                                  \
             }																							\
-            ASSERT(size <= map##_keys_buf_remaining, "fatal: fastmap key buf overflow\n");				\
+            ASSERT(size <= map##_keys_buf_remaining, "fatal: map key buf overflow\n");					\
             map##_keys[map##_index] = map##_keys_buf + (MAP_KEY_BUF_SIZE - map##_keys_buf_remaining);   \
             memcpy(map##_keys[map##_index], key, size);													\
             map##_keys_buf_remaining -= size;															\
