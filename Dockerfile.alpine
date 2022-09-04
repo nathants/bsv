@@ -1,0 +1,25 @@
+FROM alpine:edge
+
+RUN apk update && apk upgrade && apk add \
+    python3-dev \
+    py3-numpy \
+    coreutils \
+    make \
+    bash \
+    curl \
+    git \
+    rsync \
+    musl-dev \
+    gcc
+
+RUN python3 -m ensurepip
+
+RUN python3 -m pip install \
+    git+https://github.com/nathants/py-util \
+    git+https://github.com/nathants/py-shell \
+    git+https://github.com/nathants/py-pool \
+    git+https://github.com/nathants/cffi-xxh3 \
+    hypothesis \
+    pytest \
+    pytest-timeout \
+    pytest-xdist

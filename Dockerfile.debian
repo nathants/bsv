@@ -1,0 +1,20 @@
+FROM debian:testing
+
+RUN apt update && apt upgrade -y && apt install -y \
+    python3-pip \
+    python3-numpy \
+    make \
+    git \
+    rsync \
+    build-essential \
+    gcc
+
+RUN python3 -m pip install \
+    git+https://github.com/nathants/py-util \
+    git+https://github.com/nathants/py-shell \
+    git+https://github.com/nathants/py-pool \
+    git+https://github.com/nathants/cffi-xxh3 \
+    hypothesis \
+    pytest \
+    pytest-timeout \
+    pytest-xdist
