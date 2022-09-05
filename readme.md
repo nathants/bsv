@@ -64,9 +64,19 @@ note: for best pipeline performance increase maximum pipe size
 ```
 
 ```bash
->> docker build . -t bsv
->> docker run --rm -it bsv bash -c 'pacman -Sy --noconfirm git rsync python-tox && cd /code && tox'
+>> docker build -t bsv:debian -f Dockerfile.debian .
+
+>> docker run -v $(pwd):/code --rm -it bsv:debian bash -c 'cd /code && py.test -vvx --tb native -n auto test/'
 ```
+
+```bash
+>> docker build -t bsv:alpine -f Dockerfile.alpine .
+
+>> docker run -v $(pwd):/code --rm -it bsv:alpine bash -c 'cd /code && py.test -vvx --tb native -n auto test/'
+```
+
+increase the number of generated tests cases with environment variable: `TEST_FACTOR=5`
+
 ## example
 
 add `bsumall.c` to `bsv/src/`:
