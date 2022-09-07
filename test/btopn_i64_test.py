@@ -25,7 +25,7 @@ def teardown_module(m):
 def inputs(draw):
     n = draw(integers(min_value=1, max_value=16))
     num_columns = draw(integers(min_value=1, max_value=3))
-    column = integers(min_value=-9223372036854775807, max_value=9223372036854775807)
+    column = integers(min_value=-9223372036854775806, max_value=9223372036854775806)
     line = lists(column, min_size=num_columns, max_size=num_columns)
     lines = draw(lists(line))
     lines = [','.join(map(str, line)) for line in lines]

@@ -24,7 +24,7 @@ def teardown_module(m):
 @composite
 def inputs(draw):
     num_columns = draw(integers(min_value=1, max_value=3))
-    column = integers(min_value=-9223372036854775807, max_value=9223372036854775807)
+    column = integers(min_value=-9223372036854775806, max_value=9223372036854775806)
     line = lists(column, min_size=num_columns, max_size=num_columns)
     lines = draw(lists(line))
     lines = [','.join(map(str, line)) for line in lines]
@@ -41,6 +41,7 @@ def expected(csv):
 def test_props(csv):
     result = expected(csv)
     assert result == run(csv, 'bsv | bschema a:i64,... | bsort i64 | bcut 1 | bschema i64:a | csv')
+
 
 @given(inputs())
 @settings(database=ExampleDatabase(':memory:'), max_examples=100 * int(os.environ.get('TEST_FACTOR', 1)), deadline=os.environ.get("TEST_DEADLINE", 1000 * 60)) # type: ignore
