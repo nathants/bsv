@@ -18,112 +18,113 @@ test: setup
 	tox
 
 _bcopy: setup
-	gcc $(CFLAGS) vendor/lz4.c src/_bcopy.c -o bin/_bcopy
+	gcc vendor/lz4.c src/_bcopy.c -o bin/_bcopy $(CFLAGS)
 
 _bcopyraw: setup
-	gcc $(CFLAGS) vendor/lz4.c src/_bcopyraw.c -o bin/_bcopyraw
+	gcc vendor/lz4.c src/_bcopyraw.c -o bin/_bcopyraw $(CFLAGS)
 
 _copy: setup
-	gcc $(CFLAGS) vendor/lz4.c src/_copy.c -o bin/_copy
+	gcc vendor/lz4.c src/_copy.c -o bin/_copy $(CFLAGS)
 
 _csv: setup
-	gcc $(CFLAGS) vendor/lz4.c src/_csv.c -o bin/_csv
+	gcc vendor/lz4.c src/_csv.c -o bin/_csv $(CFLAGS)
 
 _gen_bsv: setup
-	gcc $(CFLAGS) vendor/lz4.c src/_gen_bsv.c -o bin/_gen_bsv
+	gcc vendor/lz4.c src/_gen_bsv.c -o bin/_gen_bsv $(CFLAGS)
 
 _gen_csv: setup
-	gcc $(CFLAGS) vendor/lz4.c src/_gen_csv.c -o bin/_gen_csv
+	gcc vendor/lz4.c src/_gen_csv.c -o bin/_gen_csv $(CFLAGS)
 
 _queue: setup
-	gcc $(CFLAGS) vendor/lz4.c src/_queue.c -o bin/_queue
+	gcc vendor/lz4.c src/_queue.c -o bin/_queue $(CFLAGS)
 
 bcat: setup
-	gcc $(CFLAGS) vendor/lz4.c src/bcat.c -o bin/bcat
+	gcc vendor/lz4.c src/bcat.c -o bin/bcat $(CFLAGS)
 
 bcombine: setup
-	gcc $(CFLAGS) vendor/lz4.c src/bcombine.c -o bin/bcombine
+	gcc vendor/lz4.c src/bcombine.c -o bin/bcombine $(CFLAGS)
 
 bcounteach: setup
-	gcc $(CFLAGS) vendor/lz4.c src/bcounteach.c -o bin/bcounteach
+	gcc vendor/lz4.c src/bcounteach.c -o bin/bcounteach $(CFLAGS)
 
 bcounteach-hash: setup
-	gcc $(CFLAGS) vendor/lz4.c src/bcounteach_hash.c -o bin/bcounteach-hash
+	gcc vendor/lz4.c src/bcounteach_hash.c -o bin/bcounteach-hash $(CFLAGS)
 
 bcountrows: setup
-	gcc $(CFLAGS) vendor/lz4.c src/bcountrows.c -o bin/bcountrows
+	gcc vendor/lz4.c src/bcountrows.c -o bin/bcountrows $(CFLAGS)
 
 bcut: setup
-	gcc $(CFLAGS) vendor/lz4.c src/bcut.c -o bin/bcut
+	gcc vendor/lz4.c src/bcut.c -o bin/bcut $(CFLAGS)
 
 bdedupe: setup
-	gcc $(CFLAGS) vendor/lz4.c src/bdedupe.c -o bin/bdedupe
+	gcc vendor/lz4.c src/bdedupe.c -o bin/bdedupe $(CFLAGS)
 
 bdedupe-hash: setup
-	gcc $(CFLAGS) vendor/lz4.c src/bdedupe_hash.c -o bin/bdedupe-hash
+	gcc vendor/lz4.c src/bdedupe_hash.c -o bin/bdedupe-hash $(CFLAGS)
 
 bdropuntil: setup
-	gcc $(CFLAGS) vendor/lz4.c src/bdropuntil.c -o bin/bdropuntil
+	gcc vendor/lz4.c src/bdropuntil.c -o bin/bdropuntil $(CFLAGS)
 
 bhead: setup
-	gcc $(CFLAGS) vendor/lz4.c src/bhead.c -o bin/bhead
+	gcc vendor/lz4.c src/bhead.c -o bin/bhead $(CFLAGS)
 
 blz4: setup
-	gcc $(CFLAGS) vendor/lz4.c src/blz4.c -o bin/blz4
+	gcc vendor/lz4.c src/blz4.c -o bin/blz4 $(CFLAGS)
 
 blz4d: setup
-	gcc $(CFLAGS) vendor/lz4.c src/blz4d.c -o bin/blz4d
+	gcc vendor/lz4.c src/blz4d.c -o bin/blz4d $(CFLAGS)
 
 bmerge: setup
-	gcc $(CFLAGS) vendor/lz4.c src/bmerge.c -o bin/bmerge
+	gcc vendor/lz4.c src/bmerge.c -o bin/bmerge $(CFLAGS)
 
 bpartition: setup
-	gcc $(CFLAGS) vendor/lz4.c src/bpartition.c -o bin/bpartition
+	gcc vendor/lz4.c src/bpartition.c -o bin/bpartition $(CFLAGS)
 
 bquantile-merge: setup
-	gcc $(CFLAGS) vendor/lz4.c src/bquantile_merge.c -o bin/bquantile-merge
+	gcc vendor/lz4.c src/bquantile_merge.c -o bin/bquantile-merge $(CFLAGS)
 
 bquantile-sketch: setup
-	gcc $(CFLAGS) vendor/lz4.c src/bquantile_sketch.c -o bin/bquantile-sketch
+	gcc vendor/lz4.c src/bquantile_sketch.c -o bin/bquantile-sketch $(CFLAGS)
 
 bschema: setup
-	gcc $(CFLAGS) vendor/lz4.c src/bschema.c -o bin/bschema
+	gcc vendor/lz4.c src/bschema.c -o bin/bschema $(CFLAGS)
 
 bsort: setup
-	gcc $(CFLAGS) vendor/lz4.c src/bsort.c -o bin/bsort
+	gcc vendor/lz4.c src/bsort.c -o bin/bsort $(CFLAGS)
 
 bsplit: setup
-	gcc $(CFLAGS) vendor/lz4.c src/bsplit.c -o bin/bsplit
+	gcc vendor/lz4.c src/bsplit.c -o bin/bsplit $(CFLAGS)
 
 bsum: setup
-	gcc $(CFLAGS) vendor/lz4.c src/bsum.c -o bin/bsum
+	gcc vendor/lz4.c src/bsum.c -o bin/bsum $(CFLAGS)
 
 bsumeach: setup
-	gcc $(CFLAGS) vendor/lz4.c src/bsumeach.c -o bin/bsumeach
+	gcc vendor/lz4.c src/bsumeach.c -o bin/bsumeach $(CFLAGS)
 
 bsumeach-hash: setup
-	gcc $(CFLAGS) vendor/lz4.c src/bsumeach_hash.c -o bin/bsumeach-hash
+	gcc vendor/lz4.c src/bsumeach_hash.c -o bin/bsumeach-hash $(CFLAGS)
 
 bsv: setup
-	gcc $(CFLAGS) vendor/lz4.c src/bsv.c -o bin/bsv
+	gcc vendor/lz4.c src/bsv.c -o bin/bsv $(CFLAGS)
 
 btake: setup
-	gcc $(CFLAGS) vendor/lz4.c src/btake.c -o bin/btake
+	gcc vendor/lz4.c src/btake.c -o bin/btake $(CFLAGS)
 
 btakeuntil: setup
-	gcc $(CFLAGS) vendor/lz4.c src/btakeuntil.c -o bin/btakeuntil
+	gcc vendor/lz4.c src/btakeuntil.c -o bin/btakeuntil $(CFLAGS)
 
 btopn: setup
-	gcc $(CFLAGS) vendor/lz4.c src/btopn.c -o bin/btopn
+	gcc vendor/lz4.c src/btopn.c -o bin/btopn $(CFLAGS)
 
 bunzip: setup
-	gcc $(CFLAGS) vendor/lz4.c src/bunzip.c -o bin/bunzip
+	gcc vendor/lz4.c src/bunzip.c -o bin/bunzip $(CFLAGS)
 
 bzip: setup
-	gcc $(CFLAGS) vendor/lz4.c src/bzip.c -o bin/bzip
+	gcc vendor/lz4.c src/bzip.c -o bin/bzip $(CFLAGS)
 
 csv: setup
-	gcc $(CFLAGS) vendor/lz4.c src/csv.c -o bin/csv
+	gcc vendor/lz4.c src/csv.c -o bin/csv $(CFLAGS)
 
 xxh3: setup
-	gcc $(CFLAGS) vendor/lz4.c src/xxh3.c -o bin/xxh3
+	gcc vendor/lz4.c src/xxh3.c -o bin/xxh3 $(CFLAGS)
+

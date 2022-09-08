@@ -40,7 +40,7 @@ for path in src/*.c; do
         name=$(basename $path | cut -d. -f1 | tr '_' '-')
     fi
     echo "$name: setup" >> Makefile
-    echo -e "\tgcc \$(CFLAGS) vendor/lz4.c $path -o bin/$name" >> Makefile
+    echo -e "\tgcc vendor/lz4.c $path -o bin/$name \$(CFLAGS)" >> Makefile
 
     echo >> Makefile
     if ! cat .gitignore | grep ^$name$ &>/dev/null; then
