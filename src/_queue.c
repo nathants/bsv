@@ -27,6 +27,7 @@ int main(int argc, char **argv) {
 		} else if (strncmp(action, "put", 3) == 0) {
 			action += 4; // action = "put VALUE"
 			MALLOC(val, size - 4);
+			memset(val, 0, size - 4);
 			strncpy(val, action, size - 4);
 			if (queue_put(q, val)) {
 				printf("full\n");
