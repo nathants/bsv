@@ -1,9 +1,11 @@
 #include "util.h"
 #include "argh.h"
-#include "heap.h"
 #include "array.h"
 #include "load.h"
 #include "dump.h"
+
+#define HEAP_COMPARE(meta, x, y) compare(meta, ((raw_row_t*)x)->buffer, ((raw_row_t*)y)->buffer) > 0
+#include "heap.h"
 
 #define DESCRIPTION "accumulate the top n rows in a heap by first column value\n\n"
 #define USAGE "... | btopn N [TYPE] [-r|--reversed]\n\n"
@@ -59,41 +61,8 @@ int main(int argc, char **argv) {
     // setup state
     row_t row;
     raw_row_t *raw_row;
-    heap h;
-    switch (value_type) {
-        // normal
-        case STR: heap_create(&h, top_n, compare_str); break;
-        case I64: heap_create(&h, top_n, compare_i64); break;
-        case I32: heap_create(&h, top_n, compare_i32); break;
-        case I16: heap_create(&h, top_n, compare_i16); break;
-        case U64: heap_create(&h, top_n, compare_u64); break;
-        case U32: heap_create(&h, top_n, compare_u32); break;
-        case U16: heap_create(&h, top_n, compare_u16); break;
-        case F64: heap_create(&h, top_n, compare_f64); break;
-        case F32: heap_create(&h, top_n, compare_f32); break;
-        // reverse
-        case R_STR: heap_create(&h, top_n, compare_r_str); break;
-        case R_I64: heap_create(&h, top_n, compare_r_i64); break;
-        case R_I32: heap_create(&h, top_n, compare_r_i32); break;
-        case R_I16: heap_create(&h, top_n, compare_r_i16); break;
-        case R_U64: heap_create(&h, top_n, compare_r_u64); break;
-        case R_U32: heap_create(&h, top_n, compare_r_u32); break;
-        case R_U16: heap_create(&h, top_n, compare_r_u16); break;
-        case R_F64: heap_create(&h, top_n, compare_r_f64); break;
-        case R_F32: heap_create(&h, top_n, compare_r_f32); break;
-    }
-
-    // seed the heap with the first N rows of input
-    for (i32 i = 0; i < top_n; i++) {
-        load_next(&rbuf, &row, 0);
-        if (row.stop)
-            break;
-        ASSERT_SIZE(value_type, row.sizes[0]);
-        MALLOC(raw_row, sizeof(raw_row_t));
-        row_to_raw_malloc(&row, raw_row);
-        heap_insert(&h, raw_row->buffer, raw_row);
-    }
-    top_n = heap_size(&h);
+    heap_t h = {0};
+	h.meta = value_type;
 
     // process input row by row
     while (1) {
@@ -101,27 +70,22 @@ int main(int argc, char **argv) {
         if (row.stop)
             break;
         ASSERT_SIZE(value_type, row.sizes[0]);
-        ASSERT(1 == heap_min(&h, NULL, &raw_row), "fatal: heap_min failed\n");
-        if (compare(value_type, row.columns[0], raw_row->buffer) > 0) {
-            ASSERT(1 == heap_delmin(&h, NULL, &raw_row), "fatal: heap_delmin failed\n");
-            raw_row_free(raw_row);
-            row_to_raw_malloc(&row, raw_row);
-            heap_insert(&h, raw_row->buffer, raw_row);
-        }
+		MALLOC(raw_row, sizeof(raw_row_t));
+		row_to_raw_malloc(&row, raw_row);
+		heap_insert(&h, raw_row);
+		if (h.size > top_n * 128) // amortize truncation cost, 128 is abitrary
+			heap_truncate(&h, top_n);
     }
 
     // dump output
-    i32 i = 0;
-    raw_row_t *rows[top_n];
-    while (1) {
-        if (!heap_size(&h))
+    i32 i = top_n;
+    while (i--) {
+        if (!h.size)
             break;
-        ASSERT(1 == heap_delmin(&h, NULL, &raw_row), "fatal: heap_delmin failed\n");
-        ASSERT(i < top_n, "fatal: topn\n");
-        rows[i++] = raw_row;
+		raw_row = (raw_row_t*)h.nodes[0];
+		dump_raw(&wbuf, raw_row, 0);
+		heap_delete(&h);
     }
-    for (i32 i = top_n - 1; i >= 0; i--)
-        dump_raw(&wbuf, rows[i], 0);
     dump_flush(&wbuf, 0);
 
 }

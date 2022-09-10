@@ -1,9 +1,11 @@
 #include "util.h"
 #include "argh.h"
-#include "heap.h"
 #include "array.h"
 #include "load.h"
 #include "dump.h"
+
+#define HEAP_COMPARE(meta, x, y) compare(meta, ((raw_row_t*)x)->buffer, ((raw_row_t*)y)->buffer) < 0
+#include "heap.h"
 
 #define DESCRIPTION "merge sorted files from stdin\n\n"
 #define USAGE "echo FILE1 ... FILEN | bmerge [TYPE] [-r|--reversed] [-l|--lz4]\n\n"
@@ -88,29 +90,8 @@ int main(int argc, char **argv) {
     // setup state
     row_t row;
     raw_row_t *raw_row;
-    heap h;
-    switch (value_type) {
-        // normal
-        case STR: heap_create(&h, ARRAY_SIZE(files), compare_str); break;
-        case I64: heap_create(&h, ARRAY_SIZE(files), compare_i64); break;
-        case I32: heap_create(&h, ARRAY_SIZE(files), compare_i32); break;
-        case I16: heap_create(&h, ARRAY_SIZE(files), compare_i16); break;
-        case U64: heap_create(&h, ARRAY_SIZE(files), compare_u64); break;
-        case U32: heap_create(&h, ARRAY_SIZE(files), compare_u32); break;
-        case U16: heap_create(&h, ARRAY_SIZE(files), compare_u16); break;
-        case F64: heap_create(&h, ARRAY_SIZE(files), compare_f64); break;
-        case F32: heap_create(&h, ARRAY_SIZE(files), compare_f32); break;
-        // reverse
-        case R_STR: heap_create(&h, ARRAY_SIZE(files), compare_r_str); break;
-        case R_I64: heap_create(&h, ARRAY_SIZE(files), compare_r_i64); break;
-        case R_I32: heap_create(&h, ARRAY_SIZE(files), compare_r_i32); break;
-        case R_I16: heap_create(&h, ARRAY_SIZE(files), compare_r_i16); break;
-        case R_U64: heap_create(&h, ARRAY_SIZE(files), compare_r_u64); break;
-        case R_U32: heap_create(&h, ARRAY_SIZE(files), compare_r_u32); break;
-        case R_U16: heap_create(&h, ARRAY_SIZE(files), compare_r_u16); break;
-        case R_F64: heap_create(&h, ARRAY_SIZE(files), compare_r_f64); break;
-        case R_F32: heap_create(&h, ARRAY_SIZE(files), compare_r_f32); break;
-    }
+    heap_t h = {0};
+	h.meta = value_type;
 
     // seed the heap with the first row of each input
     for (i32 i = 0; i < ARRAY_SIZE(files); i++) {
@@ -121,16 +102,17 @@ int main(int argc, char **argv) {
         MALLOC(raw_row, sizeof(raw_row_t));
         row_to_raw(&row, raw_row);
         raw_row->meta = i;
-        heap_insert(&h, raw_row->buffer, raw_row);
+        heap_insert(&h, (u8*)raw_row);
     }
 
     // process input row by row
     while (1) {
-        if (!heap_size(&h))
+        if (!h.size)
             break;
-        ASSERT(1 == heap_delmin(&h, NULL, &raw_row), "fatal: heap_delmin failed\n");
+		raw_row = (raw_row_t*)h.nodes[0];
         i32 i = raw_row->meta;
         dump_raw(&wbuf, raw_row, 0);
+		heap_delete(&h);
         load_next(&rbuf, &row, i);
         if (row.stop) {
             continue;
@@ -138,7 +120,7 @@ int main(int argc, char **argv) {
             ASSERT_SIZE(value_type, row.sizes[0]);
             row_to_raw(&row, raw_row);
             raw_row->meta = i;
-            heap_insert(&h, raw_row->buffer, raw_row);
+            heap_insert(&h, (u8*)raw_row);
         }
     }
     dump_flush(&wbuf, 0);
