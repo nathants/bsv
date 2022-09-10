@@ -1,10 +1,7 @@
 #pragma once
 
-#if ! defined(__clang__)
 #define _GNU_SOURCE
 #include <fcntl.h>
-#endif
-
 #include <ctype.h>
 #include <limits.h>
 #include <signal.h>
@@ -29,16 +26,7 @@ typedef double   f64;
 
 #define DEBUG(...) fprintf(stderr, ##__VA_ARGS__)
 
-#if defined(__clang__)
-#define inlined static extern inline
-#else
 #define inlined static inline __attribute__((always_inline))
-#endif
-
-#if defined(__clang__)
-#define fread_unlocked fread
-#define fwrite_unlocked fwrite
-#endif
 
 i32 _i32;
 u16 _u16;
@@ -87,9 +75,6 @@ void _sigpipe_handler(int signum) {
         ASSERT(dst != NULL, "fatal: failed to reallocate memory\n");    \
     } while(0)
 
-#if defined(__clang__)
-#define INCREASE_PIPE_SIZES()
-#else
 // don't forget to increase system pipe size above the default: sudo sysctl fs.pipe-max-size=5242880
 #define DEFAULT_PIPE_SIZE 1024 * 1024
 #define INCREASE_PIPE_SIZE(fd)                      \
@@ -100,7 +85,6 @@ void _sigpipe_handler(int signum) {
     ASSERT(0 == setvbuf(stdout, NULL, _IONBF, 0), "fatal: failed to setvbuf\n");    \
     INCREASE_PIPE_SIZE(0);                                                          \
     INCREASE_PIPE_SIZE(1);
-#endif
 
 #define SNNPRINTF(n, file, ...)                 \
     do {                                        \
@@ -238,6 +222,7 @@ inlined int compare_u32  (const void *v1, const void *v2) { if (*(u32*)v1 < *(u3
 inlined int compare_u16  (const void *v1, const void *v2) { if (*(u16*)v1 < *(u16*)v2) { return -1; } else if (*(u16*)v1 > *(u16*)v2) { return 1; } else { return 0; } }
 inlined int compare_f64  (const void *v1, const void *v2) { if (*(f64*)v1 < *(f64*)v2) { return -1; } else if (*(f64*)v1 > *(f64*)v2) { return 1; } else { return 0; } }
 inlined int compare_f32  (const void *v1, const void *v2) { if (*(f32*)v1 < *(f32*)v2) { return -1; } else if (*(f32*)v1 > *(f32*)v2) { return 1; } else { return 0; } }
+
 // reverse
 inlined int compare_r_str(const void *v1, const void *v2) { return strcmp((u8*)v2, (u8*)v1); }
 inlined int compare_r_i64(const void *v1, const void *v2) { if (*(i64*)v2 < *(i64*)v1) { return -1; } else if (*(i64*)v2 > *(i64*)v1) { return 1; } else { return 0; } }
