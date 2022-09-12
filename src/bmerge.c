@@ -91,7 +91,7 @@ int main(int argc, char **argv) {
     row_t row;
     raw_row_t *raw_row;
     heap_t h = {0};
-	h.meta = value_type;
+    h.meta = value_type;
 
     // seed the heap with the first row of each input
     for (i32 i = 0; i < ARRAY_SIZE(files); i++) {
@@ -109,10 +109,10 @@ int main(int argc, char **argv) {
     while (1) {
         if (!h.size)
             break;
-		raw_row = (raw_row_t*)h.nodes[0];
+        raw_row = (raw_row_t*)h.nodes[0];
         i32 i = raw_row->meta;
         dump_raw(&wbuf, raw_row, 0);
-		heap_delete(&h);
+        heap_delete(&h);
         load_next(&rbuf, &row, i);
         if (row.stop) {
             continue;

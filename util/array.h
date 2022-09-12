@@ -2,10 +2,10 @@
 
 #define ARRAY_EXPAND_CAPACITY 1024 * 512
 
-#define ARRAY_INIT(array, type)						\
-	u64 array##_size = 0;							\
-	u64 array##_capacity = ARRAY_EXPAND_CAPACITY;	\
-	type *array;									\
+#define ARRAY_INIT(array, type)                        \
+    u64 array##_size = 0;                            \
+    u64 array##_capacity = ARRAY_EXPAND_CAPACITY;    \
+    type *array;                                    \
     MALLOC(array, sizeof(type) * array##_capacity);
 
 #define ARRAY_ADD(array, size, type)                            \

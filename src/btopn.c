@@ -62,7 +62,7 @@ int main(int argc, char **argv) {
     row_t row;
     raw_row_t *raw_row;
     heap_t h = {0};
-	h.meta = value_type;
+    h.meta = value_type;
 
     // process input row by row
     while (1) {
@@ -70,11 +70,11 @@ int main(int argc, char **argv) {
         if (row.stop)
             break;
         ASSERT_SIZE(value_type, row.sizes[0]);
-		MALLOC(raw_row, sizeof(raw_row_t));
-		row_to_raw_malloc(&row, raw_row);
-		heap_insert(&h, raw_row);
-		if (h.size > top_n * 128) // amortize truncation cost, 128 is abitrary
-			heap_truncate(&h, top_n);
+        MALLOC(raw_row, sizeof(raw_row_t));
+        row_to_raw_malloc(&row, raw_row);
+        heap_insert(&h, raw_row);
+        if (h.size > top_n * 128) // amortize truncation cost, 128 is abitrary
+            heap_truncate(&h, top_n);
     }
 
     // dump output
@@ -82,9 +82,9 @@ int main(int argc, char **argv) {
     while (i--) {
         if (!h.size)
             break;
-		raw_row = (raw_row_t*)h.nodes[0];
-		dump_raw(&wbuf, raw_row, 0);
-		heap_delete(&h);
+        raw_row = (raw_row_t*)h.nodes[0];
+        dump_raw(&wbuf, raw_row, 0);
+        heap_delete(&h);
     }
     dump_flush(&wbuf, 0);
 
