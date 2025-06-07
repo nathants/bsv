@@ -1,26 +1,26 @@
-# bsv
+# BSV
 
-## why
+## Why
 
-it should be simple and easy to process data at the speed of sequential io.
+It should be simple and easy to process data at the speed of sequential IO.
 
-## what
+## What
 
-a simple and efficient [data](https://github.com/nathants/bsv/blob/master/util/load.h) [format](https://github.com/nathants/bsv/blob/master/util/dump.h) for easily manipulating chunks of rows of columns while minimizing allocations and copies.
+A simple and efficient [data](https://github.com/nathants/bsv/blob/master/util/load.h) [format](https://github.com/nathants/bsv/blob/master/util/dump.h) for easily manipulating chunks of rows of columns while minimizing allocations and copies.
 
-minimal cli [tools](#tools) for rapidly composing performant data flow pipelines.
+Minimal CLI [tools](#tools) for rapidly composing performant data flow pipelines.
 
-## how
+## How
 
-column: 0-65536 bytes.
+Column: 0-65536 bytes.
 
-row: 0-65536 columns.
+Row: 0-65536 columns.
 
-chunk: up to 5MB containing 1 or more complete rows.
+Chunk: Up to 5MB containing 1 or more complete rows.
 
-note: row data cannot exceed chunk size.
+Note: Row data cannot exceed chunk size.
 
-## layout
+## Layout
 
 [chunk](https://github.com/nathants/bsv/blob/master/util/read.h):
 
@@ -34,11 +34,11 @@ note: row data cannot exceed chunk size.
 | u16:max | u16:size | ... | u8[]:column | ... |
 ```
 
-note: column bytes are always followed by a single null byte.
+Note: Column bytes are always followed by a single null byte.
 
-note: max is the maximum zero based index into the row.
+Note: Max is the maximum zero based index into the row.
 
-## install
+## Install
 
 ```bash
 >> curl https://raw.githubusercontent.com/nathants/bsv/master/scripts/install_archlinux.sh | bash
@@ -51,13 +51,13 @@ note: max is the maximum zero based index into the row.
 >> sudo mv -fv bin/* /usr/local/bin
 ```
 
-note: for best pipeline performance increase maximum pipe size
+Note: For best pipeline performance increase maximum pipe size
 
 ```bash
 >> sudo sysctl fs.pipe-max-size=5242880
 ```
 
-## test
+## Test
 
 ```bash
 >> tox
@@ -75,11 +75,11 @@ note: for best pipeline performance increase maximum pipe size
 >> docker run -v $(pwd):/code --rm -it bsv:alpine bash -c 'cd /code && py.test -vvx --tb native -n auto test/'
 ```
 
-increase the number of generated tests cases with environment variable: `TEST_FACTOR=5`
+Increase the number of generated tests cases with environment variable: `TEST_FACTOR=5`
 
-## example
+## Example
 
-add `bsumall.c` to `bsv/src/`:
+Add `bsumall.c` to `bsv/src/`:
 
 ```c
 #include "util.h"
@@ -127,7 +127,7 @@ int main(int argc, char **argv) {
 }
 ```
 
-build and run:
+Build and run:
 
 ```bash
 >> ./scripts/makefile.sh
@@ -146,80 +146,80 @@ usage: ... | bsumall
 4,6
 ```
 
-## non goals
+## Non Goals
 
-support of hardware other than little endian.
+Support of hardware other than little endian.
 
-types and schemas as a part of the data format.
+Types and schemas as a part of the data format.
 
-## testing methodology
+## Testing Methodology
 
-[quickcheck](https://hypothesis.readthedocs.io/en/latest/) style [testing](https://github.com/nathants/bsv/blob/master/test) with python implementations to verify correct behavior for arbitrary inputs and varying buffer sizes.
+[Quickcheck](https://hypothesis.readthedocs.io/en/latest/) style [testing](https://github.com/nathants/bsv/blob/master/test) with Python implementations to verify correct behavior for arbitrary inputs and varying buffer sizes.
 
-## experiments
+## Experiments
 
-[performance](https://github.com/nathants/bsv/blob/master/experiments/) experiments and alternate implementations.
+[Performance](https://github.com/nathants/bsv/blob/master/experiments/) experiments and alternate implementations.
 
-## related projects
+## Related Projects
 
-[s4](https://github.com/nathants/s4) - a storage cluster that is cheap and fast, with data local compute and efficient shuffle.
+[s4](https://github.com/nathants/s4) - A storage cluster that is cheap and fast, with data local compute and efficient shuffle.
 
-## related posts
+## Related Posts
 
-[optimizing a bsv data processing pipeline](https://nathants.com/posts/optimizing-a-bsv-data-processing-pipeline)
+[Optimizing A Bsv Data Processing Pipeline](https://nathants.com/posts/optimizing-a-bsv-data-processing-pipeline)
 
-[performant batch processing with bsv, s4, and presto](https://nathants.com/posts/performant-batch-processing-with-bsv-s4-and-presto)
+[Performant Batch Processing With Bsv, S4, And Presto](https://nathants.com/posts/performant-batch-processing-with-bsv-s4-and-presto)
 
-[discovering a baseline for data processing performance](https://nathants.com/posts/discovering-a-baseline-for-data-processing-performance)
+[Discovering A Baseline For Data Processing Performance](https://nathants.com/posts/discovering-a-baseline-for-data-processing-performance)
 
-[refactoring common distributed data patterns into s4](https://nathants.com/posts/refactoring-common-distributed-data-patterns-into-s4)
+[Refactoring Common Distributed Data Patterns Into S4](https://nathants.com/posts/refactoring-common-distributed-data-patterns-into-s4)
 
-[scaling python data processing horizontally](https://nathants.com/posts/scaling-python-data-processing-horizontally)
+[Scaling Python Data Processing Horizontally](https://nathants.com/posts/scaling-python-data-processing-horizontally)
 
-[scaling python data processing vertically](https://nathants.com/posts/scaling-python-data-processing-vertically)
+[Scaling Python Data Processing Vertically](https://nathants.com/posts/scaling-python-data-processing-vertically)
 
-## more examples
+## More Examples
 
-[structured analysis of nyc taxi data with bsv and hive](https://github.com/nathants/s4/blob/master/examples/nyc_taxi_bsv)
+[Structured Analysis Of NYC Taxi Data With Bsv And Hive](https://github.com/nathants/s4/blob/master/examples/nyc_taxi_bsv)
 
-## tools
+## Tools
 
 | name | description |
 | -- | -- |
-| [bcat](#bcat) | cat some bsv files to csv |
-| [bcombine](#bcombine) | prepend a new column by combining values from existing columns |
-| [bcounteach](#bcounteach) | count as i64 each contiguous identical row by the first column |
-| [bcounteach-hash](#bcounteach-hash) | count as i64 by hash of the first column |
-| [bcountrows](#bcountrows) | count rows as i64 |
-| [bcut](#bcut) | select some columns |
-| [bdedupe](#bdedupe) | dedupe identical contiguous rows by the first column, keeping the first |
-| [bdedupe-hash](#bdedupe-hash) | dedupe rows by hash of the first column, keeping the first |
-| [bdropuntil](#bdropuntil) | for sorted input, drop until the first column is gte to VALUE |
-| [bhead](#bhead) | keep the first n rows |
-| [blz4](#blz4) | compress bsv data |
-| [blz4d](#blz4d) | decompress bsv data |
-| [bmerge](#bmerge) | merge sorted files from stdin |
-| [bpartition](#bpartition) | split into multiple files by consistent hash of the first column value |
-| [bquantile-merge](#bquantile-merge) | merge ddsketches and output quantile value pairs as f64 |
-| [bquantile-sketch](#bquantile-sketch) | collapse the first column into a single row ddsketch |
-| [bschema](#bschema) | validate and converts row data with a schema of columns |
-| [bsort](#bsort) | timsort rows by the first column |
-| [bsplit](#bsplit) | split a stream into multiple files |
-| [bsum](#bsum) | sum the first column |
-| [bsumeach](#bsumeach) | sum the second column of each contiguous identical row by the first column |
-| [bsumeach-hash](#bsumeach-hash) | sum as i64 the second column by hash of the first column |
-| [bsv](#bsv) | convert csv to bsv |
-| [btake](#btake) | take while the first column is VALUE |
-| [btakeuntil](#btakeuntil) | for sorted input, take until the first column is gte to VALUE |
-| [btopn](#btopn) | accumulate the top n rows in a heap by first column value |
-| [bunzip](#bunzip) | split a multi column input into single column outputs |
-| [bzip](#bzip) | combine single column inputs into a multi column output |
-| [csv](#csv) | convert bsv to csv |
-| [xxh3](#xxh3) | xxh3_64 hash stdin |
+| [bcat](#bcat) | Cat some BSV files to CSV |
+| [bcombine](#bcombine) | Prepend a new column by combining values from existing columns |
+| [bcounteach](#bcounteach) | Count as i64 each contiguous identical row by the first column |
+| [bcounteach-hash](#bcounteach-hash) | Count as i64 by hash of the first column |
+| [bcountrows](#bcountrows) | Count rows as i64 |
+| [bcut](#bcut) | Select some columns |
+| [bdedupe](#bdedupe) | Dedupe identical contiguous rows by the first column, keeping the first |
+| [bdedupe-hash](#bdedupe-hash) | Dedupe rows by hash of the first column, keeping the first |
+| [bdropuntil](#bdropuntil) | For sorted input, drop until the first column is GTE to VALUE |
+| [bhead](#bhead) | Keep the first n rows |
+| [blz4](#blz4) | Compress BSV data |
+| [blz4d](#blz4d) | Decompress BSV data |
+| [bmerge](#bmerge) | Merge sorted files from stdin |
+| [bpartition](#bpartition) | Split into multiple files by consistent hash of the first column value |
+| [bquantile-merge](#bquantile-merge) | Merge DDSketches and output quantile value pairs as f64 |
+| [bquantile-sketch](#bquantile-sketch) | Collapse the first column into a single row DDSketch |
+| [bschema](#bschema) | Validate and converts row data with a schema of columns |
+| [bsort](#bsort) | TimSort rows by the first column |
+| [bsplit](#bsplit) | Split a stream into multiple files |
+| [bsum](#bsum) | Sum the first column |
+| [bsumeach](#bsumeach) | Sum the second column of each contiguous identical row by the first column |
+| [bsumeach-hash](#bsumeach-hash) | Sum as i64 the second column by hash of the first column |
+| [bsv](#bsv) | Convert CSV to BSV |
+| [btake](#btake) | Take while the first column is VALUE |
+| [btakeuntil](#btakeuntil) | For sorted input, take until the first column is GTE to VALUE |
+| [btopn](#btopn) | Accumulate the top n rows in a heap by first column value |
+| [bunzip](#bunzip) | Split a multi column input into single column outputs |
+| [bzip](#bzip) | Combine single column inputs into a multi column output |
+| [csv](#csv) | Convert BSV to CSV |
+| [xxh3](#xxh3) | XXH3_64 hash stdin |
 
 ### [bcat](https://github.com/nathants/bsv/blob/master/src/bcat.c)
 
-cat some bsv files to csv
+Cat some BSV files to CSV
 
 ```bash
 usage: bcat [-l|--lz4] [-p|--prefix] [-h N|--head N] FILE1 ... FILEN
@@ -238,7 +238,7 @@ usage: bcat [-l|--lz4] [-p|--prefix] [-h N|--head N] FILE1 ... FILEN
 
 ### [bcombine](https://github.com/nathants/bsv/blob/master/src/bcombine.c)
 
-prepend a new column by combining values from existing columns
+Prepend a new column by combining values from existing columns
 
 ```bash
 usage: ... | bcombine COL1,...,COLN
@@ -251,7 +251,7 @@ b:a,a,b,c
 
 ### [bcounteach](https://github.com/nathants/bsv/blob/master/src/bcounteach.c)
 
-count as i64 each contiguous identical row by the first column
+Count as i64 each contiguous identical row by the first column
 
 ```bash
 usage: ... | bcounteach
@@ -273,7 +273,7 @@ a,1
 
 ### [bcounteach-hash](https://github.com/nathants/bsv/blob/master/src/bcounteach_hash.c)
 
-count as i64 by hash of the first column
+Count as i64 by hash of the first column
 
 ```bash
 usage: ... | bcounteach-hash
@@ -294,7 +294,7 @@ b,3
 
 ### [bcountrows](https://github.com/nathants/bsv/blob/master/src/bcountrows.c)
 
-count rows as i64
+Count rows as i64
 
 ```bash
 usage: ... | bcountrows
@@ -312,7 +312,7 @@ usage: ... | bcountrows
 
 ### [bcut](https://github.com/nathants/bsv/blob/master/src/bcut.c)
 
-select some columns
+Select some columns
 
 ```bash
 usage: ... | bcut COL1,...,COLN
@@ -325,7 +325,7 @@ c,c,c,b,b,a
 
 ### [bdedupe](https://github.com/nathants/bsv/blob/master/src/bdedupe.c)
 
-dedupe identical contiguous rows by the first column, keeping the first
+Dedupe identical contiguous rows by the first column, keeping the first
 
 ```bash
 usage: ... | bdedupe
@@ -347,7 +347,7 @@ a
 
 ### [bdedupe-hash](https://github.com/nathants/bsv/blob/master/src/bdedupe_hash.c)
 
-dedupe rows by hash of the first column, keeping the first
+Dedupe rows by hash of the first column, keeping the first
 
 ```bash
 usage: ... | bdedupe-hash
@@ -368,7 +368,7 @@ b
 
 ### [bdropuntil](https://github.com/nathants/bsv/blob/master/src/bdropuntil.c)
 
-for sorted input, drop until the first column is gte to VALUE
+For sorted input, drop until the first column is GTE to VALUE
 
 ```bash
 usage: ... | bdropuntil VALUE [TYPE]
@@ -387,7 +387,7 @@ d
 
 ### [bhead](https://github.com/nathants/bsv/blob/master/src/bhead.c)
 
-keep the first n rows
+Keep the first n rows
 
 ```bash
 usage: ... | bhead N
@@ -405,7 +405,7 @@ b
 
 ### [blz4](https://github.com/nathants/bsv/blob/master/src/blz4.c)
 
-compress bsv data
+Compress BSV data
 
 ```bash
 usage: ... | blz4
@@ -418,7 +418,7 @@ a,b,c
 
 ### [blz4d](https://github.com/nathants/bsv/blob/master/src/blz4d.c)
 
-decompress bsv data
+Decompress BSV data
 
 ```bash
 usage: ... | blz4d
@@ -431,7 +431,7 @@ a,b,c
 
 ### [bmerge](https://github.com/nathants/bsv/blob/master/src/bmerge.c)
 
-merge sorted files from stdin
+Merge sorted files from stdin
 
 ```bash
 usage: echo FILE1 ... FILEN | bmerge [TYPE] [-r|--reversed] [-l|--lz4]
@@ -457,7 +457,7 @@ f
 
 ### [bpartition](https://github.com/nathants/bsv/blob/master/src/bpartition.c)
 
-split into multiple files by consistent hash of the first column value
+Split into multiple files by consistent hash of the first column value
 
 ```bash
 usage: ... | bpartition NUM_BUCKETS [PREFIX] [-l|--lz4]
@@ -475,7 +475,7 @@ prefix06
 
 ### [bquantile-merge](https://github.com/nathants/bsv/blob/master/src/bquantile_merge.c)
 
-merge ddsketches and output quantile value pairs as f64
+Merge DDSketches and output quantile value pairs as f64
 
 ```bash
 usage: ... | bquantile-merge QUANTILES
@@ -490,7 +490,7 @@ usage: ... | bquantile-merge QUANTILES
 
 ### [bquantile-sketch](https://github.com/nathants/bsv/blob/master/src/bquantile_sketch.c)
 
-collapse the first column into a single row ddsketch
+Collapse the first column into a single row DDSketch
 
 ```bash
 usage: ... | bquantile-sketch TYPE [-a|--alpha] [-b|--max-bins] [-m|--min-value]
@@ -505,7 +505,7 @@ usage: ... | bquantile-sketch TYPE [-a|--alpha] [-b|--max-bins] [-m|--min-value]
 
 ### [bschema](https://github.com/nathants/bsv/blob/master/src/bschema.c)
 
-validate and converts row data with a schema of columns
+Validate and converts row data with a schema of columns
 
 ```bash
 usage: ... | bschema SCHEMA [--filter]
@@ -528,7 +528,7 @@ aa,bbb,cccc
 
 ### [bsort](https://github.com/nathants/bsv/blob/master/src/bsort.c)
 
-timsort rows by the first column
+TimSort rows by the first column
 
 ```bash
 usage: ... | bsort [-r|--reversed] [TYPE]
@@ -547,7 +547,7 @@ usage: ... | bsort [-r|--reversed] [TYPE]
 
 ### [bsplit](https://github.com/nathants/bsv/blob/master/src/bsplit.c)
 
-split a stream into multiple files
+Split a stream into multiple files
 
 ```bash
 usage: ... | bsplit PREFIX [chunks_per_file=1]
@@ -560,7 +560,7 @@ prefix_0000000000
 
 ### [bsum](https://github.com/nathants/bsv/blob/master/src/bsum.c)
 
-sum the first column
+Sum the first column
 
 ```bash
 usage: ... | bsum TYPE
@@ -578,7 +578,7 @@ usage: ... | bsum TYPE
 
 ### [bsumeach](https://github.com/nathants/bsv/blob/master/src/bsumeach.c)
 
-sum the second column of each contiguous identical row by the first column
+Sum the second column of each contiguous identical row by the first column
 
 ```bash
 usage: ... | bsumeach TYPE
@@ -600,7 +600,7 @@ a,6
 
 ### [bsumeach-hash](https://github.com/nathants/bsv/blob/master/src/bsumeach_hash.c)
 
-sum as i64 the second column by hash of the first column
+Sum as i64 the second column by hash of the first column
 
 ```bash
 usage: ... | bsumeach-hash i64
@@ -622,7 +622,7 @@ a,6
 
 ### [bsv](https://github.com/nathants/bsv/blob/master/src/bsv.c)
 
-convert csv to bsv
+Convert CSV to BSV
 
 ```bash
 usage: ... | bsv
@@ -635,7 +635,7 @@ c,b,a
 
 ### [btake](https://github.com/nathants/bsv/blob/master/src/btake.c)
 
-take while the first column is VALUE
+Take while the first column is VALUE
 
 ```bash
 usage: ... | btake VALUE
@@ -653,7 +653,7 @@ c
 
 ### [btakeuntil](https://github.com/nathants/bsv/blob/master/src/btakeuntil.c)
 
-for sorted input, take until the first column is gte to VALUE
+For sorted input, take until the first column is GTE to VALUE
 
 ```bash
 usage: ... | btakeuntil VALUE [TYPE]
@@ -672,7 +672,7 @@ b
 
 ### [btopn](https://github.com/nathants/bsv/blob/master/src/btopn.c)
 
-accumulate the top n rows in a heap by first column value
+Accumulate the top n rows in a heap by first column value
 
 ```bash
 usage: ... | btopn N [TYPE] [-r|--reversed]
@@ -690,7 +690,7 @@ usage: ... | btopn N [TYPE] [-r|--reversed]
 
 ### [bunzip](https://github.com/nathants/bsv/blob/master/src/bunzip.c)
 
-split a multi column input into single column outputs
+Split a multi column input into single column outputs
 
 ```bash
 usage: ... | bunzip PREFIX [-l|--lz4]
@@ -707,7 +707,7 @@ a,c
 
 ### [bzip](https://github.com/nathants/bsv/blob/master/src/bzip.c)
 
-combine single column inputs into a multi column output
+Combine single column inputs into a multi column output
 
 ```bash
 usage: ls column_* | bzip [COL1,...COLN] [-l|--lz4]
@@ -724,7 +724,7 @@ a,c
 
 ### [csv](https://github.com/nathants/bsv/blob/master/src/csv.c)
 
-convert bsv to csv
+Convert BSV to CSV
 
 ```bash
 usage: ... | csv
@@ -737,7 +737,7 @@ a,b,c
 
 ### [xxh3](https://github.com/nathants/bsv/blob/master/src/xxh3.c)
 
-xxh3_64 hash stdin
+XXH3_64 hash stdin
 
 ```bash
 usage: ... | xxh3 [--stream|--int]
